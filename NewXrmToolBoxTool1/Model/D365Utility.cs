@@ -11,13 +11,11 @@ namespace NewXrmToolBoxTool1.Model
 {
     public class D365Utility
     {
-        private CrmServiceClient _service;
-        //private string _url;
+        private readonly CrmServiceClient _service;
 
         public D365Utility(CrmServiceClient service)
         {
             _service = service;
-            //_url = url;
         }
 
         public EntityCollection GetRecords(string fetchQuery)
@@ -58,9 +56,9 @@ namespace NewXrmToolBoxTool1.Model
             {
                 Target = record
             };
-
             create.Parameters.Add("SuppressDuplicateDetection", duplicateDetection);
             CreateResponse response = (CreateResponse)_service.Execute(create);
+
             return response.id;
         }
 
@@ -81,7 +79,7 @@ namespace NewXrmToolBoxTool1.Model
                     }
                     else
                     {
-                        logger.Log("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name/* + "' in the instance '" + _url + "'"*/);
+                        logger.Log("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name);
                         logger.Log($"Creating a new record of '{refValue.LogicalName}' with name '{refValue.Name}'...");
 
                         EntityReference newLookupRecordRef = CreateNewLookupRecord(refValue, primaryField, sourceInstance);
@@ -107,9 +105,9 @@ namespace NewXrmToolBoxTool1.Model
                     }
                 }
             };
-
             EntityCollection records = _service.RetrieveMultiple(query);
             Entity record = records?.Entities.FirstOrDefault();
+
             return record;
         }
 

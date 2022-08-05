@@ -7,43 +7,6 @@ namespace NewXrmToolBoxTool1.Model
 {
     public class ConfigReader
     {
-        public static string GetNode(string key)
-        {
-            string value = null;
-
-            using (XmlReader reader = XmlReader.Create(Directory.GetCurrentDirectory() + @"\Config.xml"))
-            {
-                while (reader.Read())
-                {
-                    if (reader.IsStartElement())
-                    {
-                        if (reader.Name.ToString() == key)
-                            value = reader.ReadString();
-                    }
-                }
-            }
-
-            return value;
-        }
-
-        public static List<string> GetMultipleNodes(string key)
-        {
-            List<string> values = new List<string>();
-
-            using (XmlReader reader = XmlReader.Create(Directory.GetCurrentDirectory() + @"\Config.xml"))
-            {
-                while (reader.Read())
-                {
-                    if (reader.IsStartElement())
-                    {
-                        if (reader.Name.ToString() == key)
-                            values.Add(reader.ReadString());
-                    }
-                }
-            }
-            return values;
-        }
-
         public static string GetQuery(string entityName, out List<string> searchAttrs, string fetchPath)
         {
             // Load the xml file into XmlDocument object.
@@ -67,8 +30,8 @@ namespace NewXrmToolBoxTool1.Model
                         searchAttrs.Add(attr);
                 }
             }
-
             fetchXml = fetchXml.Replace("$", "");
+
             return fetchXml;
         }
 

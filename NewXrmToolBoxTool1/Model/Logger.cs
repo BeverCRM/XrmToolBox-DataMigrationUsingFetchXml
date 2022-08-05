@@ -27,7 +27,7 @@ namespace NewXrmToolBoxTool1
 
             _txtLogs.Text += text;
             _txtLogs.Text += Environment.NewLine;
-            File.AppendAllText(_logsPath, logText);//D:\\XrmToolbox\\Logs.txt Environment.NewLine
+            File.AppendAllText(_logsPath, logText);
             File.AppendAllText(_logsPath, Environment.NewLine);
         }
     }

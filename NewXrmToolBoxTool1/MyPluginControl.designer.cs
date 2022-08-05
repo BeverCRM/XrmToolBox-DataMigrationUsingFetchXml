@@ -91,7 +91,6 @@ namespace NewXrmToolBoxTool1
             this.TxtLogsPath.Name = "TxtLogsPath";
             this.TxtLogsPath.Size = new System.Drawing.Size(474, 20);
             this.TxtLogsPath.TabIndex = 5;
-            this.TxtLogsPath.TextChanged += new System.EventHandler(this.TxtLogsPath_TextChanged);
             this.TxtLogsPath.Leave += new System.EventHandler(this.TxtLogsPathLeave);
             // 
             // TxtFetchPath
@@ -101,7 +100,6 @@ namespace NewXrmToolBoxTool1
             this.TxtFetchPath.Name = "TxtFetchPath";
             this.TxtFetchPath.Size = new System.Drawing.Size(474, 20);
             this.TxtFetchPath.TabIndex = 5;
-            this.TxtFetchPath.TextChanged += new System.EventHandler(this.TxtFetchPath_TextChanged);
             this.TxtFetchPath.Leave += new System.EventHandler(this.TxtFetchPathLeave);
             // 
             // BtnBrowseLogs
@@ -144,8 +142,8 @@ namespace NewXrmToolBoxTool1
             // 
             // TxtLogs
             // 
-            this.TxtLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.TxtLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtLogs.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.TxtLogs.Location = new System.Drawing.Point(23, 492);
@@ -155,7 +153,6 @@ namespace NewXrmToolBoxTool1
             this.TxtLogs.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.TxtLogs.Size = new System.Drawing.Size(1312, 197);
             this.TxtLogs.TabIndex = 8;
-            this.TxtLogs.TextChanged += new System.EventHandler(this.TxtLogs_TextChanged);
             // 
             // vScrollBar1
             // 
@@ -189,7 +186,7 @@ namespace NewXrmToolBoxTool1
             // 
             // ListBoxOrganizations
             // 
-            this.ListBoxOrganizations.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.ListBoxOrganizations.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ListBoxOrganizations.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.ListBoxOrganizations.FormattingEnabled = true;
@@ -217,7 +214,6 @@ namespace NewXrmToolBoxTool1
             this.ListBoxTxtFetch.ScrollAlwaysVisible = true;
             this.ListBoxTxtFetch.Size = new System.Drawing.Size(474, 329);
             this.ListBoxTxtFetch.TabIndex = 17;
-            this.ListBoxTxtFetch.SelectedIndexChanged += new System.EventHandler(this.ListBoxTxtFetch_SelectedIndexChanged);
             // 
             // BtnTransferData
             // 

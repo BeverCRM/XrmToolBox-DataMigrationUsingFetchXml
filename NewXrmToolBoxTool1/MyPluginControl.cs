@@ -3,30 +3,30 @@ using System.IO;
 using System.Data;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
+using System.ServiceModel;
 using System.Windows.Forms;
 using McTools.Xrm.Connection;
 using Microsoft.Xrm.Sdk.Query;
+using NewXrmToolBoxTool1.Model;
 using XrmToolBox.Extensibility;
 using System.Collections.Generic;
-using Microsoft.Crm.Sdk.Messages;
 using System.Collections.Specialized;
-using NewXrmToolBoxTool1.Model;
 using Microsoft.Xrm.Tooling.Connector;
-using System.ServiceModel;
-using Microsoft.VisualBasic;
 
 namespace NewXrmToolBoxTool1
 {
     public partial class MyPluginControl : MultipleConnectionsPluginControlBase
     {
-        public string FetchXmlFolderPath { get; set; }
-        public List<string> FetchXmlFileNames { get; set; }
+        private string FetchXmlFolderPath { get; set; }
+        private List<string> FetchXmlFileNames { get; set; }
 
         private Settings mySettings;
 
-        Logger logger;
+        private Logger logger;
 
-        string logsPath;
+        private string logsPath;
+
+        private const string defaultPath = "D:\\XrmToolbox";
 
         public MyPluginControl()
         {
@@ -42,7 +42,6 @@ namespace NewXrmToolBoxTool1
                 foreach (string item in FetchXmlFileNames)
                 {
                     ListBoxTxtFetch.Items.Add(item);
-                    //ListBoxTxtFetch.Text += Environment.NewLine;
                 }
             }
             catch (Exception)
@@ -53,33 +52,8 @@ namespace NewXrmToolBoxTool1
             }
         }
 
-        //private void LogsFunction()
-        //{
-        //    logger = new Logger(TxtLogs);
-
-        //    logger.Log("First");
-
-        //    //await RetrieveInstances.GetData(logger);
-
-        //    WhoAmIResponse whoAmI = (WhoAmIResponse)Service.Execute(new WhoAmIRequest());
-        //    Guid userId = whoAmI.UserId;
-
-        //    var User = Service.Retrieve("systemuser", userId, new ColumnSet("fullname"));
-        //    string fullName = User["fullname"].ToString();
-        //    logger.Log("fullName: " + fullName);
-        //    Entity user = Service.Retrieve("systemuser", userId, new ColumnSet(new String[] { "internalemailaddress" }));
-        //    string username = user["internalemailaddress"].ToString();
-
-        //    logger.Log("Second");
-
-
-
-        //    logger.Log("33333");
-        //}
-
         private void MyPluginControl_Load(object sender, EventArgs e)
         {
-            //logger = new Logger(TxtLogs);
             // Loads or creates the settings for the plugin
             if (!SettingsManager.Instance.TryLoad(GetType(), out mySettings))
             {
@@ -91,10 +65,7 @@ namespace NewXrmToolBoxTool1
             {
                 LogInfo("Settings found and loaded");
             }
-            //LogsFunction();
-            logsPath = "D:\\XrmToolbox";
-            TxtLogsPath.Text = logsPath;
-            //logger.Log("Load!");
+            TxtLogsPath.Text = defaultPath;
         }
 
         private void tsbClose_Click(object sender, EventArgs e)
@@ -187,7 +158,6 @@ namespace NewXrmToolBoxTool1
 
         private void BtnBrowseFetch_Click(object sender, EventArgs e)
         {
-            //logger.Log("BtnOpenFetchPath_Click");
             using (FolderBrowserDialog fbd = new FolderBrowserDialog() { Description = "Select Fetch path!" })
             {
                 if (fbd.ShowDialog() == DialogResult.OK)
@@ -204,7 +174,6 @@ namespace NewXrmToolBoxTool1
 
         private void TxtFetchPathLeave(object sender, EventArgs e)
         {
-            //logger.Log("txtFetchLeave");
             if (TxtFetchPath.Text != string.Empty)
             {
                 FetchXmlFolderPath = TxtFetchPath.Text;
@@ -214,21 +183,6 @@ namespace NewXrmToolBoxTool1
             {
                 ListBoxTxtFetch.Items.Clear();
             }
-        }
-
-        private void TxtLogsPath_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void TxtFetchPath_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void TxtLogs_TextChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void BtnAddOrganization_Click(object sender, EventArgs e)
@@ -245,56 +199,27 @@ namespace NewXrmToolBoxTool1
             }
         }
 
-        private void TextBoxOrganizationData_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void ListBoxOrganizations_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var conn = ListBoxOrganizations.SelectedItem as ConnectionDetail;
+            ConnectionDetail conn = ListBoxOrganizations.SelectedItem as ConnectionDetail;
             BtnRemoveOrganization.Enabled = (conn != null);
-        }
-
-        private void ListBoxTxtFetch_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void TxtLogsPathLeave(object sender, EventArgs e)
         {
-            logsPath = TxtLogsPath.Text;
+            if (!string.IsNullOrWhiteSpace(TxtLogsPath.Text))
+            {
+                logsPath = TxtLogsPath.Text;
+            }
+            else
+            {
+                logsPath = defaultPath;
+                TxtLogsPath.Text = logsPath;
+            }
         }
 
         private void BtnTransferData_Click(object sender, EventArgs e)
         {
-            //MessageBox.Show(ListBoxOrganizations.SelectedItem.ToString());//name
-            //MessageBox.Show(ListBoxOrganizations.SelectedValue.ToString());//Id
-
-            //foreach (ConnectionDetail detail in AdditionalConnectionDetails)
-            //{
-            //    var resp = detail.GetCrmServiceClient().Execute(new WhoAmIRequest()) as WhoAmIResponse;
-
-            //    //TxtLogs.Text += $"0: {detail.ImpersonatedUserName}," +
-            //    //    $"  1: {detail.OrganizationFriendlyName}, 2: {detail.OrganizationServiceUrl}, 3: {detail.OrganizationUrlName}," +
-            //    //    $" 4: {detail.EnvironmentId}, 5: {detail.OrganizationUrlName}, 6: {detail.OriginalUrl}," +
-            //    //    $" 7: {detail.OrganizationDataServiceUrl}, 8: {detail.WebApplicationUrl}, 9: {detail.ReplyUrl}{Environment.NewLine}";//7
-            //    logger.Log("ListBoxOrganizations" + ListBoxOrganizations.SelectedItem.ToString());
-            //    logger.Log("detail.OrganizationUrlName" + detail.OrganizationUrlName);
-            //    //if (ListBoxOrganizations.SelectedItem.ToString().ToLower() == detail.OrganizationUrlName.ToLower())
-            //    //{
-
-            //    //D365Utility d365Utility = new D365Utility(detail.ServiceClient);
-            //    //MessageBox.Show("0");
-            //    //List<string> entities = ConfigReader.GetMultipleNodes("entity");
-            //    //MessageBox.Show("1");
-            //    //foreach (var entity in entities)
-            //    //{
-            //    //    MessageBox.Show(entity);
-            //    //}
-            //    //}
-            //}
-
             if (ListBoxOrganizations.Items.Count < 1)
             {
                 MessageBox.Show("Add an organization for data transfer! ");
@@ -304,7 +229,7 @@ namespace NewXrmToolBoxTool1
             TxtLogs.Text = string.Empty;
             logger = new Logger(TxtLogs, logsPath);
 
-            logger.Log($"[{DateTime.Now.ToString("G")}]: Transfer is started. ");
+            logger.Log("Transfer is started. ");
 
             int count = 1;
             List<string> entities = new List<string>();
@@ -314,22 +239,15 @@ namespace NewXrmToolBoxTool1
                 logger.Log($"{count}: Entity name -> {item}");
                 count++;
             }
-
+            logger.Log($"entities count: {entities.Count}");
             logger.Log($"Log folder path: {TxtLogsPath.Text}");
             logger.Log($"Fetch folder path: {TxtFetchPath.Text}");
-
-            logger.Log($"entities count: {entities.Count}");
 
             List<ResultItem> result = new List<ResultItem>();
 
             try
             {
-                //logger.Log("Information from config file is retrieved.");
-                //logger.Log("Connecting to source instance...");
-
                 D365Utility D365source = new D365Utility((CrmServiceClient)Service);
-
-               // logger.Log("Connected to source instance: ");
 
                 bool stop = false;
 
@@ -337,19 +255,15 @@ namespace NewXrmToolBoxTool1
                 {
                     if (stop)
                     {
-                        logger.Log("Process Stopped. Aborting !");
+                        logger.Log("Process Stopped. Aborting! ");
                         break;
                     }
-
-                    var currentResult = new ResultItem(entity);
+                    ResultItem currentResult = new ResultItem(entity);
 
                     logger.Log("Getting data of '" + entity + "' from source instance");
                     List<string> searchAttrs = new List<string>();
                     string fetchPath = TxtFetchPath.Text;
-                    logger.Log($"FetchPath: {fetchPath}");
-                    logger.Log(fetchPath + "\\" + entity + ".xml");
                     string entityFetch = ConfigReader.GetQuery(entity, out searchAttrs, fetchPath);
-                    logger.Log($"entityFetch: {entityFetch}");
                     EntityCollection records = D365source.GetAllRecords(entityFetch);
                     currentResult.NumberOfSourceRecords = records.Entities.Count;
                     logger.Log("Records count is: " + records.Entities.Count);
@@ -372,7 +286,7 @@ namespace NewXrmToolBoxTool1
                                 string recordId = record.Id.ToString();
                                 logger.Log("Record with id '" + recordId + "' and with name '" + recordFirstValue + "' is creating in target...");
 
-                                var newRecord = new Entity(record.LogicalName);
+                                Entity newRecord = new Entity(record.LogicalName);
                                 newRecord.Attributes.AddRange(record.Attributes);
                                 newRecord.Attributes.Remove(newRecord.LogicalName + "id");
 
@@ -428,16 +342,19 @@ namespace NewXrmToolBoxTool1
         private bool StopProcess(Logger logger)
         {
             bool stop = false;
-            logger.Log("Do you want to continue? (Y/N)");
+            string message = "Do you want to continue?";
+            logger.Log(message);
 
-            var pressedKey = Interaction.InputBox("Do you want to continue? (Y/N)");
+            MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+            DialogResult result = MessageBox.Show(message, "Something Wrong! ", buttons);
 
-            while (pressedKey == "n" || pressedKey == "N")
+            if (result == DialogResult.No)
             {
                 stop = true;
+                logger.Log("No: ");
                 return stop;
             }
-
+            logger.Log("Yes: ");
             return stop;
         }
     }
