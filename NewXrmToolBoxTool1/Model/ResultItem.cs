@@ -1,16 +1,16 @@
-﻿namespace NewXrmToolBoxTool1.Model
+﻿namespace XrmMigrationUtility.Model
 {
-    class ResultItem
+    internal sealed class ResultItem
     {
         public string EntityName { get; set; }
-        public int NumberOfSourceRecords { get; set; }
-        public int NumberOfGeneratedRecords { get; set; }
+        public int SourceRecordCount { get; set; }
+        public int SuccessfullyGeneratedRecordCount  { get; set; }
 
         public ResultItem(string name, int numberOfSource = 0, int numberOfTarget = 0)
         {
             EntityName = name;
-            NumberOfSourceRecords = numberOfSource;
-            NumberOfGeneratedRecords = numberOfTarget;
+            SourceRecordCount = numberOfSource;
+            SuccessfullyGeneratedRecordCount  = numberOfTarget;
         }
     }
 }

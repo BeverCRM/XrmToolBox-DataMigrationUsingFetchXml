@@ -8,8 +8,8 @@
     <ProjectGuid>{5FF0A4C5-C5DB-4EBB-B090-4DB274096002}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NewXrmToolBoxTool1</RootNamespace>
-    <AssemblyName>NewXrmToolBoxTool1</AssemblyName>
+    <RootNamespace>XrmMigrationUtility</RootNamespace>
+    <AssemblyName>XrmMigrationUtility</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -287,8 +287,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\ConfigReader.cs" />
-    <Compile Include="Model\D365Utility.cs" />
+    <Compile Include="Services\ConfigReader.cs" />
+    <Compile Include="Services\DataverseService .cs" />
     <Compile Include="Model\Logger.cs" />
     <Compile Include="Model\ResultItem.cs" />
     <Compile Include="MyPlugin.cs" />

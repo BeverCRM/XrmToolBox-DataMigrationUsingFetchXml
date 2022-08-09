@@ -2,18 +2,19 @@
 using System.Linq;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
 using System.Collections.Generic;
-using Microsoft.Xrm.Sdk.Metadata;
+using XrmMigrationUtility.Model;
 using Microsoft.Xrm.Tooling.Connector;
 
-namespace NewXrmToolBoxTool1.Model
+namespace XrmMigrationUtility.Services
 {
-    public class D365Utility
+    internal sealed class DataverseService
     {
         private readonly CrmServiceClient _service;
 
-        public D365Utility(CrmServiceClient service)
+        public DataverseService(CrmServiceClient service)
         {
             _service = service;
         }
@@ -52,17 +53,17 @@ namespace NewXrmToolBoxTool1.Model
 
         public Guid CreateRecord(Entity record, bool duplicateDetection = true)
         {
-            CreateRequest create = new CreateRequest
+            CreateRequest createRequest = new CreateRequest
             {
                 Target = record
             };
-            create.Parameters.Add("SuppressDuplicateDetection", duplicateDetection);
-            CreateResponse response = (CreateResponse)_service.Execute(create);
+            createRequest.Parameters.Add("SuppressDuplicateDetection", duplicateDetection);
+            CreateResponse response = (CreateResponse)_service.Execute(createRequest);
 
             return response.id;
         }
 
-        public void MapSearchAttributes(Entity record, List<string> searchAttrs, D365Utility sourceInstance, Logger logger)
+        public void MapSearchAttributes(Entity record, List<string> searchAttrs, Logger logger)
         {
             foreach (string searchAttr in searchAttrs)
             {
@@ -71,7 +72,7 @@ namespace NewXrmToolBoxTool1.Model
                 if (refValue != null)
                 {
                     string primaryField = GetEntityPrimaryField(refValue.LogicalName);
-                    Entity refEntity = GetRecordByName(refValue.LogicalName, primaryField, refValue.Name);
+                    Entity refEntity = GetRecord(refValue.LogicalName, primaryField, refValue.Name);
 
                     if (refEntity != null)
                     {
@@ -82,7 +83,7 @@ namespace NewXrmToolBoxTool1.Model
                         logger.Log("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name);
                         logger.Log($"Creating a new record of '{refValue.LogicalName}' with name '{refValue.Name}'...");
 
-                        EntityReference newLookupRecordRef = CreateNewLookupRecord(refValue, primaryField, sourceInstance);
+                        EntityReference newLookupRecordRef = CreateNewLookupRecord(refValue, primaryField);
                         record[searchAttr] = newLookupRecordRef;
                         logger.Log($"'{refValue.LogicalName}' record created successfully with id {{{newLookupRecordRef.Id}}}");
                     }
@@ -90,61 +91,45 @@ namespace NewXrmToolBoxTool1.Model
             }
         }
 
-        private Entity GetRecordByName(string entitySchemaName, string entityAttrbiute, string value)
+        private Entity GetRecord(string attributeSchemaName, string entityAttrbiute, string attributeValue)
         {
             QueryExpression query = new QueryExpression
             {
-                EntityName = entitySchemaName,
+                EntityName = attributeSchemaName,
                 ColumnSet = new ColumnSet(null),
                 Criteria =
                 {
-                    FilterOperator=LogicalOperator.And,
+                    FilterOperator = LogicalOperator.And,
                     Conditions =
                     {
-                        new ConditionExpression(entityAttrbiute, ConditionOperator.Equal,value)
+                        new ConditionExpression(entityAttrbiute, ConditionOperator.Equal, attributeValue)
                     }
                 }
             };
             EntityCollection records = _service.RetrieveMultiple(query);
-            Entity record = records?.Entities.FirstOrDefault();
+            Entity record = records.Entities.FirstOrDefault();
 
             return record;
         }
 
-        public string GetEntityPrimaryField(string entity)
+        public string GetEntityPrimaryField(string entitySchemaName)
         {
             RetrieveEntityRequest retrieveEntityRequest = new RetrieveEntityRequest
             {
                 EntityFilters = EntityFilters.All,
-                LogicalName = entity
+                LogicalName = entitySchemaName
             };
+            var retrieveEntityResponse = (RetrieveEntityResponse)_service.Execute(retrieveEntityRequest);
 
-            RetrieveEntityResponse retrieveEntityEntityResponse = (RetrieveEntityResponse)_service.Execute(retrieveEntityRequest);
-            EntityMetadata entityMetadata = retrieveEntityEntityResponse.EntityMetadata;
-
-            return entityMetadata.PrimaryNameAttribute;
+            return retrieveEntityResponse.EntityMetadata.PrimaryNameAttribute;
         }
 
-        public EntityReference CreateNewLookupRecord(EntityReference lookup, string primaryFieldName, D365Utility sourceInstance)
+        private EntityReference CreateNewLookupRecord(EntityReference lookup, string primaryFieldName)
         {
             var newLookupRecord = new Entity(lookup.LogicalName);
 
-            if (lookup.LogicalName == "account" || lookup.LogicalName == "contact")
-            {
-                Entity sourceLookupRecord = sourceInstance._service.Retrieve(lookup.LogicalName, lookup.Id, new ColumnSet(true));
-                foreach (var attr in sourceLookupRecord.Attributes)
-                {
-                    if (sourceLookupRecord.Attributes.Contains(attr.Key) && (sourceLookupRecord[attr.Key] is EntityReference || sourceLookupRecord[attr.Key] is Guid))
-                        continue;
+            newLookupRecord.Attributes[primaryFieldName] = lookup.Name;
 
-                    //if (!sourceLookupRecord.TryGetAttributeValue(attr.Key, out EntityReference value) && !sourceLookupRecord.TryGetAttributeValue(attr.Key, out Guid id))
-                    newLookupRecord.Attributes.Add(attr);
-                }
-            }
-            else
-            {
-                newLookupRecord.Attributes[primaryFieldName] = lookup.Name;
-            }
             newLookupRecord.Id = CreateRecord(newLookupRecord);
 
             return newLookupRecord.ToEntityReference();

@@ -2,22 +2,22 @@
 using System.IO;
 using System.Windows.Forms;
 
-namespace NewXrmToolBoxTool1
+namespace XrmMigrationUtility.Model
 {
-    public class Logger
+    internal sealed class Logger
     {
-        readonly TextBox _txtLogs;
-        readonly string _logsPath;
+        private readonly TextBox _txtLogs;
+        private readonly string _logsPath;
 
         public Logger(TextBox txtLogs, string logsPath)
         {
-            logsPath += "\\Logs.txt";
-            if (File.Exists(logsPath))
+            _logsPath = $"{logsPath}\\Logs.txt";
+            if (File.Exists(_logsPath))
             {
-                File.Delete(logsPath);
+                File.AppendAllText(_logsPath, Environment.NewLine);
+                File.AppendAllText(_logsPath, DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss"));
             }
             _txtLogs = txtLogs;
-            _logsPath = logsPath;
         }
 
         public void Log(string text)
@@ -25,8 +25,18 @@ namespace NewXrmToolBoxTool1
             string dateTiemStr = DateTime.Now.ToString("G");
             string logText = $"[{dateTiemStr}] " + text;
 
-            _txtLogs.Text += text;
+            LogToTextBox(logText);
+            LogToFile(logText);
+        }
+
+        private void LogToTextBox(string logText)
+        {
+            _txtLogs.Text += logText;
             _txtLogs.Text += Environment.NewLine;
+        }
+
+        private void LogToFile(string logText)
+        {
             File.AppendAllText(_logsPath, logText);
             File.AppendAllText(_logsPath, Environment.NewLine);
         }

@@ -1,5 +1,5 @@
 ﻿
-namespace NewXrmToolBoxTool1
+namespace XrmMigrationUtility
 {
     partial class MyPluginControl
     {
@@ -142,8 +142,8 @@ namespace NewXrmToolBoxTool1
             // 
             // TxtLogs
             // 
-            this.TxtLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.TxtLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtLogs.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.TxtLogs.Location = new System.Drawing.Point(23, 492);
@@ -186,7 +186,7 @@ namespace NewXrmToolBoxTool1
             // 
             // ListBoxOrganizations
             // 
-            this.ListBoxOrganizations.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.ListBoxOrganizations.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ListBoxOrganizations.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.ListBoxOrganizations.FormattingEnabled = true;

@@ -1,11 +1,10 @@
 ﻿using System.IO;
 using System.Xml;
-using System.Text;
 using System.Collections.Generic;
 
-namespace NewXrmToolBoxTool1.Model
+namespace XrmMigrationUtility.Services
 {
-    public class ConfigReader
+    internal sealed class ConfigReader
     {
         public static string GetQuery(string entityName, out List<string> searchAttrs, string fetchPath)
         {
@@ -13,11 +12,7 @@ namespace NewXrmToolBoxTool1.Model
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(fetchPath + "\\" + entityName + ".xml");
 
-            StringWriter sw = new StringWriter();
-            XmlTextWriter xw = new XmlTextWriter(sw);
-
-            xmlDoc.WriteTo(xw);
-            string fetchXml = sw.ToString();
+            string fetchXml = xmlDoc.OuterXml;
             searchAttrs = new List<string>();
 
             string[] fetchSplit = fetchXml.Split('$');
@@ -61,14 +56,7 @@ namespace NewXrmToolBoxTool1.Model
             countAttr.Value = System.Convert.ToString(count);
             attrs.Append(countAttr);
 
-            StringBuilder sb = new StringBuilder(1024);
-            StringWriter stringWriter = new StringWriter(sb);
-
-            XmlTextWriter writer = new XmlTextWriter(stringWriter);
-            doc.WriteTo(writer);
-            writer.Close();
-
-            return sb.ToString();
+            return doc.OuterXml;
         }
     }
 }

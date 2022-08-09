@@ -7,15 +7,16 @@ using System.ServiceModel;
 using System.Windows.Forms;
 using McTools.Xrm.Connection;
 using Microsoft.Xrm.Sdk.Query;
-using NewXrmToolBoxTool1.Model;
 using XrmToolBox.Extensibility;
+using XrmMigrationUtility.Model;
 using System.Collections.Generic;
+using XrmMigrationUtility.Services;
 using System.Collections.Specialized;
 using Microsoft.Xrm.Tooling.Connector;
 
-namespace NewXrmToolBoxTool1
+namespace XrmMigrationUtility
 {
-    public partial class MyPluginControl : MultipleConnectionsPluginControlBase
+    internal partial class MyPluginControl : MultipleConnectionsPluginControlBase
     {
         private string FetchXmlFolderPath { get; set; }
         private List<string> FetchXmlFileNames { get; set; }
@@ -247,7 +248,7 @@ namespace NewXrmToolBoxTool1
 
             try
             {
-                D365Utility D365source = new D365Utility((CrmServiceClient)Service);
+                DataverseService D365source = new DataverseService((CrmServiceClient)Service);
 
                 bool stop = false;
 
@@ -265,7 +266,7 @@ namespace NewXrmToolBoxTool1
                     string fetchPath = TxtFetchPath.Text;
                     string entityFetch = ConfigReader.GetQuery(entity, out searchAttrs, fetchPath);
                     EntityCollection records = D365source.GetAllRecords(entityFetch);
-                    currentResult.NumberOfSourceRecords = records.Entities.Count;
+                    currentResult.SourceRecordCount = records.Entities.Count;
                     logger.Log("Records count is: " + records.Entities.Count);
 
                     if (records?.Entities?.Count > 0)
@@ -274,7 +275,7 @@ namespace NewXrmToolBoxTool1
                         {
                             if (stop) break;
 
-                            D365Utility d365Target = new D365Utility(detail.ServiceClient);
+                            DataverseService d365Target = new DataverseService(detail.ServiceClient);
                             logger.Log("Transfering data to: " + detail.OrganizationDataServiceUrl);
 
                             foreach (Entity record in records.Entities)
@@ -292,10 +293,10 @@ namespace NewXrmToolBoxTool1
 
                                 try
                                 {
-                                    d365Target.MapSearchAttributes(newRecord, searchAttrs, D365source, logger);
+                                    d365Target.MapSearchAttributes(newRecord, searchAttrs, logger);
 
                                     Guid createdRecordId = d365Target.CreateRecord(newRecord, false);
-                                    ++currentResult.NumberOfGeneratedRecords;
+                                    ++currentResult.SuccessfullyGeneratedRecordCount;
                                     logger.Log($"Record is created with id {{{createdRecordId}}}");
                                 }
                                 catch (FaultException<OrganizationServiceFault> ex)
@@ -335,7 +336,7 @@ namespace NewXrmToolBoxTool1
             {
                 logger.Log("Result: ");
                 foreach (ResultItem r in result)
-                    logger.Log($"{r.EntityName}, {r.NumberOfSourceRecords} (Source Records), {r.NumberOfGeneratedRecords} (Generated Records)");
+                    logger.Log($"{r.EntityName}, {r.SourceRecordCount } (Source Records), {r.SuccessfullyGeneratedRecordCount } (Generated Records)");
             }
         }
 

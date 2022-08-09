@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace NewXrmToolBoxTool1
+namespace XrmMigrationUtility
 {
     /// <summary>
     /// This class can help you to store settings for your plugin
