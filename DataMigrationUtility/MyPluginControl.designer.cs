@@ -59,7 +59,7 @@ namespace XrmMigrationUtility
             this.tsbSample});
             this.toolStripMenu.Location = new System.Drawing.Point(0, 0);
             this.toolStripMenu.Name = "toolStripMenu";
-            this.toolStripMenu.Size = new System.Drawing.Size(1362, 25);
+            this.toolStripMenu.Size = new System.Drawing.Size(1364, 25);
             this.toolStripMenu.TabIndex = 4;
             this.toolStripMenu.Text = "toolStrip1";
             // 
@@ -96,7 +96,7 @@ namespace XrmMigrationUtility
             // TxtFetchPath
             // 
             this.TxtFetchPath.BackColor = System.Drawing.SystemColors.InactiveBorder;
-            this.TxtFetchPath.Location = new System.Drawing.Point(23, 93);
+            this.TxtFetchPath.Location = new System.Drawing.Point(23, 113);
             this.TxtFetchPath.Name = "TxtFetchPath";
             this.TxtFetchPath.Size = new System.Drawing.Size(474, 20);
             this.TxtFetchPath.TabIndex = 5;
@@ -104,9 +104,9 @@ namespace XrmMigrationUtility
             // 
             // BtnBrowseLogs
             // 
-            this.BtnBrowseLogs.Location = new System.Drawing.Point(527, 48);
+            this.BtnBrowseLogs.Location = new System.Drawing.Point(518, 48);
             this.BtnBrowseLogs.Name = "BtnBrowseLogs";
-            this.BtnBrowseLogs.Size = new System.Drawing.Size(85, 23);
+            this.BtnBrowseLogs.Size = new System.Drawing.Size(85, 25);
             this.BtnBrowseLogs.TabIndex = 6;
             this.BtnBrowseLogs.Text = "Browse";
             this.BtnBrowseLogs.UseVisualStyleBackColor = true;
@@ -114,9 +114,9 @@ namespace XrmMigrationUtility
             // 
             // BtnBrowseFetch
             // 
-            this.BtnBrowseFetch.Location = new System.Drawing.Point(527, 91);
+            this.BtnBrowseFetch.Location = new System.Drawing.Point(518, 110);
             this.BtnBrowseFetch.Name = "BtnBrowseFetch";
-            this.BtnBrowseFetch.Size = new System.Drawing.Size(85, 23);
+            this.BtnBrowseFetch.Size = new System.Drawing.Size(85, 25);
             this.BtnBrowseFetch.TabIndex = 6;
             this.BtnBrowseFetch.Text = "Browse";
             this.BtnBrowseFetch.UseVisualStyleBackColor = true;
@@ -134,7 +134,7 @@ namespace XrmMigrationUtility
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(20, 77);
+            this.label2.Location = new System.Drawing.Point(20, 98);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(59, 13);
             this.label2.TabIndex = 7;
@@ -146,18 +146,18 @@ namespace XrmMigrationUtility
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtLogs.BackColor = System.Drawing.SystemColors.InactiveBorder;
-            this.TxtLogs.Location = new System.Drawing.Point(23, 492);
+            this.TxtLogs.Location = new System.Drawing.Point(627, 168);
             this.TxtLogs.Multiline = true;
             this.TxtLogs.Name = "TxtLogs";
             this.TxtLogs.ReadOnly = true;
             this.TxtLogs.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TxtLogs.Size = new System.Drawing.Size(1312, 197);
+            this.TxtLogs.Size = new System.Drawing.Size(710, 523);
             this.TxtLogs.TabIndex = 8;
             // 
             // vScrollBar1
             // 
             this.vScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.vScrollBar1.Location = new System.Drawing.Point(1362, 1);
+            this.vScrollBar1.Location = new System.Drawing.Point(1364, 1);
             this.vScrollBar1.Name = "vScrollBar1";
             this.vScrollBar1.Size = new System.Drawing.Size(17, 720);
             this.vScrollBar1.TabIndex = 9;
@@ -165,9 +165,9 @@ namespace XrmMigrationUtility
             // BtnAddOrganization
             // 
             this.BtnAddOrganization.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnAddOrganization.Location = new System.Drawing.Point(1214, 51);
+            this.BtnAddOrganization.Location = new System.Drawing.Point(1216, 46);
             this.BtnAddOrganization.Name = "BtnAddOrganization";
-            this.BtnAddOrganization.Size = new System.Drawing.Size(120, 23);
+            this.BtnAddOrganization.Size = new System.Drawing.Size(120, 25);
             this.BtnAddOrganization.TabIndex = 10;
             this.BtnAddOrganization.Text = "Add Organization";
             this.BtnAddOrganization.UseVisualStyleBackColor = true;
@@ -176,9 +176,9 @@ namespace XrmMigrationUtility
             // BtnRemoveOrganization
             // 
             this.BtnRemoveOrganization.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnRemoveOrganization.Location = new System.Drawing.Point(1214, 90);
+            this.BtnRemoveOrganization.Location = new System.Drawing.Point(1216, 77);
             this.BtnRemoveOrganization.Name = "BtnRemoveOrganization";
-            this.BtnRemoveOrganization.Size = new System.Drawing.Size(120, 23);
+            this.BtnRemoveOrganization.Size = new System.Drawing.Size(120, 25);
             this.BtnRemoveOrganization.TabIndex = 12;
             this.BtnRemoveOrganization.Text = "Remove Organization";
             this.BtnRemoveOrganization.UseVisualStyleBackColor = true;
@@ -190,10 +190,9 @@ namespace XrmMigrationUtility
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ListBoxOrganizations.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.ListBoxOrganizations.FormattingEnabled = true;
-            this.ListBoxOrganizations.Location = new System.Drawing.Point(713, 128);
+            this.ListBoxOrganizations.Location = new System.Drawing.Point(626, 113);
             this.ListBoxOrganizations.Name = "ListBoxOrganizations";
-            this.ListBoxOrganizations.ScrollAlwaysVisible = true;
-            this.ListBoxOrganizations.Size = new System.Drawing.Size(622, 329);
+            this.ListBoxOrganizations.Size = new System.Drawing.Size(710, 17);
             this.ListBoxOrganizations.TabIndex = 15;
             this.ListBoxOrganizations.SelectedIndexChanged += new System.EventHandler(this.ListBoxOrganizations_SelectedIndexChanged);
             // 
@@ -207,17 +206,19 @@ namespace XrmMigrationUtility
             // 
             // ListBoxTxtFetch
             // 
+            this.ListBoxTxtFetch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.ListBoxTxtFetch.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.ListBoxTxtFetch.FormattingEnabled = true;
-            this.ListBoxTxtFetch.Location = new System.Drawing.Point(23, 128);
+            this.ListBoxTxtFetch.Location = new System.Drawing.Point(23, 168);
             this.ListBoxTxtFetch.Name = "ListBoxTxtFetch";
             this.ListBoxTxtFetch.ScrollAlwaysVisible = true;
-            this.ListBoxTxtFetch.Size = new System.Drawing.Size(474, 329);
+            this.ListBoxTxtFetch.Size = new System.Drawing.Size(474, 524);
             this.ListBoxTxtFetch.TabIndex = 17;
             // 
             // BtnTransferData
             // 
-            this.BtnTransferData.Location = new System.Drawing.Point(527, 128);
+            this.BtnTransferData.Location = new System.Drawing.Point(518, 168);
             this.BtnTransferData.Name = "BtnTransferData";
             this.BtnTransferData.Size = new System.Drawing.Size(85, 52);
             this.BtnTransferData.TabIndex = 18;
@@ -246,7 +247,7 @@ namespace XrmMigrationUtility
             this.Controls.Add(this.TxtLogsPath);
             this.Controls.Add(this.toolStripMenu);
             this.Name = "MyPluginControl";
-            this.Size = new System.Drawing.Size(1362, 722);
+            this.Size = new System.Drawing.Size(1364, 722);
             this.Load += new System.EventHandler(this.MyPluginControl_Load);
             this.toolStripMenu.ResumeLayout(false);
             this.toolStripMenu.PerformLayout();

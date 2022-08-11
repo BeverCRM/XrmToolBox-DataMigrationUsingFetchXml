@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32630.194
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmMigrationUtility", "NewXrmToolBoxTool1\XrmMigrationUtility.csproj", "{5FF0A4C5-C5DB-4EBB-B090-4DB274096002}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmMigrationUtility", "DataMigrationUtility\XrmMigrationUtility.csproj", "{5FF0A4C5-C5DB-4EBB-B090-4DB274096002}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +26,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {934A0C19-EE23-416D-BA99-8693FFEE1C0E}
+		SolutionGuid = {CBD543CD-7EAD-4653-AA8D-66EA64F8130F}
 	EndGlobalSection
 EndGlobal

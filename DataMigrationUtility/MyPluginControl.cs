@@ -2,13 +2,13 @@
 using System.IO;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using Microsoft.Xrm.Sdk;
 using System.ServiceModel;
 using System.Windows.Forms;
 using McTools.Xrm.Connection;
 using Microsoft.Xrm.Sdk.Query;
 using XrmToolBox.Extensibility;
-using XrmMigrationUtility.Model;
 using System.Collections.Generic;
 using XrmMigrationUtility.Services;
 using System.Collections.Specialized;
@@ -27,7 +27,9 @@ namespace XrmMigrationUtility
 
         private string logsPath;
 
-        private const string defaultPath = "D:\\XrmToolbox";
+        private const string DEFAULT_PATH = "D:\\XrmToolbox";
+
+        private const int ERROR_CODE = -2147220685;
 
         public MyPluginControl()
         {
@@ -38,16 +40,19 @@ namespace XrmMigrationUtility
         {
             try
             {
-                FetchXmlFileNames = Directory.GetFiles(FetchXmlFolderPath).Select(fileName => fileName.Replace(FetchXmlFolderPath + @"\", "").Replace(".xml", "")).ToList();
-                ListBoxTxtFetch.Items.Clear();
-                foreach (string item in FetchXmlFileNames)
+                if (!string.IsNullOrEmpty(FetchXmlFolderPath) || !string.IsNullOrWhiteSpace(FetchXmlFolderPath))
                 {
-                    ListBoxTxtFetch.Items.Add(item);
+                    FetchXmlFileNames = Directory.GetFiles(FetchXmlFolderPath).Select(fileName => fileName.Replace(FetchXmlFolderPath + @"\", "").Replace(".xml", "")).ToList();
+                    ListBoxTxtFetch.Items.Clear();
+                    foreach (string item in FetchXmlFileNames)
+                    {
+                        ListBoxTxtFetch.Items.Add(item);
+                    }
                 }
             }
-            catch (Exception)
+            catch (DirectoryNotFoundException ex)
             {
-                MessageBox.Show("Input Valid Path!");
+                MessageBox.Show($"Input Valid Path!: {ex.Message}");
                 TxtFetchPath.Text = null;
                 ListBoxTxtFetch.Items.Clear();
             }
@@ -66,7 +71,7 @@ namespace XrmMigrationUtility
             {
                 LogInfo("Settings found and loaded");
             }
-            TxtLogsPath.Text = defaultPath;
+            TxtLogsPath.Text = DEFAULT_PATH;
         }
 
         private void tsbClose_Click(object sender, EventArgs e)
@@ -135,14 +140,12 @@ namespace XrmMigrationUtility
 
         protected override void ConnectionDetailsUpdated(NotifyCollectionChangedEventArgs e)
         {
-            //textBoxCollEvents.Text += $"Action: {e.Action.ToString()}, NewStartingIndex: {e.NewStartingIndex}," +
-            //    $" OldStartingIndex: {e.OldStartingIndex}, Item Count: {AdditionalConnectionDetails.Count} {Environment.NewLine}";
-
             // update the list box with the connections
             ListBoxOrganizations.DataSource = null;
             ListBoxOrganizations.DataSource = AdditionalConnectionDetails.ToList();
             ListBoxOrganizations.DisplayMember = "ConnectionName";
             ListBoxOrganizations.ValueMember = "ConnectionId";
+            BtnAddOrganization.Enabled = false;
         }
 
         private void BtnBrowseLogs_Click(object sender, EventArgs e)
@@ -188,7 +191,10 @@ namespace XrmMigrationUtility
 
         private void BtnAddOrganization_Click(object sender, EventArgs e)
         {
-            AddAdditionalOrganization();
+            if (ListBoxOrganizations.Items.Count <= 1)
+            {
+                AddAdditionalOrganization();
+            }
         }
 
         private void BtnRemoveOrganization_Click(object sender, EventArgs e)
@@ -197,6 +203,10 @@ namespace XrmMigrationUtility
             if (conn != null)
             {
                 RemoveAdditionalOrganization(conn);
+            }
+            if (ListBoxOrganizations.Items.Count == 0)
+            {
+                BtnAddOrganization.Enabled = true;
             }
         }
 
@@ -214,24 +224,13 @@ namespace XrmMigrationUtility
             }
             else
             {
-                logsPath = defaultPath;
+                logsPath = DEFAULT_PATH;
                 TxtLogsPath.Text = logsPath;
             }
         }
 
-        private void BtnTransferData_Click(object sender, EventArgs e)
+        private List<string> GetEntities()
         {
-            if (ListBoxOrganizations.Items.Count < 1)
-            {
-                MessageBox.Show("Add an organization for data transfer! ");
-                return;
-            }
-
-            TxtLogs.Text = string.Empty;
-            logger = new Logger(TxtLogs, logsPath);
-
-            logger.Log("Transfer is started. ");
-
             int count = 1;
             List<string> entities = new List<string>();
             foreach (var item in ListBoxTxtFetch.Items)
@@ -244,7 +243,23 @@ namespace XrmMigrationUtility
             logger.Log($"Log folder path: {TxtLogsPath.Text}");
             logger.Log($"Fetch folder path: {TxtFetchPath.Text}");
 
+            return entities;
+        }
+
+        private void BtnTransferData_Click(object sender, EventArgs e)
+        {
+            if (ListBoxOrganizations.Items.Count < 1)
+            {
+                MessageBox.Show("Add an organization for data transfer! ");
+                return;
+            }
+
+            TxtLogs.Text = string.Empty;
+            logger = new Logger(TxtLogs, logsPath);
+            logger.Log("Transfer is started. ");
+
             List<ResultItem> result = new List<ResultItem>();
+            List<string> entities = GetEntities();
 
             try
             {
@@ -259,71 +274,10 @@ namespace XrmMigrationUtility
                         logger.Log("Process Stopped. Aborting! ");
                         break;
                     }
-                    ResultItem currentResult = new ResultItem(entity);
-
                     logger.Log("Getting data of '" + entity + "' from source instance");
-                    List<string> searchAttrs = new List<string>();
-                    string fetchPath = TxtFetchPath.Text;
-                    string entityFetch = ConfigReader.GetQuery(entity, out searchAttrs, fetchPath);
-                    EntityCollection records = D365source.GetAllRecords(entityFetch);
-                    currentResult.SourceRecordCount = records.Entities.Count;
-                    logger.Log("Records count is: " + records.Entities.Count);
 
-                    if (records?.Entities?.Count > 0)
-                    {
-                        foreach (ConnectionDetail detail in AdditionalConnectionDetails)
-                        {
-                            if (stop) break;
+                    ResultItem currentResult = GetCurrentResult(D365source, entity, out stop);
 
-                            DataverseService d365Target = new DataverseService(detail.ServiceClient);
-                            logger.Log("Transfering data to: " + detail.OrganizationDataServiceUrl);
-
-                            foreach (Entity record in records.Entities)
-                            {
-                                if (stop) break;
-
-                                string primaryAttr = d365Target.GetEntityPrimaryField(record.LogicalName);
-                                string recordFirstValue = record.GetAttributeValue<string>(primaryAttr);
-                                string recordId = record.Id.ToString();
-                                logger.Log("Record with id '" + recordId + "' and with name '" + recordFirstValue + "' is creating in target...");
-
-                                Entity newRecord = new Entity(record.LogicalName);
-                                newRecord.Attributes.AddRange(record.Attributes);
-                                newRecord.Attributes.Remove(newRecord.LogicalName + "id");
-
-                                try
-                                {
-                                    d365Target.MapSearchAttributes(newRecord, searchAttrs, logger);
-
-                                    Guid createdRecordId = d365Target.CreateRecord(newRecord, false);
-                                    ++currentResult.SuccessfullyGeneratedRecordCount;
-                                    logger.Log($"Record is created with id {{{createdRecordId}}}");
-                                }
-                                catch (FaultException<OrganizationServiceFault> ex)
-                                {
-                                    // || (record.LogicalName == "salesorder" && ex.Message.Contains("Cannot insert duplicate key"))
-                                    if (ex.Detail.ErrorCode == -2147220685) // DuplicateRecordsFound
-                                    {
-                                        logger.Log("The record was not created because a duplicate of the current record already exists.");
-                                    }
-                                    else
-                                    {
-                                        logger.Log(ex.Message);
-                                        stop = StopProcess(logger);
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    logger.Log(ex.Message);
-                                    stop = StopProcess(logger);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        logger.Log("Records count is zero or not found");
-                    }
                     result.Add(currentResult);
                 }
             }
@@ -340,7 +294,88 @@ namespace XrmMigrationUtility
             }
         }
 
-        private bool StopProcess(Logger logger)
+        private ResultItem GetCurrentResult(DataverseService D365source, string entity, out bool stop)
+        {
+            stop = false;
+            ResultItem currentResult = new ResultItem(entity);
+            List<string> searchAttrs = new List<string>();
+            string fetchPath = TxtFetchPath.Text;
+            string entityFetch = ConfigReader.GetQuery(entity, out searchAttrs, fetchPath);
+            EntityCollection records = D365source.GetAllRecords(entityFetch);
+            currentResult.SourceRecordCount = records.Entities.Count;
+            logger.Log("Records count is: " + records.Entities.Count);
+
+            if (records?.Entities?.Count > 0)
+            {
+                stop = TransferData(records, currentResult, searchAttrs);
+            }
+            else
+            {
+                logger.Log("Records count is zero or not found");
+            }
+
+            return currentResult;
+        }
+
+        private bool TransferData(EntityCollection records, ResultItem currentResult, List<string> searchAttrs)
+        {
+            bool stop = false;
+            foreach (ConnectionDetail detail in AdditionalConnectionDetails)
+            {
+                logger.Log(detail.OrganizationDataServiceUrl);
+                logger.Log(detail.OrganizationUrlName);
+                logger.Log(detail.OrganizationServiceUrl);
+
+                if (stop) break;
+
+                DataverseService d365Target = new DataverseService(detail.ServiceClient);
+                logger.Log("Transfering data to: " + detail.OrganizationDataServiceUrl);
+
+                foreach (Entity record in records.Entities)
+                {
+                    if (stop) break;
+
+                    string primaryAttr = d365Target.GetEntityPrimaryField(record.LogicalName);
+                    string recordFirstValue = record.GetAttributeValue<string>(primaryAttr);
+                    string recordId = record.Id.ToString();
+                    logger.Log("Record with id '" + recordId + "' and with name '" + recordFirstValue + "' is creating in target...");
+
+                    Entity newRecord = new Entity(record.LogicalName);
+                    newRecord.Attributes.AddRange(record.Attributes);
+                    newRecord.Attributes.Remove(newRecord.LogicalName + "id");
+
+                    try
+                    {
+                        d365Target.MapSearchAttributes(newRecord, searchAttrs, logger);
+
+                        Guid createdRecordId = d365Target.CreateRecord(newRecord, false);
+                        ++currentResult.SuccessfullyGeneratedRecordCount;
+                        logger.Log($"Record is created with id {{{createdRecordId}}}");
+                    }
+                    catch (FaultException<OrganizationServiceFault> ex)
+                    {
+                        // || (record.LogicalName == "salesorder" && ex.Message.Contains("Cannot insert duplicate key"))
+                        if (ex.Detail.ErrorCode == ERROR_CODE) // DuplicateRecordsFound
+                        {
+                            logger.Log("The record was not created because a duplicate of the current record already exists.");
+                        }
+                        else
+                        {
+                            logger.Log(ex.Message);
+                            stop = StopProcess();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Log(ex.Message);
+                        stop = StopProcess();
+                    }
+                }
+            }
+            return stop;
+        }
+
+        private bool StopProcess()
         {
             bool stop = false;
             string message = "Do you want to continue?";

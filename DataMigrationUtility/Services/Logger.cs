@@ -2,7 +2,7 @@
 using System.IO;
 using System.Windows.Forms;
 
-namespace XrmMigrationUtility.Model
+namespace XrmMigrationUtility.Services
 {
     internal sealed class Logger
     {

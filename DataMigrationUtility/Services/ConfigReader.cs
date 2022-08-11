@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Xml;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace XrmMigrationUtility.Services
 {
@@ -17,14 +18,25 @@ namespace XrmMigrationUtility.Services
 
             string[] fetchSplit = fetchXml.Split('$');
 
-            if (fetchSplit.Length > 1)
+            Regex regex = new Regex(@"[attribute name=](\$\w+\$)");
+            MatchCollection lookupNames = regex.Matches(fetchXml);
+
+            if (lookupNames.Count > 1)
             {
-                foreach (string attr in fetchSplit)
+                foreach (var item in lookupNames)
                 {
-                    if (!attr.StartsWith("\"") && !attr.EndsWith("\""))
-                        searchAttrs.Add(attr);
+                    searchAttrs.Add(item.ToString().Replace("=", "").Replace("$", ""));
                 }
             }
+
+            //if (fetchSplit.Length > 1)
+            //{
+            //    foreach (string attr in fetchSplit)
+            //    {
+            //        if (!attr.StartsWith("\"") && !attr.EndsWith("\""))
+            //            searchAttrs.Add(attr);
+            //    }
+            //}
             fetchXml = fetchXml.Replace("$", "");
 
             return fetchXml;

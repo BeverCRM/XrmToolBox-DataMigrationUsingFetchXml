@@ -288,8 +288,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Services\ConfigReader.cs" />
-    <Compile Include="Services\DataverseService .cs" />
-    <Compile Include="Model\Logger.cs" />
+    <Compile Include="Services\DataverseService.cs" />
+    <Compile Include="Services\Logger.cs" />
     <Compile Include="Model\ResultItem.cs" />
     <Compile Include="MyPlugin.cs" />
     <Compile Include="MyPluginControl.cs">
