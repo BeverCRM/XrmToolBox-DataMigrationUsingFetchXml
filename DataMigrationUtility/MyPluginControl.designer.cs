@@ -146,12 +146,12 @@ namespace XrmMigrationUtility
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtLogs.BackColor = System.Drawing.SystemColors.InactiveBorder;
-            this.TxtLogs.Location = new System.Drawing.Point(627, 168);
+            this.TxtLogs.Location = new System.Drawing.Point(626, 168);
             this.TxtLogs.Multiline = true;
             this.TxtLogs.Name = "TxtLogs";
             this.TxtLogs.ReadOnly = true;
             this.TxtLogs.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TxtLogs.Size = new System.Drawing.Size(710, 523);
+            this.TxtLogs.Size = new System.Drawing.Size(710, 524);
             this.TxtLogs.TabIndex = 8;
             // 
             // vScrollBar1

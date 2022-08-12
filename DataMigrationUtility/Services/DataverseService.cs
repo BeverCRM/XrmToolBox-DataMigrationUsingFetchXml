@@ -18,11 +18,6 @@ namespace XrmMigrationUtility.Services
             _service = service;
         }
 
-        public EntityCollection GetRecords(string fetchQuery)
-        {
-            return _service.RetrieveMultiple(new FetchExpression(fetchQuery));
-        }
-
         public EntityCollection GetAllRecords(string fetchQuery)
         {
             EntityCollection data = new EntityCollection();
@@ -90,7 +85,7 @@ namespace XrmMigrationUtility.Services
             }
         }
 
-        private Entity GetRecord(string attributeSchemaName, string entityAttrbiute, string attributeValue)
+        private Entity GetRecord(string attributeSchemaName, string attrbiuteName, string attributeValue)
         {
             QueryExpression query = new QueryExpression
             {
@@ -101,14 +96,13 @@ namespace XrmMigrationUtility.Services
                     FilterOperator = LogicalOperator.And,
                     Conditions =
                     {
-                        new ConditionExpression(entityAttrbiute, ConditionOperator.Equal, attributeValue)
+                        new ConditionExpression(attrbiuteName, ConditionOperator.Equal, attributeValue)
                     }
                 }
             };
             EntityCollection records = _service.RetrieveMultiple(query);
-            Entity record = records.Entities.FirstOrDefault();
 
-            return record;
+            return records.Entities.FirstOrDefault();
         }
 
         public string GetEntityPrimaryField(string entitySchemaName)

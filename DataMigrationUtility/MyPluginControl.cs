@@ -19,7 +19,6 @@ namespace XrmMigrationUtility
     internal partial class MyPluginControl : MultipleConnectionsPluginControlBase
     {
         private string FetchXmlFolderPath { get; set; }
-        private List<string> FetchXmlFileNames { get; set; }
 
         private Settings mySettings;
 
@@ -42,6 +41,7 @@ namespace XrmMigrationUtility
             {
                 if (!string.IsNullOrEmpty(FetchXmlFolderPath) || !string.IsNullOrWhiteSpace(FetchXmlFolderPath))
                 {
+                    List<string> FetchXmlFileNames;
                     FetchXmlFileNames = Directory.GetFiles(FetchXmlFolderPath).Select(fileName => fileName.Replace(FetchXmlFolderPath + @"\", "").Replace(".xml", "")).ToList();
                     ListBoxTxtFetch.Items.Clear();
                     foreach (string item in FetchXmlFileNames)
@@ -54,7 +54,7 @@ namespace XrmMigrationUtility
             {
                 MessageBox.Show($"Input Valid Path!: {ex.Message}");
                 TxtFetchPath.Text = null;
-                ListBoxTxtFetch.Items.Clear();
+                //ListBoxTxtFetch.Items.Clear();
             }
         }
 
@@ -322,10 +322,6 @@ namespace XrmMigrationUtility
             bool stop = false;
             foreach (ConnectionDetail detail in AdditionalConnectionDetails)
             {
-                logger.Log(detail.OrganizationDataServiceUrl);
-                logger.Log(detail.OrganizationUrlName);
-                logger.Log(detail.OrganizationServiceUrl);
-
                 if (stop) break;
 
                 DataverseService d365Target = new DataverseService(detail.ServiceClient);

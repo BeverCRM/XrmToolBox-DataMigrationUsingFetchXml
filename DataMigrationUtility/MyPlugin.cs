@@ -13,7 +13,7 @@ namespace XrmMigrationUtility
     // To generate Base64 string for Images below, you can use https://www.base64-image.de/
     [Export(typeof(IXrmToolBoxPlugin)),
         ExportMetadata("Name", "Data Migration Utility"),
-        ExportMetadata("Description", "This is a description for my first plugin"),
+        ExportMetadata("Description", "Data Migration Utility helps migrating data between environments."),
         // Please specify the base64 content of a 32x32 pixels image
         ExportMetadata("SmallImageBase64", null),
         // Please specify the base64 content of a 80x80 pixels image

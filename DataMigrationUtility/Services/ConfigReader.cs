@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Xml;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace XrmMigrationUtility.Services
 {
@@ -16,28 +15,15 @@ namespace XrmMigrationUtility.Services
             string fetchXml = xmlDoc.OuterXml;
             searchAttrs = new List<string>();
 
-            string[] fetchSplit = fetchXml.Split('$');
+            XmlNodeList nodes = xmlDoc.DocumentElement.SelectNodes("/fetch/entity/attribute");
 
-            Regex regex = new Regex(@"[attribute name=](\$\w+\$)");
-            MatchCollection lookupNames = regex.Matches(fetchXml);
-
-            if (lookupNames.Count > 1)
+            foreach (XmlNode node in nodes)
             {
-                foreach (var item in lookupNames)
+                if (node.Attributes["id"] != null)
                 {
-                    searchAttrs.Add(item.ToString().Replace("=", "").Replace("$", ""));
+                    searchAttrs.Add(node.Attributes["name"].Value);
                 }
             }
-
-            //if (fetchSplit.Length > 1)
-            //{
-            //    foreach (string attr in fetchSplit)
-            //    {
-            //        if (!attr.StartsWith("\"") && !attr.EndsWith("\""))
-            //            searchAttrs.Add(attr);
-            //    }
-            //}
-            fetchXml = fetchXml.Replace("$", "");
 
             return fetchXml;
         }
