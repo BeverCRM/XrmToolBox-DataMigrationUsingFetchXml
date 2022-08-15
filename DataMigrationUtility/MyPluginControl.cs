@@ -26,7 +26,7 @@ namespace XrmMigrationUtility
 
         private string logsPath;
 
-        private const string DEFAULT_PATH = "D:\\XrmToolbox";
+        private const string DEFAULT_PATH = "D:\\";
 
         private const int ERROR_CODE = -2147220685;
 

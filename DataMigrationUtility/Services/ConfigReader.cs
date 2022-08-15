@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Xml;
+﻿using System.Xml;
 using System.Collections.Generic;
 
 namespace XrmMigrationUtility.Services
@@ -19,7 +18,7 @@ namespace XrmMigrationUtility.Services
 
             foreach (XmlNode node in nodes)
             {
-                if (node.Attributes["id"] != null)
+                if (node.Attributes["SearchByPrimaryField"] != null && node.Attributes["SearchByPrimaryField"].Value == "true")
                 {
                     searchAttrs.Add(node.Attributes["name"].Value);
                 }
@@ -30,12 +29,9 @@ namespace XrmMigrationUtility.Services
 
         public static string CreateXml(string xml, string cookie, int page, int count)
         {
-            StringReader stringReader = new StringReader(xml);
-            XmlTextReader reader = new XmlTextReader(stringReader);
-
             // Load document
             XmlDocument doc = new XmlDocument();
-            doc.Load(reader);
+            doc.LoadXml(xml);
 
             XmlAttributeCollection attrs = doc.DocumentElement.Attributes;
 

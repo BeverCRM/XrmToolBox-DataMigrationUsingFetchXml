@@ -85,18 +85,18 @@ namespace XrmMigrationUtility.Services
             }
         }
 
-        private Entity GetRecord(string attributeSchemaName, string attrbiuteName, string attributeValue)
+        private Entity GetRecord(string entitySchemaName, string attributeSchemaName, string attributeValue)
         {
             QueryExpression query = new QueryExpression
             {
-                EntityName = attributeSchemaName,
+                EntityName = entitySchemaName,
                 ColumnSet = new ColumnSet(null),
                 Criteria =
                 {
                     FilterOperator = LogicalOperator.And,
                     Conditions =
                     {
-                        new ConditionExpression(attrbiuteName, ConditionOperator.Equal, attributeValue)
+                        new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, attributeValue)
                     }
                 }
             };
