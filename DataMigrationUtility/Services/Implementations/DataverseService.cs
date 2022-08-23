@@ -6,10 +6,11 @@ using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
 using System.Collections.Generic;
 using Microsoft.Xrm.Tooling.Connector;
+using XrmMigrationUtility.Services.Interfaces;
 
-namespace XrmMigrationUtility.Services
+namespace XrmMigrationUtility.Services.Implementations
 {
-    internal sealed class DataverseService
+    internal sealed class DataverseService : IDataverseService
     {
         private readonly CrmServiceClient _service;
 
@@ -57,7 +58,7 @@ namespace XrmMigrationUtility.Services
             return response.id;
         }
 
-        public void MapSearchAttributes(Entity record, List<string> searchAttrs, Logger logger)
+        public void MapSearchAttributes(Entity record, List<string> searchAttrs, ILogger logger)
         {
             foreach (string searchAttr in searchAttrs)
             {
@@ -76,13 +77,21 @@ namespace XrmMigrationUtility.Services
                     {
                         logger.Log("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name);
                         logger.Log($"Creating a new record of '{refValue.LogicalName}' with name '{refValue.Name}'...");
-
-                        EntityReference newLookupRecordRef = CreateNewLookupRecord(refValue, primaryField);
-                        record[searchAttr] = newLookupRecordRef;
-                        logger.Log($"'{refValue.LogicalName}' record created successfully with id {{{newLookupRecordRef.Id}}}");
                     }
                 }
             }
+        }
+
+        public string GetEntityPrimaryField(string entitySchemaName)
+        {
+            RetrieveEntityRequest retrieveEntityRequest = new RetrieveEntityRequest
+            {
+                EntityFilters = EntityFilters.All,
+                LogicalName = entitySchemaName
+            };
+            var retrieveEntityResponse = (RetrieveEntityResponse)_service.Execute(retrieveEntityRequest);
+
+            return retrieveEntityResponse.EntityMetadata.PrimaryNameAttribute;
         }
 
         private Entity GetRecord(string entitySchemaName, string attributeSchemaName, string attributeValue)
@@ -103,29 +112,6 @@ namespace XrmMigrationUtility.Services
             EntityCollection records = _service.RetrieveMultiple(query);
 
             return records.Entities.FirstOrDefault();
-        }
-
-        public string GetEntityPrimaryField(string entitySchemaName)
-        {
-            RetrieveEntityRequest retrieveEntityRequest = new RetrieveEntityRequest
-            {
-                EntityFilters = EntityFilters.All,
-                LogicalName = entitySchemaName
-            };
-            var retrieveEntityResponse = (RetrieveEntityResponse)_service.Execute(retrieveEntityRequest);
-
-            return retrieveEntityResponse.EntityMetadata.PrimaryNameAttribute;
-        }
-
-        private EntityReference CreateNewLookupRecord(EntityReference lookup, string primaryFieldName)
-        {
-            var newLookupRecord = new Entity(lookup.LogicalName);
-
-            newLookupRecord.Attributes[primaryFieldName] = lookup.Name;
-
-            newLookupRecord.Id = CreateRecord(newLookupRecord);
-
-            return newLookupRecord.ToEntityReference();
         }
     }
 }
