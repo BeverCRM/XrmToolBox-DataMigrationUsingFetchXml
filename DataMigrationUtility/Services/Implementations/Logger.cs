@@ -1,22 +1,18 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
+using XrmMigrationUtility.Services.Interfaces;
 
-namespace XrmMigrationUtility.Services
+namespace XrmMigrationUtility.Services.Implementations
 {
-    internal sealed class Logger
+    internal sealed class Logger : ILogger
     {
         private readonly TextBox _txtLogs;
         private readonly string _logsPath;
 
         public Logger(TextBox txtLogs, string logsPath)
         {
-            _logsPath = $"{logsPath}\\Logs.txt";
-            if (File.Exists(_logsPath))
-            {
-                File.AppendAllText(_logsPath, Environment.NewLine);
-                File.AppendAllText(_logsPath, DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss"));
-            }
+            _logsPath = $"{logsPath}\\Logs[{DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss.fff tt").Replace(":", "-")}].txt";
             _txtLogs = txtLogs;
         }
 

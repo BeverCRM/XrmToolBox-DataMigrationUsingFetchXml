@@ -2,35 +2,40 @@
 using System.IO;
 using System.Data;
 using System.Linq;
-using System.Threading;
+using System.Drawing;
 using Microsoft.Xrm.Sdk;
 using System.ServiceModel;
 using System.Windows.Forms;
 using McTools.Xrm.Connection;
-using Microsoft.Xrm.Sdk.Query;
 using XrmToolBox.Extensibility;
 using System.Collections.Generic;
 using XrmMigrationUtility.Services;
 using System.Collections.Specialized;
 using Microsoft.Xrm.Tooling.Connector;
+using XrmMigrationUtility.Model.Interfaces;
+using XrmMigrationUtility.Services.Interfaces;
+using XrmMigrationUtility.Model.Implementations;
+using XrmMigrationUtility.Services.Implementations;
 
 namespace XrmMigrationUtility
 {
-    internal partial class MyPluginControl : MultipleConnectionsPluginControlBase
+    internal partial class DataMigrationUtilityControl : MultipleConnectionsPluginControlBase
     {
-        private string FetchXmlFolderPath { get; set; }
-
-        private Settings mySettings;
-
-        private Logger logger;
+        private ILogger logger;
 
         private string logsPath;
 
-        private const string DEFAULT_PATH = "D:\\";
+        private Settings mySettings;
+
+        private List<string> entityNames;
 
         private const int ERROR_CODE = -2147220685;
 
-        public MyPluginControl()
+        private string FetchXmlFolderPath { get; set; }
+
+        private readonly string defaultPath = Environment.CurrentDirectory;
+
+        public DataMigrationUtilityControl()
         {
             InitializeComponent();
         }
@@ -42,11 +47,20 @@ namespace XrmMigrationUtility
                 if (!string.IsNullOrEmpty(FetchXmlFolderPath) || !string.IsNullOrWhiteSpace(FetchXmlFolderPath))
                 {
                     List<string> FetchXmlFileNames;
-                    FetchXmlFileNames = Directory.GetFiles(FetchXmlFolderPath).Select(fileName => fileName.Replace(FetchXmlFolderPath + @"\", "").Replace(".xml", "")).ToList();
-                    ListBoxTxtFetch.Items.Clear();
+                    entityNames = new List<string>();
+                    FetchXmlFileNames = Directory.GetFiles(FetchXmlFolderPath).Select(fileName => fileName.Replace(FetchXmlFolderPath + @"\", "")).ToList();//.Replace(".xml", "")).ToList();
+                    TextBoxFetchFiles.Text = null;
                     foreach (string item in FetchXmlFileNames)
                     {
-                        ListBoxTxtFetch.Items.Add(item);
+                        if (item.Contains(".xml"))
+                        {
+                            TextBoxFetchFiles.Text += item + ", ";
+                            entityNames.Add(item.Replace(".xml", ""));
+                        }
+                    }
+                    if (entityNames.Count >= 1)
+                    {
+                        TextBoxFetchFiles.Text = TextBoxFetchFiles.Text.Remove(TextBoxFetchFiles.Text.Length - 2);
                     }
                 }
             }
@@ -54,11 +68,10 @@ namespace XrmMigrationUtility
             {
                 MessageBox.Show($"Input Valid Path!: {ex.Message}");
                 TxtFetchPath.Text = null;
-                //ListBoxTxtFetch.Items.Clear();
             }
         }
 
-        private void MyPluginControl_Load(object sender, EventArgs e)
+        private void DataMigrationUtilityControl_Load(object sender, EventArgs e)
         {
             // Loads or creates the settings for the plugin
             if (!SettingsManager.Instance.TryLoad(GetType(), out mySettings))
@@ -71,46 +84,7 @@ namespace XrmMigrationUtility
             {
                 LogInfo("Settings found and loaded");
             }
-            TxtLogsPath.Text = DEFAULT_PATH;
-        }
-
-        private void tsbClose_Click(object sender, EventArgs e)
-        {
-            CloseTool();
-        }
-
-        private void tsbSample_Click(object sender, EventArgs e)
-        {
-            // The ExecuteMethod method handles connecting to an
-            // organization if XrmToolBox is not yet connected
-            ExecuteMethod(GetAccounts);
-        }
-
-        private void GetAccounts()
-        {
-            WorkAsync(new WorkAsyncInfo
-            {
-                Message = "Getting accounts",
-                Work = (worker, args) =>
-                {
-                    args.Result = Service.RetrieveMultiple(new QueryExpression("account")
-                    {
-                        TopCount = 50
-                    });
-                },
-                PostWorkCallBack = (args) =>
-                {
-                    if (args.Error != null)
-                    {
-                        MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    var result = args.Result as EntityCollection;
-                    if (result != null)
-                    {
-                        MessageBox.Show($"Found {result.Entities.Count} accounts");
-                    }
-                }
-            });
+            TxtLogsPath.Text = defaultPath;
         }
 
         /// <summary>
@@ -118,7 +92,7 @@ namespace XrmMigrationUtility
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void MyPluginControl_OnCloseTool(object sender, EventArgs e)
+        private void DataMigrationUtilityControl_OnCloseTool(object sender, EventArgs e)
         {
             // Before leaving, save the settings
             SettingsManager.Instance.Save(GetType(), mySettings);
@@ -136,6 +110,39 @@ namespace XrmMigrationUtility
                 mySettings.LastUsedOrganizationWebappUrl = detail.WebApplicationUrl;
                 LogInfo("Connection has changed to: {0}", detail.WebApplicationUrl);
             }
+
+            if (actionName == "AdditionalOrganization")
+            {
+                SetConnectionLabel(detail, "Target");
+            }
+            else
+            {
+                SetConnectionLabel(detail, "Source");
+            }
+        }
+
+        private void SetConnectionLabel(ConnectionDetail detail, string serviceType)
+        {
+            switch (serviceType)
+            {
+                case "Source":
+                    LblSourceText.Text = detail.ConnectionName;
+                    LblSourceText.ForeColor = Color.Green;
+                    LblSource.ForeColor = Color.Green;
+                    LblSource.Visible = true;
+                    LblSourceText.Visible = true;
+                    break;
+
+                case "Target":
+                    LblTargetText.Text = detail.ConnectionName;
+                    LblTargetText.ForeColor = Color.Green;
+                    LblTarget.ForeColor = Color.Green;
+                    LblIsTargetFilled.Text = detail.ConnectionName;
+                    LblIsTargetFilled.ForeColor = Color.Green;
+                    LblTarget.Visible = true;
+                    LblTargetText.Visible = true;
+                    break;
+            }
         }
 
         protected override void ConnectionDetailsUpdated(NotifyCollectionChangedEventArgs e)
@@ -145,12 +152,11 @@ namespace XrmMigrationUtility
             ListBoxOrganizations.DataSource = AdditionalConnectionDetails.ToList();
             ListBoxOrganizations.DisplayMember = "ConnectionName";
             ListBoxOrganizations.ValueMember = "ConnectionId";
-            BtnAddOrganization.Enabled = false;
         }
 
         private void BtnBrowseLogs_Click(object sender, EventArgs e)
         {
-            using (FolderBrowserDialog fbd = new FolderBrowserDialog() { Description = "Select Logs path!" })
+            using (FolderBrowserDialog fbd = new FolderBrowserDialog() { Description = "Select Logs path" })
             {
                 if (fbd.ShowDialog() == DialogResult.OK)
                 {
@@ -162,7 +168,7 @@ namespace XrmMigrationUtility
 
         private void BtnBrowseFetch_Click(object sender, EventArgs e)
         {
-            using (FolderBrowserDialog fbd = new FolderBrowserDialog() { Description = "Select Fetch path!" })
+            using (FolderBrowserDialog fbd = new FolderBrowserDialog() { Description = "Select Fetch path" })
             {
                 if (fbd.ShowDialog() == DialogResult.OK)
                 {
@@ -185,35 +191,9 @@ namespace XrmMigrationUtility
             }
             else
             {
-                ListBoxTxtFetch.Items.Clear();
+                //ListBoxTxtFetch.Items.Clear();
+                TextBoxFetchFiles.Text = null;
             }
-        }
-
-        private void BtnAddOrganization_Click(object sender, EventArgs e)
-        {
-            if (ListBoxOrganizations.Items.Count <= 1)
-            {
-                AddAdditionalOrganization();
-            }
-        }
-
-        private void BtnRemoveOrganization_Click(object sender, EventArgs e)
-        {
-            var conn = ListBoxOrganizations.SelectedItem as ConnectionDetail;
-            if (conn != null)
-            {
-                RemoveAdditionalOrganization(conn);
-            }
-            if (ListBoxOrganizations.Items.Count == 0)
-            {
-                BtnAddOrganization.Enabled = true;
-            }
-        }
-
-        private void ListBoxOrganizations_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ConnectionDetail conn = ListBoxOrganizations.SelectedItem as ConnectionDetail;
-            BtnRemoveOrganization.Enabled = (conn != null);
         }
 
         private void TxtLogsPathLeave(object sender, EventArgs e)
@@ -224,109 +204,127 @@ namespace XrmMigrationUtility
             }
             else
             {
-                logsPath = DEFAULT_PATH;
+                logsPath = defaultPath;
                 TxtLogsPath.Text = logsPath;
             }
         }
 
-        private List<string> GetEntities()
+        private void BtnSelectTargetInstance_Click(object sender, EventArgs e)
         {
-            int count = 1;
-            List<string> entities = new List<string>();
-            foreach (var item in ListBoxTxtFetch.Items)
+            AddAdditionalOrganization();
+            if (ListBoxOrganizations.Items.Count >= 1)
             {
-                entities.Add(item.ToString());
-                logger.Log($"{count}: Entity name -> {item}");
-                count++;
+                AdditionalConnectionDetails.Clear();
             }
-            logger.Log($"entities count: {entities.Count}");
-            logger.Log($"Log folder path: {TxtLogsPath.Text}");
-            logger.Log($"Fetch folder path: {TxtFetchPath.Text}");
-
-            return entities;
         }
 
         private void BtnTransferData_Click(object sender, EventArgs e)
         {
+
             if (ListBoxOrganizations.Items.Count < 1)
             {
                 MessageBox.Show("Add an organization for data transfer! ");
                 return;
             }
-
             TxtLogs.Text = string.Empty;
             logger = new Logger(TxtLogs, logsPath);
             logger.Log("Transfer is started. ");
+            logger.Log($"entities count: {entityNames.Count}");
+            logger.Log($"Log folder path: {TxtLogsPath.Text}");
+            logger.Log($"Fetch folder path: {TxtFetchPath.Text}");
 
-            List<ResultItem> result = new List<ResultItem>();
-            List<string> entities = GetEntities();
-
-            try
+            List<IResultItem> resultItem = new List<IResultItem>();
+            WorkAsync(new WorkAsyncInfo
             {
-                DataverseService D365source = new DataverseService((CrmServiceClient)Service);
-
-                bool stop = false;
-
-                foreach (string entity in entities)
+                Message = null,
+                Work = (worker, args) =>
                 {
-                    if (stop)
+                    try
                     {
-                        logger.Log("Process Stopped. Aborting! ");
-                        break;
+                        ChangeToolsState(false);
+                        IDataverseService d365source = new DataverseService((CrmServiceClient)Service);
+                        foreach (string entity in entityNames)
+                        {
+                            logger.Log("Getting data of '" + entity + "' from source instance");
+
+                            IResultItem currentResult = GetCurrentResult(d365source, entity);
+                            if (currentResult == null)
+                            {
+                                logger.Log("Process Stopped. Aborting! ");
+                                break;
+                            }
+                            resultItem.Add(currentResult);
+                        }
                     }
-                    logger.Log("Getting data of '" + entity + "' from source instance");
-
-                    ResultItem currentResult = GetCurrentResult(D365source, entity, out stop);
-
-                    result.Add(currentResult);
+                    catch (Exception ex)
+                    {
+                        logger.Log(ex.Message);
+                        logger.Log($"[trace log] {ex.StackTrace}");
+                    }
+                    finally
+                    {
+                        ChangeToolsState(true);
+                        logger.Log("Result: ");
+                        foreach (ResultItem r in resultItem)
+                            logger.Log($"{r.EntityName}, {r.SourceRecordCount } (Source Records), {r.SuccessfullyGeneratedRecordCount } (Generated Records)");
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.Log(ex.Message);
-                logger.Log($"[trace log] {ex.StackTrace}");
-            }
-            finally
-            {
-                logger.Log("Result: ");
-                foreach (ResultItem r in result)
-                    logger.Log($"{r.EntityName}, {r.SourceRecordCount } (Source Records), {r.SuccessfullyGeneratedRecordCount } (Generated Records)");
-            }
+            });
         }
 
-        private ResultItem GetCurrentResult(DataverseService D365source, string entity, out bool stop)
+        private void ChangeToolsState(bool state)
         {
-            stop = false;
-            ResultItem currentResult = new ResultItem(entity);
-            List<string> searchAttrs = new List<string>();
+            TxtLogsPath.Enabled = state;
+            TxtFetchPath.Enabled = state;
+            BtnBrowseLogs.Enabled = state;
+            BtnBrowseFetch.Enabled = state;
+            BtnTransferData.Enabled = state;
+            BtnSelectTargetInstance.Enabled = state;
+            TextBoxFetchFiles.Enabled = state;
+            ListBoxOrganizations.Enabled = state;
+        }
+
+        private IResultItem GetCurrentResult(IDataverseService d365source, string entity)
+        {
+            bool stop = false;
+            IResultItem currentResult = new ResultItem(entity);
+
             string fetchPath = TxtFetchPath.Text;
-            string entityFetch = ConfigReader.GetQuery(entity, out searchAttrs, fetchPath);
-            EntityCollection records = D365source.GetAllRecords(entityFetch);
+            string entityFetch = ConfigReader.GetQuery(entity, out List<string> searchAttrs, fetchPath, out bool idExists);
+
+            EntityCollection records = d365source.GetAllRecords(entityFetch);
+
             currentResult.SourceRecordCount = records.Entities.Count;
             logger.Log("Records count is: " + records.Entities.Count);
 
             if (records?.Entities?.Count > 0)
             {
-                stop = TransferData(records, currentResult, searchAttrs);
+                TransferData(records, currentResult, searchAttrs, out stop, idExists);
             }
             else
             {
                 logger.Log("Records count is zero or not found");
             }
+            if (stop)
+            {
+                logger.Log("Process Stopped. Aborting!");
+                return null;
+            }
 
             return currentResult;
         }
 
-        private bool TransferData(EntityCollection records, ResultItem currentResult, List<string> searchAttrs)
+        private void TransferData(EntityCollection records, IResultItem currentResult, List<string> searchAttrs, out bool stop, bool idExists)
         {
-            bool stop = false;
+            stop = false;
+
             foreach (ConnectionDetail detail in AdditionalConnectionDetails)
             {
                 if (stop) break;
 
-                DataverseService d365Target = new DataverseService(detail.ServiceClient);
+                IDataverseService d365Target = new DataverseService(detail.ServiceClient);
                 logger.Log("Transfering data to: " + detail.OrganizationDataServiceUrl);
-
+                //MessageBox.Show(detail.OrganizationUrlName);//target name
                 foreach (Entity record in records.Entities)
                 {
                     if (stop) break;
@@ -338,7 +336,10 @@ namespace XrmMigrationUtility
 
                     Entity newRecord = new Entity(record.LogicalName);
                     newRecord.Attributes.AddRange(record.Attributes);
-                    newRecord.Attributes.Remove(newRecord.LogicalName + "id");
+                    if (idExists)
+                    {
+                        newRecord.Attributes.Remove(newRecord.LogicalName + "id");
+                    }
 
                     try
                     {
@@ -358,36 +359,14 @@ namespace XrmMigrationUtility
                         else
                         {
                             logger.Log(ex.Message);
-                            stop = StopProcess();
                         }
                     }
                     catch (Exception ex)
                     {
                         logger.Log(ex.Message);
-                        stop = StopProcess();
                     }
                 }
             }
-            return stop;
-        }
-
-        private bool StopProcess()
-        {
-            bool stop = false;
-            string message = "Do you want to continue?";
-            logger.Log(message);
-
-            MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-            DialogResult result = MessageBox.Show(message, "Something Wrong! ", buttons);
-
-            if (result == DialogResult.No)
-            {
-                stop = true;
-                logger.Log("No: ");
-                return stop;
-            }
-            logger.Log("Yes: ");
-            return stop;
         }
     }
 }

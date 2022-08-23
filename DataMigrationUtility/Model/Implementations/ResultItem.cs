@@ -1,6 +1,8 @@
-﻿namespace XrmMigrationUtility.Services
+﻿using XrmMigrationUtility.Model.Interfaces;
+
+namespace XrmMigrationUtility.Model.Implementations
 {
-    internal sealed class ResultItem
+    internal sealed class ResultItem : IResultItem
     {
         public string EntityName { get; set; }
         public int SourceRecordCount { get; set; }
