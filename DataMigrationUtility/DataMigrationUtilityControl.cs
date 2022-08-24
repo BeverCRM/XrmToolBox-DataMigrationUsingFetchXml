@@ -114,6 +114,8 @@ namespace XrmMigrationUtility
             if (actionName == "AdditionalOrganization")
             {
                 SetConnectionLabel(detail, "Target");
+                AdditionalConnectionDetails.Clear();
+                AdditionalConnectionDetails.Add(detail);
             }
             else
             {
@@ -148,10 +150,10 @@ namespace XrmMigrationUtility
         protected override void ConnectionDetailsUpdated(NotifyCollectionChangedEventArgs e)
         {
             // update the list box with the connections
-            ListBoxOrganizations.DataSource = null;
-            ListBoxOrganizations.DataSource = AdditionalConnectionDetails.ToList();
-            ListBoxOrganizations.DisplayMember = "ConnectionName";
-            ListBoxOrganizations.ValueMember = "ConnectionId";
+            //ListBoxOrganizations.DataSource = null;
+            //ListBoxOrganizations.DataSource = AdditionalConnectionDetails.ToList();
+            //ListBoxOrganizations.DisplayMember = "ConnectionName";
+            //ListBoxOrganizations.ValueMember = "ConnectionId";
         }
 
         private void BtnBrowseLogs_Click(object sender, EventArgs e)
@@ -212,16 +214,12 @@ namespace XrmMigrationUtility
         private void BtnSelectTargetInstance_Click(object sender, EventArgs e)
         {
             AddAdditionalOrganization();
-            if (ListBoxOrganizations.Items.Count >= 1)
-            {
-                AdditionalConnectionDetails.Clear();
-            }
         }
 
         private void BtnTransferData_Click(object sender, EventArgs e)
         {
 
-            if (ListBoxOrganizations.Items.Count < 1)
+            if (AdditionalConnectionDetails.Count < 1)
             {
                 MessageBox.Show("Add an organization for data transfer! ");
                 return;
@@ -281,7 +279,7 @@ namespace XrmMigrationUtility
             BtnTransferData.Enabled = state;
             BtnSelectTargetInstance.Enabled = state;
             TextBoxFetchFiles.Enabled = state;
-            ListBoxOrganizations.Enabled = state;
+            BtnClearLogs.Enabled = state;
         }
 
         private IResultItem GetCurrentResult(IDataverseService d365source, string entity)
@@ -367,6 +365,11 @@ namespace XrmMigrationUtility
                     }
                 }
             }
+        }
+
+        private void BtnClearLogs_Click(object sender, EventArgs e)
+        {
+            TxtLogs.Text = null;
         }
     }
 }

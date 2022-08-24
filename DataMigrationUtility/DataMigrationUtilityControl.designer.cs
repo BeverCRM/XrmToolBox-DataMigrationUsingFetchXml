@@ -38,7 +38,6 @@ namespace XrmMigrationUtility
             this.TxtLogs = new System.Windows.Forms.TextBox();
             this.vScrollBar1 = new System.Windows.Forms.VScrollBar();
             this.BtnSelectTargetInstance = new System.Windows.Forms.Button();
-            this.ListBoxOrganizations = new System.Windows.Forms.ListBox();
             this.hScrollBar1 = new System.Windows.Forms.HScrollBar();
             this.BtnTransferData = new System.Windows.Forms.Button();
             this.TextBoxFetchFiles = new System.Windows.Forms.TextBox();
@@ -47,6 +46,7 @@ namespace XrmMigrationUtility
             this.LblSourceText = new System.Windows.Forms.Label();
             this.LblSource = new System.Windows.Forms.Label();
             this.LblIsTargetFilled = new System.Windows.Forms.Label();
+            this.BtnClearLogs = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // TxtLogsPath
@@ -74,9 +74,9 @@ namespace XrmMigrationUtility
             // BtnBrowseLogs
             // 
             this.BtnBrowseLogs.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnBrowseLogs.Location = new System.Drawing.Point(521, 129);
+            this.BtnBrowseLogs.Location = new System.Drawing.Point(521, 128);
             this.BtnBrowseLogs.Name = "BtnBrowseLogs";
-            this.BtnBrowseLogs.Size = new System.Drawing.Size(100, 25);
+            this.BtnBrowseLogs.Size = new System.Drawing.Size(95, 25);
             this.BtnBrowseLogs.TabIndex = 6;
             this.BtnBrowseLogs.Text = "Browse";
             this.BtnBrowseLogs.UseVisualStyleBackColor = true;
@@ -87,7 +87,7 @@ namespace XrmMigrationUtility
             this.BtnBrowseFetch.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.BtnBrowseFetch.Location = new System.Drawing.Point(521, 204);
             this.BtnBrowseFetch.Name = "BtnBrowseFetch";
-            this.BtnBrowseFetch.Size = new System.Drawing.Size(100, 25);
+            this.BtnBrowseFetch.Size = new System.Drawing.Size(95, 25);
             this.BtnBrowseFetch.TabIndex = 6;
             this.BtnBrowseFetch.Text = "Browse";
             this.BtnBrowseFetch.UseVisualStyleBackColor = true;
@@ -139,23 +139,13 @@ namespace XrmMigrationUtility
             // 
             this.BtnSelectTargetInstance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnSelectTargetInstance.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnSelectTargetInstance.Location = new System.Drawing.Point(1101, 93);
+            this.BtnSelectTargetInstance.Location = new System.Drawing.Point(1092, 168);
             this.BtnSelectTargetInstance.Name = "BtnSelectTargetInstance";
             this.BtnSelectTargetInstance.Size = new System.Drawing.Size(150, 30);
             this.BtnSelectTargetInstance.TabIndex = 10;
             this.BtnSelectTargetInstance.Text = "Select Target Instance\r\n";
             this.BtnSelectTargetInstance.UseVisualStyleBackColor = true;
             this.BtnSelectTargetInstance.Click += new System.EventHandler(this.BtnSelectTargetInstance_Click);
-            // 
-            // ListBoxOrganizations
-            // 
-            this.ListBoxOrganizations.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.ListBoxOrganizations.BackColor = System.Drawing.SystemColors.InactiveBorder;
-            this.ListBoxOrganizations.FormattingEnabled = true;
-            this.ListBoxOrganizations.Location = new System.Drawing.Point(733, 129);
-            this.ListBoxOrganizations.Name = "ListBoxOrganizations";
-            this.ListBoxOrganizations.Size = new System.Drawing.Size(608, 17);
-            this.ListBoxOrganizations.TabIndex = 15;
             // 
             // hScrollBar1
             // 
@@ -183,11 +173,11 @@ namespace XrmMigrationUtility
             this.TextBoxFetchFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.TextBoxFetchFiles.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.TextBoxFetchFiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TextBoxFetchFiles.Location = new System.Drawing.Point(733, 204);
+            this.TextBoxFetchFiles.Location = new System.Drawing.Point(748, 205);
             this.TextBoxFetchFiles.Multiline = true;
             this.TextBoxFetchFiles.Name = "TextBoxFetchFiles";
             this.TextBoxFetchFiles.ReadOnly = true;
-            this.TextBoxFetchFiles.Size = new System.Drawing.Size(608, 25);
+            this.TextBoxFetchFiles.Size = new System.Drawing.Size(593, 25);
             this.TextBoxFetchFiles.TabIndex = 19;
             // 
             // LblTarget
@@ -242,11 +232,21 @@ namespace XrmMigrationUtility
             this.LblIsTargetFilled.AutoSize = true;
             this.LblIsTargetFilled.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LblIsTargetFilled.ForeColor = System.Drawing.Color.Red;
-            this.LblIsTargetFilled.Location = new System.Drawing.Point(1257, 100);
+            this.LblIsTargetFilled.Location = new System.Drawing.Point(1248, 175);
             this.LblIsTargetFilled.Name = "LblIsTargetFilled";
             this.LblIsTargetFilled.Size = new System.Drawing.Size(93, 15);
             this.LblIsTargetFilled.TabIndex = 24;
             this.LblIsTargetFilled.Text = "Not selected yet";
+            // 
+            // BtnClearLogs
+            // 
+            this.BtnClearLogs.Location = new System.Drawing.Point(23, 267);
+            this.BtnClearLogs.Name = "BtnClearLogs";
+            this.BtnClearLogs.Size = new System.Drawing.Size(70, 25);
+            this.BtnClearLogs.TabIndex = 25;
+            this.BtnClearLogs.Text = "Clear Logs";
+            this.BtnClearLogs.UseVisualStyleBackColor = true;
+            this.BtnClearLogs.Click += new System.EventHandler(this.BtnClearLogs_Click);
             // 
             // DataMigrationUtilityControl
             // 
@@ -254,6 +254,7 @@ namespace XrmMigrationUtility
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.SystemColors.Control;
+            this.Controls.Add(this.BtnClearLogs);
             this.Controls.Add(this.LblIsTargetFilled);
             this.Controls.Add(this.LblSourceText);
             this.Controls.Add(this.LblSource);
@@ -262,7 +263,6 @@ namespace XrmMigrationUtility
             this.Controls.Add(this.TextBoxFetchFiles);
             this.Controls.Add(this.BtnTransferData);
             this.Controls.Add(this.hScrollBar1);
-            this.Controls.Add(this.ListBoxOrganizations);
             this.Controls.Add(this.BtnSelectTargetInstance);
             this.Controls.Add(this.vScrollBar1);
             this.Controls.Add(this.TxtLogs);
@@ -290,7 +290,6 @@ namespace XrmMigrationUtility
         private System.Windows.Forms.TextBox TxtLogs;
         private System.Windows.Forms.VScrollBar vScrollBar1;
         private System.Windows.Forms.Button BtnSelectTargetInstance;
-        private System.Windows.Forms.ListBox ListBoxOrganizations;
         private System.Windows.Forms.HScrollBar hScrollBar1;
         private System.Windows.Forms.Button BtnTransferData;
         private System.Windows.Forms.TextBox TextBoxFetchFiles;
@@ -299,5 +298,6 @@ namespace XrmMigrationUtility
         private System.Windows.Forms.Label LblSourceText;
         private System.Windows.Forms.Label LblSource;
         private System.Windows.Forms.Label LblIsTargetFilled;
+        private System.Windows.Forms.Button BtnClearLogs;
     }
 }
