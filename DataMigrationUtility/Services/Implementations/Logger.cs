@@ -12,7 +12,7 @@ namespace XrmMigrationUtility.Services.Implementations
 
         public Logger(TextBox txtLogs, string logsPath)
         {
-            _logsPath = $"{logsPath}\\Logs[{DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss.fff tt").Replace(":", "-")}].txt";
+            _logsPath = $"{logsPath}\\Logs[{DateTime.Now.Millisecond}].txt";
             _txtLogs = txtLogs;
         }
 

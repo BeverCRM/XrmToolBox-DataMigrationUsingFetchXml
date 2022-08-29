@@ -15,7 +15,6 @@ using Microsoft.Xrm.Tooling.Connector;
 using XrmMigrationUtility.Model.Interfaces;
 using XrmMigrationUtility.Services.Interfaces;
 using XrmMigrationUtility.Model.Implementations;
-using XrmMigrationUtility.Services.Implementations;
 
 namespace XrmMigrationUtility
 {
@@ -227,25 +226,14 @@ namespace XrmMigrationUtility
 
         private void BtnTransferData_Click(object sender, EventArgs e)
         {
-            //Injection injection = new Injection();
             if (AdditionalConnectionDetails.Count < 1)
             {
                 MessageBox.Show("Add an organization for data transfer! ");
                 return;
             }
-            //MessageBox.Show("0");
-            //UnityContainer unityContainer = new UnityContainer();
-            //unityContainer.RegisterType<ILogger, Logger>();
-            //logger = unityContainer.Resolve<ILogger>(new ResolverOverride[]
-            //    {
-            //            new ParameterOverride("txtLogs", TxtLogs),
-            //            new ParameterOverride("logsPath", logsPath)
-            //    });
 
             TxtLogs.Text = string.Empty;
-            logger = new Logger(TxtLogs, logsPath);
-            //logger = injection.GetLoggerInstance(TxtLogs, logsPath);
-            //MessageBox.Show("1");
+            logger = Injection.GetLoggerInstance(TxtLogs, logsPath);
             logger.Log("Transfer is started. ");
             logger.Log($"entities count: {entityNames.Count}");
             logger.Log($"Log folder path: {TxtLogsPath.Text}");
@@ -274,6 +262,8 @@ namespace XrmMigrationUtility
                         logger.Log("Result: ");
                         foreach (ResultItem r in resultItem)
                             logger.Log($"{r.EntityName}, {r.SourceRecordCount } (Source Records), {r.SuccessfullyGeneratedRecordCount } (Generated Records)");
+
+                        MessageBox.Show("Transfer Completed");
                     }
                 }
             });
@@ -311,10 +301,8 @@ namespace XrmMigrationUtility
         private IResultItem GetCurrentResult(string entityName)
         {
             bool stop = false;
-            IDataverseService d365source = new DataverseService((CrmServiceClient)Service);
-            //IDataverseService d365source = Injection.GetDataverseServiceInstance((CrmServiceClient)Service);
-            IResultItem currentResult = new ResultItem(entityName);
-            //IResultItem currentResult = Injection.GetResultItemInstance(entityName);
+            IDataverseService d365source = Injection.GetDataverseServiceInstance((CrmServiceClient)Service);
+            IResultItem currentResult = Injection.GetResultItemInstance(entityName);
 
             string fetchPath = TxtFetchPath.Text;
             string entityFetch = ConfigReader.GetQuery(entityName, out List<string> searchAttrs, fetchPath, out bool idExists);
@@ -349,8 +337,7 @@ namespace XrmMigrationUtility
             {
                 if (stop) break;
 
-                IDataverseService d365Target = new DataverseService(detail.ServiceClient);
-                //IDataverseService d365Target = Injection.GetDataverseServiceInstance(detail.ServiceClient);
+                IDataverseService d365Target = Injection.GetDataverseServiceInstance(detail.ServiceClient);
                 logger.Log("Transfering data to: " + detail.OrganizationDataServiceUrl);
                 //MessageBox.Show(detail.OrganizationUrlName);//target name
                 foreach (Entity record in records.Entities)
@@ -364,7 +351,7 @@ namespace XrmMigrationUtility
 
                     Entity newRecord = new Entity(record.LogicalName);
                     newRecord.Attributes.AddRange(record.Attributes);
-                    if (idExists)
+                    if (!idExists)
                     {
                         newRecord.Attributes.Remove(newRecord.LogicalName + "id");
                     }
