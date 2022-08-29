@@ -85,6 +85,15 @@ namespace XrmMigrationUtility
                 LogInfo("Settings found and loaded");
             }
             TxtLogsPath.Text = defaultPath;
+
+            //MessageBox.Show("0");
+            //IUnityContainer unityContainer = new UnityContainer();
+            //unityContainer.RegisterType<ILogger, Logger>();
+            //logger = unityContainer.Resolve<ILogger>(new ResolverOverride[]
+            //    {
+            //        new ParameterOverride("logsPath", "x")
+            //    });
+            //MessageBox.Show("1");
         }
 
         /// <summary>
@@ -218,14 +227,25 @@ namespace XrmMigrationUtility
 
         private void BtnTransferData_Click(object sender, EventArgs e)
         {
-
+            //Injection injection = new Injection();
             if (AdditionalConnectionDetails.Count < 1)
             {
                 MessageBox.Show("Add an organization for data transfer! ");
                 return;
             }
+            //MessageBox.Show("0");
+            //UnityContainer unityContainer = new UnityContainer();
+            //unityContainer.RegisterType<ILogger, Logger>();
+            //logger = unityContainer.Resolve<ILogger>(new ResolverOverride[]
+            //    {
+            //            new ParameterOverride("txtLogs", TxtLogs),
+            //            new ParameterOverride("logsPath", logsPath)
+            //    });
+
             TxtLogs.Text = string.Empty;
             logger = new Logger(TxtLogs, logsPath);
+            //logger = injection.GetLoggerInstance(TxtLogs, logsPath);
+            //MessageBox.Show("1");
             logger.Log("Transfer is started. ");
             logger.Log($"entities count: {entityNames.Count}");
             logger.Log($"Log folder path: {TxtLogsPath.Text}");
@@ -240,19 +260,8 @@ namespace XrmMigrationUtility
                     try
                     {
                         ChangeToolsState(false);
-                        IDataverseService d365source = new DataverseService((CrmServiceClient)Service);
-                        foreach (string entity in entityNames)
-                        {
-                            logger.Log("Getting data of '" + entity + "' from source instance");
 
-                            IResultItem currentResult = GetCurrentResult(d365source, entity);
-                            if (currentResult == null)
-                            {
-                                logger.Log("Process Stopped. Aborting! ");
-                                break;
-                            }
-                            resultItem.Add(currentResult);
-                        }
+                        resultItem = AddResultItems(resultItem);
                     }
                     catch (Exception ex)
                     {
@@ -270,6 +279,23 @@ namespace XrmMigrationUtility
             });
         }
 
+        private List<IResultItem> AddResultItems(List<IResultItem> resultItem)
+        {
+            foreach (string entityName in entityNames)
+            {
+                logger.Log("Getting data of '" + entityName + "' from source instance");
+
+                IResultItem currentResult = GetCurrentResult(entityName);
+                if (currentResult == null)
+                {
+                    logger.Log("Process Stopped. Aborting! ");
+                    break;
+                }
+                resultItem.Add(currentResult);
+            }
+            return resultItem;
+        }
+
         private void ChangeToolsState(bool state)
         {
             TxtLogsPath.Enabled = state;
@@ -282,13 +308,16 @@ namespace XrmMigrationUtility
             BtnClearLogs.Enabled = state;
         }
 
-        private IResultItem GetCurrentResult(IDataverseService d365source, string entity)
+        private IResultItem GetCurrentResult(string entityName)
         {
             bool stop = false;
-            IResultItem currentResult = new ResultItem(entity);
+            IDataverseService d365source = new DataverseService((CrmServiceClient)Service);
+            //IDataverseService d365source = Injection.GetDataverseServiceInstance((CrmServiceClient)Service);
+            IResultItem currentResult = new ResultItem(entityName);
+            //IResultItem currentResult = Injection.GetResultItemInstance(entityName);
 
             string fetchPath = TxtFetchPath.Text;
-            string entityFetch = ConfigReader.GetQuery(entity, out List<string> searchAttrs, fetchPath, out bool idExists);
+            string entityFetch = ConfigReader.GetQuery(entityName, out List<string> searchAttrs, fetchPath, out bool idExists);
 
             EntityCollection records = d365source.GetAllRecords(entityFetch);
 
@@ -321,6 +350,7 @@ namespace XrmMigrationUtility
                 if (stop) break;
 
                 IDataverseService d365Target = new DataverseService(detail.ServiceClient);
+                //IDataverseService d365Target = Injection.GetDataverseServiceInstance(detail.ServiceClient);
                 logger.Log("Transfering data to: " + detail.OrganizationDataServiceUrl);
                 //MessageBox.Show(detail.OrganizationUrlName);//target name
                 foreach (Entity record in records.Entities)

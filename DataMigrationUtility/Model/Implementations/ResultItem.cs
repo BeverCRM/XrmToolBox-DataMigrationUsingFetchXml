@@ -8,11 +8,11 @@ namespace XrmMigrationUtility.Model.Implementations
         public int SourceRecordCount { get; set; }
         public int SuccessfullyGeneratedRecordCount { get; set; }
 
-        public ResultItem(string name, int numberOfSource = 0, int numberOfTarget = 0)
+        public ResultItem(string entityName, int numberOfSource = 0, int numberOfTarget = 0)
         {
-            EntityName = name;
+            EntityName = entityName;
             SourceRecordCount = numberOfSource;
-            SuccessfullyGeneratedRecordCount  = numberOfTarget;
+            SuccessfullyGeneratedRecordCount = numberOfTarget;
         }
     }
 }
