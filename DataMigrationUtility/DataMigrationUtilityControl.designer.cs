@@ -56,7 +56,7 @@ namespace XrmMigrationUtility
             this.TxtLogsPath.Location = new System.Drawing.Point(23, 129);
             this.TxtLogsPath.Multiline = true;
             this.TxtLogsPath.Name = "TxtLogsPath";
-            this.TxtLogsPath.Size = new System.Drawing.Size(471, 25);
+            this.TxtLogsPath.Size = new System.Drawing.Size(474, 25);
             this.TxtLogsPath.TabIndex = 5;
             this.TxtLogsPath.Leave += new System.EventHandler(this.TxtLogsPathLeave);
             // 
@@ -184,7 +184,7 @@ namespace XrmMigrationUtility
             // 
             this.LblTarget.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.LblTarget.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblTarget.Location = new System.Drawing.Point(1118, 9);
+            this.LblTarget.Location = new System.Drawing.Point(1115, 9);
             this.LblTarget.Name = "LblTarget";
             this.LblTarget.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
             this.LblTarget.Size = new System.Drawing.Size(83, 27);
@@ -196,10 +196,10 @@ namespace XrmMigrationUtility
             // 
             this.LblTargetText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.LblTargetText.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblTargetText.Location = new System.Drawing.Point(1207, 9);
+            this.LblTargetText.Location = new System.Drawing.Point(1204, 9);
             this.LblTargetText.Name = "LblTargetText";
             this.LblTargetText.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
-            this.LblTargetText.Size = new System.Drawing.Size(134, 27);
+            this.LblTargetText.Size = new System.Drawing.Size(137, 145);
             this.LblTargetText.TabIndex = 21;
             this.LblTargetText.Text = "Target Text";
             this.LblTargetText.Visible = false;
@@ -207,10 +207,10 @@ namespace XrmMigrationUtility
             // LblSourceText
             // 
             this.LblSourceText.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblSourceText.Location = new System.Drawing.Point(116, 9);
+            this.LblSourceText.Location = new System.Drawing.Point(122, 9);
             this.LblSourceText.Name = "LblSourceText";
             this.LblSourceText.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
-            this.LblSourceText.Size = new System.Drawing.Size(134, 27);
+            this.LblSourceText.Size = new System.Drawing.Size(375, 117);
             this.LblSourceText.TabIndex = 23;
             this.LblSourceText.Text = "Source Text";
             this.LblSourceText.Visible = false;
@@ -218,10 +218,10 @@ namespace XrmMigrationUtility
             // LblSource
             // 
             this.LblSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblSource.Location = new System.Drawing.Point(19, 9);
+            this.LblSource.Location = new System.Drawing.Point(23, 9);
             this.LblSource.Name = "LblSource";
             this.LblSource.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
-            this.LblSource.Size = new System.Drawing.Size(91, 27);
+            this.LblSource.Size = new System.Drawing.Size(93, 27);
             this.LblSource.TabIndex = 22;
             this.LblSource.Text = "Source   - ";
             this.LblSource.Visible = false;

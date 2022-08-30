@@ -5,9 +5,9 @@ namespace XrmMigrationUtility.Services
 {
     internal sealed class ConfigReader
     {
-        public static string GetQuery(string entityName, out List<string> searchAttrs, string fetchPath, out bool idExists)
+        public static string GetQuery(string entityName, out List<string> searchAttrs, string fetchPath, out bool isIdExist)
         {
-            idExists = false;
+            isIdExist = false;
             // Load the xml file into XmlDocument object.
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(fetchPath + "\\" + entityName + ".xml");
@@ -25,7 +25,7 @@ namespace XrmMigrationUtility.Services
                 }
                 if (node.Attributes["name"] != null && node.Attributes["name"].Value == entityName + "id")
                 {
-                    idExists = true;
+                    isIdExist = true;
                 }
             }
 
