@@ -1,11 +1,15 @@
-﻿using System;
+﻿using Unity;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using XrmToolBox.Extensibility;
+using XrmMigrationUtility.Model;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using XrmToolBox.Extensibility.Interfaces;
+using XrmMigrationUtility.Services.Interfaces;
+using XrmMigrationUtility.Services.Implementations;
 
 namespace XrmMigrationUtility
 {
@@ -23,9 +27,35 @@ namespace XrmMigrationUtility
         ExportMetadata("SecondaryFontColor", "Gray")]
     public class DataMigrationUtility : PluginBase
     {
+        private readonly IUnityContainer _unityContainer;
+
+        private IAdditionalDetails _additionalDetails;
+
+        private ITransferOperation _transferOperation;
+
+        private ILogger _logger;
+
         public override IXrmToolBoxPluginControl GetControl()
         {
-            return new DataMigrationUtilityControl();
+            RegisterTypes();
+            Resolve();
+            return new DataMigrationUtilityControl(_unityContainer, _logger, _transferOperation, _additionalDetails);
+        }
+
+        private void RegisterTypes()
+        {
+            _unityContainer.RegisterType<IDataverseService, DataverseService>();
+            _unityContainer.RegisterType<ILogger, Logger>(TypeLifetime.Singleton);
+            _unityContainer.RegisterType<IResultItem, ResultItem>(TypeLifetime.Singleton);
+            _unityContainer.RegisterType<ITransferOperation, TransferOperation>(TypeLifetime.Singleton);
+            _unityContainer.RegisterType<IAdditionalDetails, AdditionalDetails>(TypeLifetime.Singleton);
+        }
+
+        private void Resolve()
+        {
+            _logger = _unityContainer.Resolve<ILogger>();
+            _transferOperation = _unityContainer.Resolve<ITransferOperation>();
+            _additionalDetails = _unityContainer.Resolve<IAdditionalDetails>();
         }
 
         /// <summary>
@@ -33,6 +63,7 @@ namespace XrmMigrationUtility
         /// </summary>
         public DataMigrationUtility()
         {
+            _unityContainer = new UnityContainer();
             // If you have external assemblies that you need to load, uncomment the following to 
             // hook into the event that will fire when an Assembly fails to resolve
             // AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(AssemblyResolveEventHandler);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Unity;
+using System;
 using System.IO;
 using System.Data;
 using System.Linq;
@@ -10,28 +11,36 @@ using XrmToolBox.Extensibility;
 using XrmMigrationUtility.Model;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using XrmMigrationUtility.Model.Interfaces;
 using XrmMigrationUtility.Services.Interfaces;
-using XrmMigrationUtility.Model.Implementations;
 
 namespace XrmMigrationUtility
 {
     internal partial class DataMigrationUtilityControl : MultipleConnectionsPluginControlBase
     {
-        private ILogger logger;
+        private string _logsPath;
 
-        private string logsPath;
+        private Settings _mySettings;
 
-        private Settings mySettings;
+        private List<string> _entityNames;
 
-        private List<string> entityNames;
+        private string _fetchXmlFolderPath;
 
-        private string FetchXmlFolderPath { get; set; }
+        private readonly ILogger _logger;
 
-        private readonly string defaultPath = Environment.CurrentDirectory;
+        private readonly IUnityContainer _unityContainer;
 
-        public DataMigrationUtilityControl()
+        private readonly IAdditionalDetails _additionalDetails;
+
+        private readonly ITransferOperation _transferOperation;
+
+        private readonly string _defaultPath = Environment.CurrentDirectory;
+
+        public DataMigrationUtilityControl(IUnityContainer unityContainer, ILogger logger, ITransferOperation transferOperation, IAdditionalDetails additionalDetails)
         {
+            _unityContainer = unityContainer;
+            _logger = logger;
+            _transferOperation = transferOperation;
+            _additionalDetails = additionalDetails;
             InitializeComponent();
         }
 
@@ -39,21 +48,21 @@ namespace XrmMigrationUtility
         {
             try
             {
-                if (!string.IsNullOrEmpty(FetchXmlFolderPath) || !string.IsNullOrWhiteSpace(FetchXmlFolderPath))
+                if (!string.IsNullOrEmpty(_fetchXmlFolderPath) || !string.IsNullOrWhiteSpace(_fetchXmlFolderPath))
                 {
                     List<string> FetchXmlFileNames;
-                    entityNames = new List<string>();
-                    FetchXmlFileNames = Directory.GetFiles(FetchXmlFolderPath).Select(fileName => fileName.Replace(FetchXmlFolderPath + @"\", "")).ToList();
+                    _entityNames = new List<string>();
+                    FetchXmlFileNames = Directory.GetFiles(_fetchXmlFolderPath).Select(fileName => fileName.Replace(_fetchXmlFolderPath + @"\", "")).ToList();
                     TextBoxFetchFiles.Text = null;
                     foreach (string item in FetchXmlFileNames)
                     {
                         if (item.Contains(".xml"))
                         {
                             TextBoxFetchFiles.Text += item + ", ";
-                            entityNames.Add(item.Replace(".xml", ""));
+                            _entityNames.Add(item.Replace(".xml", ""));
                         }
                     }
-                    if (entityNames.Count >= 1)
+                    if (_entityNames.Count >= 1)
                     {
                         TextBoxFetchFiles.Text = TextBoxFetchFiles.Text.Remove(TextBoxFetchFiles.Text.Length - 2);
                     }
@@ -69,9 +78,9 @@ namespace XrmMigrationUtility
         private void DataMigrationUtilityControl_Load(object sender, EventArgs e)
         {
             // Loads or creates the settings for the plugin
-            if (!SettingsManager.Instance.TryLoad(GetType(), out mySettings))
+            if (!SettingsManager.Instance.TryLoad(GetType(), out _mySettings))
             {
-                mySettings = new Settings();
+                _mySettings = new Settings();
 
                 LogWarning("Settings not found => a new settings file has been created!");
             }
@@ -79,7 +88,8 @@ namespace XrmMigrationUtility
             {
                 LogInfo("Settings found and loaded");
             }
-            TxtLogsPath.Text = defaultPath;
+            TxtLogsPath.Text = _defaultPath;
+            _logsPath = _defaultPath;
         }
 
         /// <summary>
@@ -90,7 +100,7 @@ namespace XrmMigrationUtility
         private void DataMigrationUtilityControl_OnCloseTool(object sender, EventArgs e)
         {
             // Before leaving, save the settings
-            SettingsManager.Instance.Save(GetType(), mySettings);
+            SettingsManager.Instance.Save(GetType(), _mySettings);
         }
 
         /// <summary>
@@ -100,9 +110,9 @@ namespace XrmMigrationUtility
         {
             base.UpdateConnection(newService, detail, actionName, parameter);
 
-            if (mySettings != null && detail != null)
+            if (_mySettings != null && detail != null)
             {
-                mySettings.LastUsedOrganizationWebappUrl = detail.WebApplicationUrl;
+                _mySettings.LastUsedOrganizationWebappUrl = detail.WebApplicationUrl;
                 LogInfo("Connection has changed to: {0}", detail.WebApplicationUrl);
             }
 
@@ -154,7 +164,7 @@ namespace XrmMigrationUtility
                 if (fbd.ShowDialog() == DialogResult.OK)
                 {
                     TxtLogsPath.Text = fbd.SelectedPath;
-                    logsPath = fbd.SelectedPath;
+                    _logsPath = fbd.SelectedPath;
                 }
             }
         }
@@ -165,7 +175,7 @@ namespace XrmMigrationUtility
             {
                 if (fbd.ShowDialog() == DialogResult.OK)
                 {
-                    FetchXmlFolderPath = fbd.SelectedPath;
+                    _fetchXmlFolderPath = fbd.SelectedPath;
                     TxtFetchPath.Text = fbd.SelectedPath;
                 }
             }
@@ -179,7 +189,7 @@ namespace XrmMigrationUtility
         {
             if (TxtFetchPath.Text != string.Empty)
             {
-                FetchXmlFolderPath = TxtFetchPath.Text;
+                _fetchXmlFolderPath = TxtFetchPath.Text;
                 GetFetchFileNames();
             }
             else
@@ -192,12 +202,12 @@ namespace XrmMigrationUtility
         {
             if (!string.IsNullOrWhiteSpace(TxtLogsPath.Text))
             {
-                logsPath = TxtLogsPath.Text;
+                _logsPath = TxtLogsPath.Text;
             }
             else
             {
-                logsPath = defaultPath;
-                TxtLogsPath.Text = logsPath;
+                _logsPath = _defaultPath;
+                TxtLogsPath.Text = _logsPath;
             }
         }
 
@@ -209,17 +219,22 @@ namespace XrmMigrationUtility
         private void BtnTransferData_Click(object sender, EventArgs e)
         {
             TxtLogs.Text = string.Empty;
-            logger = Injection.GetLoggerInstance(TxtLogs, logsPath);
+
+            _logger.SetTxtLogs(TxtLogs);
+            _logger.SetLogsPath(_logsPath);
+            _additionalDetails.AdditionalConnectionDetails = AdditionalConnectionDetails;
+            _additionalDetails.Service = Service;
+            _transferOperation.InitialiseFields(_unityContainer, _entityNames, TxtFetchPath.Text);
 
             if (AdditionalConnectionDetails.Count < 1)
             {
                 MessageBox.Show("Add an organization for data transfer! ");
                 return;
             }
-            logger.Log("Transfer is started. ");
-            logger.Log($"entities count: {entityNames.Count}");
-            logger.Log($"Log folder path: {TxtLogsPath.Text}");
-            logger.Log($"Fetch folder path: {TxtFetchPath.Text}");
+            _logger.Log("Transfer is started. ");
+            _logger.Log($"entities count: {_entityNames.Count}");
+            _logger.Log($"Log folder path: {TxtLogsPath.Text}");
+            _logger.Log($"Fetch folder path: {TxtFetchPath.Text}");
 
             List<IResultItem> resultItem = null;
             WorkAsync(new WorkAsyncInfo
@@ -230,22 +245,21 @@ namespace XrmMigrationUtility
                     try
                     {
                         ChangeToolsState(false);
-                        TransferOperation transferOperation = new TransferOperation(Service, AdditionalConnectionDetails, logger, entityNames, TxtFetchPath);
-                        transferOperation.Transfer();
+                        _transferOperation.Transfer();
 
-                        resultItem = transferOperation.ResultItem;
+                        resultItem = _transferOperation.ResultItems;
                     }
                     catch (Exception ex)
                     {
-                        logger.Log(ex.Message);
-                        logger.Log($"[trace log] {ex.StackTrace}");
+                        _logger.Log(ex.Message);
+                        _logger.Log($"[trace log] {ex.StackTrace}");
                     }
                     finally
                     {
                         ChangeToolsState(true);
-                        logger.Log("Result: ");
+                        _logger.Log("Result: ");
                         foreach (ResultItem r in resultItem)
-                            logger.Log($"{r.EntityName}, {r.SourceRecordCount } (Source Records), {r.SuccessfullyGeneratedRecordCount } (Generated Records)");
+                            _logger.Log($"{r.EntityName}, {r.SourceRecordCount } (Source Records), {r.SuccessfullyGeneratedRecordCount } (Generated Records)");
 
                         MessageBox.Show("Transfer Completed");
                     }

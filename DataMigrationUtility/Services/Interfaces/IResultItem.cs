@@ -1,6 +1,6 @@
-﻿namespace XrmMigrationUtility.Model.Interfaces
+﻿namespace XrmMigrationUtility.Services.Interfaces
 {
-    public interface IResultItem
+    internal interface IResultItem
     {
         string EntityName { get; set; }
 
