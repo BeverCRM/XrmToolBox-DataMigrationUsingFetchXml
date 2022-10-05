@@ -29,13 +29,13 @@ namespace XrmMigrationUtility
 
         private readonly IUnityContainer _unityContainer;
 
-        private readonly IAdditionalDetails _additionalDetails;
+        private readonly AdditionalDetails _additionalDetails;
 
-        private readonly ITransferOperation _transferOperation;
+        private readonly TransferOperation _transferOperation;
 
         private readonly string _defaultPath = Environment.CurrentDirectory;
 
-        public DataMigrationUtilityControl(IUnityContainer unityContainer, ILogger logger, ITransferOperation transferOperation, IAdditionalDetails additionalDetails)
+        public DataMigrationUtilityControl(IUnityContainer unityContainer, ILogger logger, TransferOperation transferOperation, AdditionalDetails additionalDetails)
         {
             _unityContainer = unityContainer;
             _logger = logger;
@@ -236,7 +236,7 @@ namespace XrmMigrationUtility
             _logger.Log($"Log folder path: {TxtLogsPath.Text}");
             _logger.Log($"Fetch folder path: {TxtFetchPath.Text}");
 
-            List<IResultItem> resultItem = null;
+            List<ResultItem> resultItems = null;
             WorkAsync(new WorkAsyncInfo
             {
                 Message = null,
@@ -247,7 +247,7 @@ namespace XrmMigrationUtility
                         ChangeToolsState(false);
                         _transferOperation.Transfer();
 
-                        resultItem = _transferOperation.ResultItems;
+                        resultItems = _transferOperation.ResultItems;
                     }
                     catch (Exception ex)
                     {
@@ -258,8 +258,8 @@ namespace XrmMigrationUtility
                     {
                         ChangeToolsState(true);
                         _logger.Log("Result: ");
-                        foreach (ResultItem r in resultItem)
-                            _logger.Log($"{r.EntityName}, {r.SourceRecordCount } (Source Records), {r.SuccessfullyGeneratedRecordCount } (Generated Records)");
+                        foreach (ResultItem resultItem in resultItems)
+                            _logger.Log($"{resultItem.EntityName}, {resultItem.SourceRecordCount } (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Generated Records)");
 
                         MessageBox.Show("Transfer Completed");
                     }

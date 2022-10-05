@@ -11,25 +11,25 @@ using XrmMigrationUtility.Services.Interfaces;
 
 namespace XrmMigrationUtility.Model
 {
-    internal class TransferOperation : ITransferOperation
+    internal class TransferOperation
     {
-        public List<IResultItem> ResultItems { get; set; }
+        public List<ResultItem> ResultItems { get; set; }
 
         private IUnityContainer _unityContainer;
 
         private IOrganizationService _service;
 
-        private ObservableCollection<ConnectionDetail> _additionalConnectionDetails;
+        private ResultItem _resultItem;
 
         private ILogger _logger;
 
-        private List<string> _entityNames;
-
         private string _fetchPathText;
 
-        private IResultItem _resultItem;
+        private List<string> _entityNames;
 
         private const int ERROR_CODE = -2147220685;
+
+        private ObservableCollection<ConnectionDetail> _additionalConnectionDetails;
 
         public void InitialiseFields(IUnityContainer unityContainer, List<string> entityNames, string fetchPathText)
         {
@@ -40,7 +40,7 @@ namespace XrmMigrationUtility.Model
 
         private void Resolve()
         {
-            IAdditionalDetails additionalDetails = _unityContainer.Resolve<IAdditionalDetails>();
+            AdditionalDetails additionalDetails = _unityContainer.Resolve<AdditionalDetails>();
             _service = additionalDetails.Service;
             _additionalConnectionDetails = additionalDetails.AdditionalConnectionDetails;
             _logger = _unityContainer.Resolve<ILogger>();
@@ -49,11 +49,11 @@ namespace XrmMigrationUtility.Model
         public void Transfer()
         {
             Resolve();
-            ResultItems = new List<IResultItem>();
+            ResultItems = new List<ResultItem>();
             foreach (string entityName in _entityNames)
             {
                 _logger.Log("Getting data of '" + entityName + "' from source instance");
-                _resultItem = _unityContainer.Resolve<IResultItem>();
+                _resultItem = _unityContainer.Resolve<ResultItem>();
                 _resultItem.EntityName = entityName;
 
                 string entityFetch = ConfigReader.GetQuery(entityName, out List<string> searchAttrs, _fetchPathText, out bool idExists);

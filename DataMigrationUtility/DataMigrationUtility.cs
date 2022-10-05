@@ -29,9 +29,9 @@ namespace XrmMigrationUtility
     {
         private readonly IUnityContainer _unityContainer;
 
-        private IAdditionalDetails _additionalDetails;
+        private AdditionalDetails _additionalDetails;
 
-        private ITransferOperation _transferOperation;
+        private TransferOperation _transferOperation;
 
         private ILogger _logger;
 
@@ -46,16 +46,16 @@ namespace XrmMigrationUtility
         {
             _unityContainer.RegisterType<IDataverseService, DataverseService>();
             _unityContainer.RegisterType<ILogger, Logger>(TypeLifetime.Singleton);
-            _unityContainer.RegisterType<IResultItem, ResultItem>(TypeLifetime.Singleton);
-            _unityContainer.RegisterType<ITransferOperation, TransferOperation>(TypeLifetime.Singleton);
-            _unityContainer.RegisterType<IAdditionalDetails, AdditionalDetails>(TypeLifetime.Singleton);
+            _unityContainer.RegisterType<ResultItem>(TypeLifetime.Singleton);
+            _unityContainer.RegisterType<TransferOperation>(TypeLifetime.Singleton);
+            _unityContainer.RegisterType<AdditionalDetails>(TypeLifetime.Singleton);
         }
 
         private void Resolve()
         {
             _logger = _unityContainer.Resolve<ILogger>();
-            _transferOperation = _unityContainer.Resolve<ITransferOperation>();
-            _additionalDetails = _unityContainer.Resolve<IAdditionalDetails>();
+            _transferOperation = _unityContainer.Resolve<TransferOperation>();
+            _additionalDetails = _unityContainer.Resolve<AdditionalDetails>();
         }
 
         /// <summary>

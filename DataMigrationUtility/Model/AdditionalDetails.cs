@@ -1,11 +1,10 @@
 ﻿using Microsoft.Xrm.Sdk;
 using McTools.Xrm.Connection;
 using System.Collections.ObjectModel;
-using XrmMigrationUtility.Services.Interfaces;
 
-namespace XrmMigrationUtility.Services.Implementations
+namespace XrmMigrationUtility.Model
 {
-    public class AdditionalDetails : IAdditionalDetails
+    internal class AdditionalDetails
     {
         public IOrganizationService Service { get; set; }
 

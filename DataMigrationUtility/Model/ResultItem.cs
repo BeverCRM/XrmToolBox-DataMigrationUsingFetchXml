@@ -1,8 +1,6 @@
-﻿using XrmMigrationUtility.Services.Interfaces;
-
-namespace XrmMigrationUtility.Model
+﻿namespace XrmMigrationUtility.Model
 {
-    internal sealed class ResultItem : IResultItem
+    internal sealed class ResultItem
     {
         public string EntityName { get; set; }
 

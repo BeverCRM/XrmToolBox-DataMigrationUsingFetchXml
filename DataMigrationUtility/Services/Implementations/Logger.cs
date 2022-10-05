@@ -23,11 +23,18 @@ namespace XrmMigrationUtility.Services.Implementations
 
         public void Log(string text)
         {
-            string dateTiemStr = DateTime.Now.ToString("G");
-            string logText = $"[{dateTiemStr}] " + text;
+            if (_logsPath != null)
+            {
+                string dateTiemStr = DateTime.Now.ToString("G");
+                string logText = $"[{dateTiemStr}] " + text;
 
-            LogToTextBox(logText);
-            LogToFile(logText);
+                LogToTextBox(logText);
+                LogToFile(logText);
+            }
+            else
+            {
+                throw new Exception("Log Path is Null!");
+            }
         }
 
         private void LogToTextBox(string logText)

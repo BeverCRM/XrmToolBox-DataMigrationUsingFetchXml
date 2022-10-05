@@ -312,7 +312,7 @@
   <ItemGroup>
     <Compile Include="Model\TransferOperation.cs" />
     <Compile Include="Services\ConfigReader.cs" />
-    <Compile Include="Services\Implementations\AdditionalDetails.cs" />
+    <Compile Include="Model\AdditionalDetails.cs" />
     <Compile Include="Services\Implementations\DataverseService.cs" />
     <Compile Include="Services\Implementations\Logger.cs" />
     <Compile Include="Model\ResultItem.cs" />
@@ -324,11 +324,8 @@
       <DependentUpon>DataMigrationUtilityControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\Interfaces\IAdditionalDetails.cs" />
     <Compile Include="Services\Interfaces\IDataverseService.cs" />
     <Compile Include="Services\Interfaces\ILogger.cs" />
-    <Compile Include="Services\Interfaces\IResultItem.cs" />
-    <Compile Include="Services\Interfaces\ITransferOperation.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
