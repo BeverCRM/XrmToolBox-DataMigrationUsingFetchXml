@@ -1,27 +1,28 @@
 ﻿using Unity;
 using System;
+using Unity.Resolution;
 using Microsoft.Xrm.Sdk;
 using System.ServiceModel;
 using McTools.Xrm.Connection;
+using XrmMigrationUtility.Model;
 using System.Collections.Generic;
-using XrmMigrationUtility.Services;
 using System.Collections.ObjectModel;
 using Microsoft.Xrm.Tooling.Connector;
 using XrmMigrationUtility.Services.Interfaces;
 
-namespace XrmMigrationUtility.Model
+namespace XrmMigrationUtility.Services.Implementations
 {
-    internal class TransferOperation
+    internal class TransferOperation : ITransferOperation
     {
         public List<ResultItem> ResultItems { get; set; }
 
-        private IUnityContainer _unityContainer;
+        private readonly IUnityContainer _unityContainer;
 
         private IOrganizationService _service;
 
-        private ResultItem _resultItem;
+        private readonly ResultItem _resultItem;
 
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
         private string _fetchPathText;
 
@@ -31,36 +32,36 @@ namespace XrmMigrationUtility.Model
 
         private ObservableCollection<ConnectionDetail> _additionalConnectionDetails;
 
-        public void InitialiseFields(IUnityContainer unityContainer, List<string> entityNames, string fetchPathText)
+        public TransferOperation(IUnityContainer unityContainer, ILogger logger)
         {
+            _logger = logger;
             _unityContainer = unityContainer;
-            _entityNames = entityNames;
-            _fetchPathText = fetchPathText;
+            _resultItem = new ResultItem();
         }
 
-        private void Resolve()
+        public void InitialiseFields(AdditionalDetails additionalDetails, List<string> entityNames, string fetchPathText)
         {
-            AdditionalDetails additionalDetails = _unityContainer.Resolve<AdditionalDetails>();
+            _entityNames = entityNames;
+            _fetchPathText = fetchPathText;
             _service = additionalDetails.Service;
             _additionalConnectionDetails = additionalDetails.AdditionalConnectionDetails;
-            _logger = _unityContainer.Resolve<ILogger>();
         }
 
         public void Transfer()
         {
-            Resolve();
             ResultItems = new List<ResultItem>();
             foreach (string entityName in _entityNames)
             {
                 _logger.Log("Getting data of '" + entityName + "' from source instance");
-                _resultItem = _unityContainer.Resolve<ResultItem>();
                 _resultItem.EntityName = entityName;
 
                 string entityFetch = ConfigReader.GetQuery(entityName, out List<string> searchAttrs, _fetchPathText, out bool idExists);
 
-                IDataverseService d365source = _unityContainer.Resolve<IDataverseService>();
-                d365source.Logger = _logger;
-                d365source.Service = (CrmServiceClient)_service;
+                IDataverseService d365source = _unityContainer.Resolve<IDataverseService>(new ResolverOverride[]
+                {
+                    new ParameterOverride("service", (CrmServiceClient)_service),
+                    new ParameterOverride("logger", _logger)
+                });
                 EntityCollection records = d365source.GetAllRecords(entityFetch);
 
                 _resultItem.SourceRecordCount = records.Entities.Count;
@@ -91,9 +92,11 @@ namespace XrmMigrationUtility.Model
             {
                 if (stop) break;
 
-                IDataverseService d365Target = _unityContainer.Resolve<IDataverseService>();
-                d365Target.Logger = _logger;
-                d365Target.Service = detail.ServiceClient;
+                IDataverseService d365Target = _unityContainer.Resolve<IDataverseService>(new ResolverOverride[]
+                {
+                    new ParameterOverride("service", detail.ServiceClient),
+                    new ParameterOverride("logger", _logger)
+                });
                 _logger.Log("Transfering data to: " + detail.OrganizationDataServiceUrl);
 
                 foreach (Entity record in records.Entities)

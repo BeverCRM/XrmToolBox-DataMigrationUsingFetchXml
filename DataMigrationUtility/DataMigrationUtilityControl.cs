@@ -1,5 +1,4 @@
-﻿using Unity;
-using System;
+﻿using System;
 using System.IO;
 using System.Data;
 using System.Linq;
@@ -27,20 +26,14 @@ namespace XrmMigrationUtility
 
         private readonly ILogger _logger;
 
-        private readonly IUnityContainer _unityContainer;
-
-        private readonly AdditionalDetails _additionalDetails;
-
-        private readonly TransferOperation _transferOperation;
+        private readonly ITransferOperation _transferOperation;
 
         private readonly string _defaultPath = Environment.CurrentDirectory;
 
-        public DataMigrationUtilityControl(IUnityContainer unityContainer, ILogger logger, TransferOperation transferOperation, AdditionalDetails additionalDetails)
+        public DataMigrationUtilityControl(ILogger logger, ITransferOperation transferOperation)
         {
-            _unityContainer = unityContainer;
             _logger = logger;
             _transferOperation = transferOperation;
-            _additionalDetails = additionalDetails;
             InitializeComponent();
         }
 
@@ -218,13 +211,14 @@ namespace XrmMigrationUtility
 
         private void BtnTransferData_Click(object sender, EventArgs e)
         {
+            AdditionalDetails additionalDetails = new AdditionalDetails();
             TxtLogs.Text = string.Empty;
 
             _logger.SetTxtLogs(TxtLogs);
             _logger.SetLogsPath(_logsPath);
-            _additionalDetails.AdditionalConnectionDetails = AdditionalConnectionDetails;
-            _additionalDetails.Service = Service;
-            _transferOperation.InitialiseFields(_unityContainer, _entityNames, TxtFetchPath.Text);
+            additionalDetails.AdditionalConnectionDetails = AdditionalConnectionDetails;
+            additionalDetails.Service = Service;
+            _transferOperation.InitialiseFields(additionalDetails, _entityNames, TxtFetchPath.Text);
 
             if (AdditionalConnectionDetails.Count < 1)
             {

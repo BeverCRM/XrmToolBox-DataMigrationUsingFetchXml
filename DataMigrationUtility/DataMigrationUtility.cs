@@ -4,12 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using XrmToolBox.Extensibility;
-using XrmMigrationUtility.Model;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using XrmToolBox.Extensibility.Interfaces;
-using XrmMigrationUtility.Services.Interfaces;
-using XrmMigrationUtility.Services.Implementations;
 
 namespace XrmMigrationUtility
 {
@@ -29,33 +26,11 @@ namespace XrmMigrationUtility
     {
         private readonly IUnityContainer _unityContainer;
 
-        private AdditionalDetails _additionalDetails;
-
-        private TransferOperation _transferOperation;
-
-        private ILogger _logger;
-
         public override IXrmToolBoxPluginControl GetControl()
         {
-            RegisterTypes();
-            Resolve();
-            return new DataMigrationUtilityControl(_unityContainer, _logger, _transferOperation, _additionalDetails);
-        }
+            UnityConfig.RegisterTypes(_unityContainer);
 
-        private void RegisterTypes()
-        {
-            _unityContainer.RegisterType<IDataverseService, DataverseService>();
-            _unityContainer.RegisterType<ILogger, Logger>(TypeLifetime.Singleton);
-            _unityContainer.RegisterType<ResultItem>(TypeLifetime.Singleton);
-            _unityContainer.RegisterType<TransferOperation>(TypeLifetime.Singleton);
-            _unityContainer.RegisterType<AdditionalDetails>(TypeLifetime.Singleton);
-        }
-
-        private void Resolve()
-        {
-            _logger = _unityContainer.Resolve<ILogger>();
-            _transferOperation = _unityContainer.Resolve<TransferOperation>();
-            _additionalDetails = _unityContainer.Resolve<AdditionalDetails>();
+            return _unityContainer.Resolve<DataMigrationUtilityControl>();
         }
 
         /// <summary>

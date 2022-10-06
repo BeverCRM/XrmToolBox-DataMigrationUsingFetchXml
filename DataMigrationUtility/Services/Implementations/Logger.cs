@@ -8,7 +8,6 @@ namespace XrmMigrationUtility.Services.Implementations
     internal sealed class Logger : ILogger
     {
         private TextBox _txtLogs;
-
         private string _logsPath;
 
         public void SetTxtLogs(TextBox txtLogs)
@@ -48,6 +47,5 @@ namespace XrmMigrationUtility.Services.Implementations
             File.AppendAllText(_logsPath, logText);
             File.AppendAllText(_logsPath, Environment.NewLine);
         }
-
     }
 }

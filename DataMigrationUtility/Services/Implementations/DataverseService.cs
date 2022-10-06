@@ -12,9 +12,14 @@ namespace XrmMigrationUtility.Services.Implementations
 {
     internal sealed class DataverseService : IDataverseService
     {
-        public CrmServiceClient Service { get; set; }
+        private readonly CrmServiceClient _service;
+        private readonly ILogger _logger;
 
-        public ILogger Logger { get; set; }
+        public DataverseService(CrmServiceClient service, ILogger logger)
+        {
+            _service = service;
+            _logger = logger;
+        }
 
         public EntityCollection GetAllRecords(string fetchQuery)
         {
@@ -27,7 +32,7 @@ namespace XrmMigrationUtility.Services.Implementations
             while (true)
             {
                 string xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, pageNumber, fetchCount);
-                EntityCollection returnCollection = Service.RetrieveMultiple(new FetchExpression(xml));
+                EntityCollection returnCollection = _service.RetrieveMultiple(new FetchExpression(xml));
                 data.Entities.AddRange(returnCollection.Entities);
 
                 if (returnCollection.MoreRecords)
@@ -50,7 +55,7 @@ namespace XrmMigrationUtility.Services.Implementations
                 Target = record
             };
             createRequest.Parameters.Add("SuppressDuplicateDetection", duplicateDetection);
-            CreateResponse response = (CreateResponse)Service.Execute(createRequest);
+            CreateResponse response = (CreateResponse)_service.Execute(createRequest);
 
             return response.id;
         }
@@ -72,8 +77,8 @@ namespace XrmMigrationUtility.Services.Implementations
                     }
                     else
                     {
-                        Logger.Log("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name);
-                        Logger.Log($"Creating a new record of '{refValue.LogicalName}' with name '{refValue.Name}'...");
+                        _logger.Log("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name);
+                        _logger.Log($"Creating a new record of '{refValue.LogicalName}' with name '{refValue.Name}'...");
                     }
                 }
             }
@@ -86,7 +91,7 @@ namespace XrmMigrationUtility.Services.Implementations
                 EntityFilters = EntityFilters.All,
                 LogicalName = entitySchemaName
             };
-            var retrieveEntityResponse = (RetrieveEntityResponse)Service.Execute(retrieveEntityRequest);
+            var retrieveEntityResponse = (RetrieveEntityResponse)_service.Execute(retrieveEntityRequest);
 
             return retrieveEntityResponse.EntityMetadata.PrimaryNameAttribute;
         }
@@ -106,7 +111,7 @@ namespace XrmMigrationUtility.Services.Implementations
                     }
                 }
             };
-            EntityCollection records = Service.RetrieveMultiple(query);
+            EntityCollection records = _service.RetrieveMultiple(query);
 
             return records.Entities.FirstOrDefault();
         }
