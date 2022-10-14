@@ -9,6 +9,6 @@ namespace XrmMigrationUtility.Services.Interfaces
 
         void Transfer();
 
-        void InitialiseFields(AdditionalDetails additionalDetails, List<string> entityNames, string fetchPathText);
+        void InitialiseFields(ConnectionDetails additionalDetails, List<string> entityNames, string fetchPathText);
     }
 }

@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 
 namespace XrmMigrationUtility.Model
 {
-    internal sealed class AdditionalDetails
+    internal sealed class ConnectionDetails
     {
         public IOrganizationService Service { get; set; }
 

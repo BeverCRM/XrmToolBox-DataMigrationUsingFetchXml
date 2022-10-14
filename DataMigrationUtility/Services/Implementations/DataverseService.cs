@@ -12,12 +12,14 @@ namespace XrmMigrationUtility.Services.Implementations
 {
     internal sealed class DataverseService : IDataverseService
     {
-        private readonly CrmServiceClient _service;
+        private readonly IOrganizationService _sourceService;
+        private readonly CrmServiceClient _targetService;
         private readonly ILogger _logger;
 
-        public DataverseService(CrmServiceClient service, ILogger logger)
+        public DataverseService(IOrganizationService sourceService, CrmServiceClient targetService, ILogger logger)
         {
-            _service = service;
+            _sourceService = sourceService;
+            _targetService = targetService;
             _logger = logger;
         }
 
@@ -32,7 +34,8 @@ namespace XrmMigrationUtility.Services.Implementations
             while (true)
             {
                 string xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, pageNumber, fetchCount);
-                EntityCollection returnCollection = _service.RetrieveMultiple(new FetchExpression(xml));
+                EntityCollection returnCollection;
+                returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
                 data.Entities.AddRange(returnCollection.Entities);
 
                 if (returnCollection.MoreRecords)
@@ -55,7 +58,7 @@ namespace XrmMigrationUtility.Services.Implementations
                 Target = record
             };
             createRequest.Parameters.Add("SuppressDuplicateDetection", duplicateDetection);
-            CreateResponse response = (CreateResponse)_service.Execute(createRequest);
+            CreateResponse response = (CreateResponse)_targetService.Execute(createRequest);
 
             return response.id;
         }
@@ -91,7 +94,7 @@ namespace XrmMigrationUtility.Services.Implementations
                 EntityFilters = EntityFilters.All,
                 LogicalName = entitySchemaName
             };
-            var retrieveEntityResponse = (RetrieveEntityResponse)_service.Execute(retrieveEntityRequest);
+            var retrieveEntityResponse = (RetrieveEntityResponse)_targetService.Execute(retrieveEntityRequest);
 
             return retrieveEntityResponse.EntityMetadata.PrimaryNameAttribute;
         }
@@ -111,7 +114,7 @@ namespace XrmMigrationUtility.Services.Implementations
                     }
                 }
             };
-            EntityCollection records = _service.RetrieveMultiple(query);
+            EntityCollection records = _targetService.RetrieveMultiple(query);
 
             return records.Entities.FirstOrDefault();
         }

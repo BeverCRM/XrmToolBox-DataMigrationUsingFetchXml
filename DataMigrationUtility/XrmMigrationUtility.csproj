@@ -312,7 +312,7 @@
   <ItemGroup>
     <Compile Include="Services\Implementations\TransferOperation.cs" />
     <Compile Include="Services\ConfigReader.cs" />
-    <Compile Include="Model\AdditionalDetails.cs" />
+    <Compile Include="Model\ConnectionDetails.cs" />
     <Compile Include="Services\Implementations\DataverseService.cs" />
     <Compile Include="Services\Implementations\Logger.cs" />
     <Compile Include="Model\ResultItem.cs" />

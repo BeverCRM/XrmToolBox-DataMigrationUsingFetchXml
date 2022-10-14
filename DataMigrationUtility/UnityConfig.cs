@@ -11,7 +11,6 @@ namespace XrmMigrationUtility
             unityContainer.RegisterType<DataMigrationUtilityControl>(TypeLifetime.Singleton);
             unityContainer.RegisterType<ITransferOperation, TransferOperation>(TypeLifetime.Singleton);
             unityContainer.RegisterType<ILogger, Logger>(TypeLifetime.Singleton);
-            unityContainer.RegisterType<IDataverseService, DataverseService>();
         }
     }
 }

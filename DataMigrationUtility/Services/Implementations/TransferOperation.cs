@@ -1,24 +1,21 @@
-﻿using Unity;
-using System;
-using Unity.Resolution;
+﻿using System;
 using Microsoft.Xrm.Sdk;
 using System.ServiceModel;
 using McTools.Xrm.Connection;
 using XrmMigrationUtility.Model;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Microsoft.Xrm.Tooling.Connector;
 using XrmMigrationUtility.Services.Interfaces;
 
 namespace XrmMigrationUtility.Services.Implementations
 {
-    internal class TransferOperation : ITransferOperation
+    internal sealed class TransferOperation : ITransferOperation
     {
         public List<ResultItem> ResultItems { get; set; }
 
-        private readonly IUnityContainer _unityContainer;
+        private IOrganizationService _sourceService;
 
-        private IOrganizationService _service;
+        private IDataverseService _dataverseService;
 
         private readonly ResultItem _resultItem;
 
@@ -28,28 +25,32 @@ namespace XrmMigrationUtility.Services.Implementations
 
         private List<string> _entityNames;
 
+        private string _organizationDataServiceUrl;
+
         private const int ERROR_CODE = -2147220685;
 
         private ObservableCollection<ConnectionDetail> _additionalConnectionDetails;
 
-        public TransferOperation(IUnityContainer unityContainer, ILogger logger)
+        public TransferOperation(ILogger logger)
         {
             _logger = logger;
-            _unityContainer = unityContainer;
             _resultItem = new ResultItem();
         }
 
-        public void InitialiseFields(AdditionalDetails additionalDetails, List<string> entityNames, string fetchPathText)
+        public void InitialiseFields(ConnectionDetails connectionDetails, List<string> entityNames, string fetchPathText)
         {
             _entityNames = entityNames;
             _fetchPathText = fetchPathText;
-            _service = additionalDetails.Service;
-            _additionalConnectionDetails = additionalDetails.AdditionalConnectionDetails;
+            _sourceService = connectionDetails.Service;
+            _additionalConnectionDetails = connectionDetails.AdditionalConnectionDetails;
+            _organizationDataServiceUrl = _additionalConnectionDetails[0].OrganizationDataServiceUrl;
+            _dataverseService = new DataverseService(_sourceService, _additionalConnectionDetails[0].ServiceClient, _logger);
         }
 
         public void Transfer()
         {
             ResultItems = new List<ResultItem>();
+
             foreach (string entityName in _entityNames)
             {
                 _logger.Log("Getting data of '" + entityName + "' from source instance");
@@ -57,12 +58,7 @@ namespace XrmMigrationUtility.Services.Implementations
 
                 string entityFetch = ConfigReader.GetQuery(entityName, out List<string> searchAttrs, _fetchPathText, out bool idExists);
 
-                IDataverseService d365source = _unityContainer.Resolve<IDataverseService>(new ResolverOverride[]
-                {
-                    new ParameterOverride("service", (CrmServiceClient)_service),
-                    new ParameterOverride("logger", _logger)
-                });
-                EntityCollection records = d365source.GetAllRecords(entityFetch);
+                EntityCollection records = _dataverseService.GetAllRecords(entityFetch);
 
                 _resultItem.SourceRecordCount = records.Entities.Count;
                 _logger.Log("Records count is: " + records.Entities.Count);
@@ -86,58 +82,44 @@ namespace XrmMigrationUtility.Services.Implementations
 
         private void TransferData(EntityCollection records, List<string> searchAttrs, bool idExists)
         {
-            bool stop = false;
+            _logger.Log("Transfering data to: " + _organizationDataServiceUrl);
 
-            foreach (ConnectionDetail detail in _additionalConnectionDetails)
+            foreach (Entity record in records.Entities)
             {
-                if (stop) break;
+                string primaryAttr = _dataverseService.GetEntityPrimaryField(record.LogicalName);
+                string recordFirstValue = record.GetAttributeValue<string>(primaryAttr);
+                string recordId = record.Id.ToString();
+                _logger.Log("Record with id '" + recordId + "' and with name '" + recordFirstValue + "' is creating in target...");
 
-                IDataverseService d365Target = _unityContainer.Resolve<IDataverseService>(new ResolverOverride[]
+                Entity newRecord = new Entity(record.LogicalName);
+                newRecord.Attributes.AddRange(record.Attributes);
+                if (!idExists)
                 {
-                    new ParameterOverride("service", detail.ServiceClient),
-                    new ParameterOverride("logger", _logger)
-                });
-                _logger.Log("Transfering data to: " + detail.OrganizationDataServiceUrl);
+                    newRecord.Attributes.Remove(newRecord.LogicalName + "id");
+                }
 
-                foreach (Entity record in records.Entities)
+                try
                 {
-                    if (stop) break;
+                    _dataverseService.MapSearchAttributes(newRecord, searchAttrs);
 
-                    string primaryAttr = d365Target.GetEntityPrimaryField(record.LogicalName);
-                    string recordFirstValue = record.GetAttributeValue<string>(primaryAttr);
-                    string recordId = record.Id.ToString();
-                    _logger.Log("Record with id '" + recordId + "' and with name '" + recordFirstValue + "' is creating in target...");
-
-                    Entity newRecord = new Entity(record.LogicalName);
-                    newRecord.Attributes.AddRange(record.Attributes);
-                    if (!idExists)
+                    Guid createdRecordId = _dataverseService.CreateRecord(newRecord, false);
+                    ++_resultItem.SuccessfullyGeneratedRecordCount;
+                    _logger.Log($"Record is created with id {{{createdRecordId}}}");
+                }
+                catch (FaultException<OrganizationServiceFault> ex)
+                {
+                    if (ex.Detail.ErrorCode == ERROR_CODE) //DuplicateRecordsFound
                     {
-                        newRecord.Attributes.Remove(newRecord.LogicalName + "id");
+                        _logger.Log("The record was not created because a duplicate of the current record already exists.");
                     }
-
-                    try
-                    {
-                        d365Target.MapSearchAttributes(newRecord, searchAttrs);
-
-                        Guid createdRecordId = d365Target.CreateRecord(newRecord, false);
-                        ++_resultItem.SuccessfullyGeneratedRecordCount;
-                        _logger.Log($"Record is created with id {{{createdRecordId}}}");
-                    }
-                    catch (FaultException<OrganizationServiceFault> ex)
-                    {
-                        if (ex.Detail.ErrorCode == ERROR_CODE) //DuplicateRecordsFound
-                        {
-                            _logger.Log("The record was not created because a duplicate of the current record already exists.");
-                        }
-                        else
-                        {
-                            _logger.Log(ex.Message);
-                        }
-                    }
-                    catch (Exception ex)
+                    else
                     {
                         _logger.Log(ex.Message);
                     }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(ex.Message);
                 }
             }
         }

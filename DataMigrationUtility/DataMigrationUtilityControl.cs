@@ -211,7 +211,7 @@ namespace XrmMigrationUtility
 
         private void BtnTransferData_Click(object sender, EventArgs e)
         {
-            AdditionalDetails additionalDetails = new AdditionalDetails();
+            ConnectionDetails additionalDetails = new ConnectionDetails();
             TxtLogs.Text = string.Empty;
 
             _logger.SetTxtLogs(TxtLogs);
