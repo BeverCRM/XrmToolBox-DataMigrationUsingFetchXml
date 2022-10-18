@@ -1,16 +1,11 @@
-﻿namespace XrmMigrationUtility.Services
+﻿namespace XrmMigrationUtility.Model
 {
     internal sealed class ResultItem
     {
         public string EntityName { get; set; }
-        public int SourceRecordCount { get; set; }
-        public int SuccessfullyGeneratedRecordCount { get; set; }
 
-        public ResultItem(string name, int numberOfSource = 0, int numberOfTarget = 0)
-        {
-            EntityName = name;
-            SourceRecordCount = numberOfSource;
-            SuccessfullyGeneratedRecordCount  = numberOfTarget;
-        }
+        public int SourceRecordCount { get; set; } = 0;
+
+        public int SuccessfullyGeneratedRecordCount { get; set; } = 0;
     }
 }
