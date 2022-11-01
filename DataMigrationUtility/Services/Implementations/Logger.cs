@@ -7,25 +7,33 @@ namespace XrmMigrationUtility.Services.Implementations
 {
     internal sealed class Logger : ILogger
     {
-        private TextBox _txtLogs;
+        private RichTextBox _richtxtBoxLogs;
         private string _logsPath;
 
-        public void SetTxtLogs(TextBox txtLogs)
+        public void SetTxtLogs(RichTextBox richtxtBoxLogs)
         {
-            _txtLogs = txtLogs;
+            _richtxtBoxLogs = richtxtBoxLogs;
         }
 
         public void SetLogsPath(string logsPath)
         {
-            _logsPath = $"{logsPath}\\Logs[{DateTime.Now.Millisecond}].txt";
+            _logsPath = $"{logsPath}\\Log - {(DateTime.Now - DateTime.MinValue).TotalSeconds}.txt";
         }
 
-        public void Log(string text)
+        public void Log(string text, string type = "info")
         {
             if (_logsPath != null)
             {
                 string dateTiemStr = DateTime.Now.ToString("G");
-                string logText = $"[{dateTiemStr}] " + text;
+                if (type == "info")
+                {
+                    text = " INFO: " + text;
+                }
+                else
+                {
+                    text = " ERROR: " + text;
+                }
+                string logText = $"[{dateTiemStr}]" + text;
 
                 LogToTextBox(logText);
                 LogToFile(logText);
@@ -36,10 +44,10 @@ namespace XrmMigrationUtility.Services.Implementations
             }
         }
 
-        private void LogToTextBox(string logText)
+        private void LogToTextBox(string logText, bool isError = false)
         {
-            _txtLogs.Text += logText;
-            _txtLogs.Text += Environment.NewLine;
+            _richtxtBoxLogs.Text += logText;
+            _richtxtBoxLogs.Text += Environment.NewLine;
         }
 
         private void LogToFile(string logText)

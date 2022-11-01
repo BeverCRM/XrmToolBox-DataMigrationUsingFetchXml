@@ -4,9 +4,9 @@ namespace XrmMigrationUtility.Services.Interfaces
 {
     internal interface ILogger
     {
-        void Log(string text);
+        void Log(string text, string type = "info");
 
-        void SetTxtLogs(TextBox txtLogs);
+        void SetTxtLogs(RichTextBox txtLogs);
 
         void SetLogsPath(string logsPath);
     }

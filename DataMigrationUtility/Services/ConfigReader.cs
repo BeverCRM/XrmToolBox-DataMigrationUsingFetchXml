@@ -5,17 +5,14 @@ namespace XrmMigrationUtility.Services
 {
     internal sealed class ConfigReader
     {
-        public static string GetQuery(string entityName, out List<string> searchAttrs, string fetchPath, out bool idExists)
+        public static List<string> GetPrimaryFields(string fetchXml, out bool idExists)
         {
             idExists = false;
-            // Load the xml file into XmlDocument object.
+            List<string> searchAttrs = new List<string>();
             XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(fetchPath + "\\" + entityName + ".xml");
-
-            string fetchXml = xmlDoc.OuterXml;
-            searchAttrs = new List<string>();
-
+            xmlDoc.LoadXml(fetchXml);
             XmlNodeList nodes = xmlDoc.DocumentElement.SelectNodes("/fetch/entity/attribute");
+            string entityName = xmlDoc.DocumentElement.SelectNodes("/fetch/entity")[0].Attributes["name"].Value;
 
             foreach (XmlNode node in nodes)
             {
@@ -29,7 +26,7 @@ namespace XrmMigrationUtility.Services
                 }
             }
 
-            return fetchXml;
+            return searchAttrs;
         }
 
         public static string CreateXml(string xml, string cookie, int page, int count)
