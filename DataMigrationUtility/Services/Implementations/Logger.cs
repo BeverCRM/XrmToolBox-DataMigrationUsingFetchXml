@@ -10,6 +10,8 @@ namespace XrmMigrationUtility.Services.Implementations
         private RichTextBox _richtxtBoxLogs;
         private string _logsPath;
 
+        public int LastIndex { get; set; }
+
         public void SetTxtLogs(RichTextBox richtxtBoxLogs)
         {
             _richtxtBoxLogs = richtxtBoxLogs;
@@ -20,12 +22,12 @@ namespace XrmMigrationUtility.Services.Implementations
             _logsPath = $"{logsPath}\\Log - {(DateTime.Now - DateTime.MinValue).TotalSeconds}.txt";
         }
 
-        public void Log(string text, string type = "info")
+        public void Log(string text, bool isError = false)
         {
             if (_logsPath != null)
             {
                 string dateTiemStr = DateTime.Now.ToString("G");
-                if (type == "info")
+                if (!isError)
                 {
                     text = " INFO: " + text;
                 }

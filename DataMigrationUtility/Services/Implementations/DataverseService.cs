@@ -78,7 +78,7 @@ namespace XrmMigrationUtility.Services.Implementations
                     }
                     else
                     {
-                        _logger.Log("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name, "error");
+                        _logger.Log("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name, true);
                         _logger.Log($"Creating a new record of '{refValue.LogicalName}' with name '{refValue.Name}'...");
                     }
                 }

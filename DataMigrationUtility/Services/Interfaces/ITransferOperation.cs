@@ -12,6 +12,6 @@ namespace XrmMigrationUtility.Services.Interfaces
 
         void Transfer(List<string> fetchXmls, List<int> indexesForTransfer, RichTextBox richTextBoxLogs);
 
-        void InitialiseFields(ConnectionDetails additionalDetailsm, System.Windows.Forms.Label lblInfo, System.Windows.Forms.Label lblTitle, List<string> displayNames);
+        void InitialiseFields(ConnectionDetails additionalDetailsm, Label lblInfo, Label lblTitle, Label lblError, List<string> displayNames);
     }
 }

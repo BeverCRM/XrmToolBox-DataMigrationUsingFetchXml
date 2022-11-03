@@ -3,7 +3,6 @@ using System.IO;
 using System.Drawing;
 using Microsoft.Xrm.Sdk;
 using System.Windows.Forms;
-using System.Threading.Tasks;
 using McTools.Xrm.Connection;
 using Microsoft.Xrm.Sdk.Query;
 using XrmToolBox.Extensibility;
@@ -38,7 +37,7 @@ namespace XrmMigrationUtility
             _logger = logger;
             _transferOperation = transferOperation;
             InitializeComponent();
-            _popup = new Popup(_logger);
+            _popup = new Popup();
             _displayNames = new List<string>();
         }
 
@@ -166,6 +165,7 @@ namespace XrmMigrationUtility
         {
             if (AdditionalConnectionDetails.Count > 0)
             {
+                InitializeLog(richTextBoxLogs);
                 _transferOperation.KeepRunning = true;
                 List<string> fetchXmls = new List<string>();
                 List<int> tableIndexesForTransfer = new List<int>();
@@ -183,13 +183,16 @@ namespace XrmMigrationUtility
                 if (fetchXmls.Count > 0)
                 {
                     SetLoadingDetails(true);
+                    LblErrorText.Visible = true;
+                    LblInfo.Visible = true;
+                    richTextBoxLogs.Text = "";
 
                     ConnectionDetails connectionDetails = new ConnectionDetails
                     {
                         AdditionalConnectionDetails = AdditionalConnectionDetails,
                         Service = Service
                     };
-                    _transferOperation.InitialiseFields(connectionDetails, LblInfo, LblTitle, _displayNames);
+                    _transferOperation.InitialiseFields(connectionDetails, LblInfo, LblTitle, LblErrorText, _displayNames);
 
                     if (AdditionalConnectionDetails.Count < 1)
                     {
@@ -198,7 +201,6 @@ namespace XrmMigrationUtility
                     }
                     _logger.Log("Transfer is started. ");
                     _logger.Log($"Log folder path: {TxtLogsPath.Text}");
-
                     WorkAsync(new WorkAsyncInfo
                     {
                         Message = null,
@@ -211,23 +213,26 @@ namespace XrmMigrationUtility
                             }
                             catch (Exception ex)
                             {
-                                _logger.Log(ex.Message, "error");
-                                _logger.Log($"[trace log] {ex.StackTrace}", "error");
+                                _logger.Log(ex.Message, true);
+                                _logger.Log($"[trace log] {ex.StackTrace}", true);
                             }
                             finally
                             {
                                 ChangeToolsState(true);
                                 _logger.Log("Result: ");
                                 foreach (ResultItem resultItem in _transferOperation.ResultItems)
-                                    _logger.Log($"{resultItem.EntityName}, {resultItem.SourceRecordCount } (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Generated Records)");
-
+                                {
+                                    if (resultItem.ErroredRecordsCount > 0)
+                                        _logger.Log($"{resultItem.EntityName}, {resultItem.SourceRecordCount } (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Migrated Records), {resultItem.ErroredRecordsCount} (Errօred Records)");
+                                    else
+                                        _logger.Log($"{resultItem.EntityName}, {resultItem.SourceRecordCount } (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Migrated Records)");
+                                }
                                 fetchXmls.Clear();
                                 SetLoadingDetails(false);
-                                Task.WaitAny(Task.Run(() => ColorLogs()));
                                 if (_transferOperation.KeepRunning)
                                     MessageBox.Show("Data Migration Completed.", "Data Migration Completed", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 else
-                                    MessageBox.Show("Process Stopped.", "Process Stopped", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                    MessageBox.Show("Migration is Stopped.", "Migration is Stopped", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                         }
                     });
@@ -250,9 +255,8 @@ namespace XrmMigrationUtility
                 LblInfo.Text = "Loading...";
             }
             LblLoading.Visible = visible;
-            LblInfo.Visible = visible;
             LblTitle.Visible = visible;
-            BtnStopMigration.Visible = visible;
+            pictureBoxStop.Visible = visible;
         }
 
         private void InitializeLog(RichTextBox TxtLogs)
@@ -269,12 +273,11 @@ namespace XrmMigrationUtility
             BtnBrowseLogs.Enabled = state;
             BtnTransferData.Enabled = state;
             BtnSelectTargetInstance.Enabled = state;
-            BtnClearLogs.Enabled = state;
             FetchDataGridView.Enabled = state;
             pictureBoxAdd.Enabled = state;
         }
 
-        private void BtnClearLogs_Click(object sender, EventArgs e)
+        private void PictureBoxRecBin_Click(object sender, EventArgs e)
         {
             richTextBoxLogs.Text = null;
         }
@@ -291,6 +294,10 @@ namespace XrmMigrationUtility
             if (_popup.ShowDialog() == DialogResult.OK)
             {
                 string fetch = _popup.TextBoxFetch.Text;
+
+                if (rowIndex != -1 && fetch == _popup.FetchXmls[rowIndex])
+                    return;
+
                 EntityCollection returnCollection = Service.RetrieveMultiple(new FetchExpression(fetch));
 
                 RetrieveEntityRequest retrieveEntityRequest = new RetrieveEntityRequest
@@ -301,16 +308,17 @@ namespace XrmMigrationUtility
                 RetrieveEntityResponse retrieveAccountEntityResponse = (RetrieveEntityResponse)Service.Execute(retrieveEntityRequest);
                 EntityMetadata AccountEntity = retrieveAccountEntityResponse.EntityMetadata;
 
-                _displayNames.Add(AccountEntity.DisplayName.UserLocalizedLabel.Label);
-
                 if (rowIndex != -1)
                 {
-                    fetchXmlDataBindingSource[rowIndex] = new FetchXmlData() { DisplayName = AccountEntity.DisplayName.UserLocalizedLabel.Label, SchemaName = returnCollection.Entities[0].LogicalName };
+                    fetchXmlDataBindingSource[rowIndex] = new FetchXmlData()
+                    { DisplayName = AccountEntity.DisplayName.UserLocalizedLabel.Label, SchemaName = returnCollection.Entities[0].LogicalName };
                     _displayNames[rowIndex] = AccountEntity.DisplayName.UserLocalizedLabel.Label;
                 }
                 else
                 {
-                    fetchXmlDataBindingSource.Add(new FetchXmlData() { DisplayName = AccountEntity.DisplayName.UserLocalizedLabel.Label, SchemaName = returnCollection.Entities[0].LogicalName });
+                    _displayNames.Add(AccountEntity.DisplayName.UserLocalizedLabel.Label);
+                    fetchXmlDataBindingSource.Add(new FetchXmlData()
+                    { DisplayName = AccountEntity.DisplayName.UserLocalizedLabel.Label, SchemaName = returnCollection.Entities[0].LogicalName });
                 }
             }
         }
@@ -336,28 +344,7 @@ namespace XrmMigrationUtility
             }
         }
 
-        private void ColorLogs()
-        {
-            int startIndex = 0;
-            string word = "ERROR";
-            int length = word.Length;
-            while (startIndex < richTextBoxLogs.TextLength)
-            {
-                int wordStartIndex = richTextBoxLogs.Find(word, startIndex, RichTextBoxFinds.None);
-                if (wordStartIndex != -1)
-                {
-                    richTextBoxLogs.SelectionStart = wordStartIndex;
-                    richTextBoxLogs.SelectionLength = length;
-                    richTextBoxLogs.SelectionColor = Color.Red;
-                }
-                else
-                    break;
-
-                startIndex = wordStartIndex + length;
-            }
-        }
-
-        private void BtnStopMigration_Click(object sender, EventArgs e)
+        private void PictureBoxStop_Click(object sender, EventArgs e)
         {
             _transferOperation.KeepRunning = false;
         }

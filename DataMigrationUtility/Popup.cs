@@ -12,18 +12,16 @@ namespace XrmMigrationUtility
         public bool isEdit;
         public int editIndex;
 
-        private readonly ILogger _logger;
         public string FetchXml { get; private set; }
         public List<string> FetchXmls { get; private set; }
         public TextBox TextBoxFetch { get; private set; }
 
-        public Popup(ILogger logger)
+        public Popup()
         {
             InitializeComponent();
-            _logger = logger;
             FetchXmls = new List<string>();
             TextBoxFetch = textBoxFetch;
-            MinimumSize = new Size(300, 200);
+            MinimumSize = new Size(350, 250);
         }
 
         private void BtnBrowseFile_Click(object sender, EventArgs e)
@@ -115,6 +113,13 @@ namespace XrmMigrationUtility
             int index = textBoxFetch.Text.IndexOf(word);
             int validFetchLength = index + word.Length;
             string detail = textBoxFetch.Text.Trim();
+            string fetch = textBoxFetch.Text.Substring(0, validFetchLength);
+            string spaceInFetch = textBoxFetch.Text.Substring(validFetchLength, textBoxFetch.Text.Length - validFetchLength);
+
+            if (string.IsNullOrWhiteSpace(spaceInFetch))
+            {
+                textBoxFetch.Text = fetch;
+            }
             if (!detail.StartsWith("<") && !detail.EndsWith(">")) return false;
 
             XmlDocument xml = new XmlDocument();
