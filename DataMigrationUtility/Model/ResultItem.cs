@@ -6,7 +6,7 @@
 
         public int SourceRecordCount { get; set; } = 0;
 
-        public int ErroredRecordsCount { get; set; } = 0;
+        public int ErroredRecordCount { get; set; } = 0;
 
         public int SuccessfullyGeneratedRecordCount { get; set; } = 0;
     }

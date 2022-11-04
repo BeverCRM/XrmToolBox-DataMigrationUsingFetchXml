@@ -4,15 +4,14 @@ using System.Drawing;
 using Microsoft.Xrm.Sdk;
 using System.Windows.Forms;
 using McTools.Xrm.Connection;
-using Microsoft.Xrm.Sdk.Query;
 using XrmToolBox.Extensibility;
 using XrmMigrationUtility.Model;
-using Microsoft.Xrm.Sdk.Messages;
 using System.Collections.Generic;
-using Microsoft.Xrm.Sdk.Metadata;
 using System.Collections.Specialized;
+using XrmMigrationUtility.Forms.Popup;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using XrmMigrationUtility.Services.Interfaces;
+using XrmMigrationUtility.Services.Implementations;
 
 namespace XrmMigrationUtility
 {
@@ -20,27 +19,29 @@ namespace XrmMigrationUtility
     {
         private string _logsPath;
 
+        private int _errorPosition;
+
         private Settings _mySettings;
 
         private readonly Popup _popup;
 
         private readonly ILogger _logger;
 
-        private readonly ITransferOperation _transferOperation;
-
         private readonly List<string> _displayNames;
 
-        private readonly List<int> errorIndexes = new List<int>();
+        private IDataverseService _dataverseService;
 
-        private int errorPosition;
+        private readonly ITransferOperation _transferOperation;
+
+        private readonly List<int> _errorIndexes = new List<int>();
 
         private readonly string _defaultPath = Environment.CurrentDirectory;
 
         public DataMigrationUtilityControl(ILogger logger, ITransferOperation transferOperation)
         {
+            InitializeComponent();
             _logger = logger;
             _transferOperation = transferOperation;
-            InitializeComponent();
             _popup = new Popup();
             _displayNames = new List<string>();
         }
@@ -171,6 +172,7 @@ namespace XrmMigrationUtility
             {
                 InitializeLog();
                 _transferOperation.KeepRunning = true;
+                bool isErrorOccured = false;
                 List<string> fetchXmls = new List<string>();
                 List<int> tableIndexesForTransfer = new List<int>();
 
@@ -181,30 +183,23 @@ namespace XrmMigrationUtility
                         fetchXmls.Add(_popup.FetchXmls[row.Index]);
                         tableIndexesForTransfer.Add(row.Index);
                     }
-                    else
-                        continue;
                 }
                 if (fetchXmls.Count > 0)
                 {
-                    errorIndexes.Clear();
-                    errorPosition = 0;
+                    _errorIndexes.Clear();
+                    _errorPosition = 0;
                     SetLoadingDetails(true);
                     richTextBoxLogs.Text = string.Empty;
 
-                    ConnectionDetails connectionDetails = new ConnectionDetails
-                    {
-                        AdditionalConnectionDetails = AdditionalConnectionDetails,
-                        Service = Service
-                    };
-                    _transferOperation.InitialiseFields(connectionDetails, LblInfo, LblTitle, LblErrorText, _displayNames);
+                    InitializeTransferOperation();
 
                     if (AdditionalConnectionDetails.Count < 1)
                     {
                         MessageBox.Show("Add an organization for data transfer! ");
                         return;
                     }
-                    _logger.Log("Transfer is started. ");
-                    _logger.Log($"Log folder path: {TxtLogsPath.Text}");
+                    _logger.LogInfo("Transfer is started. ");
+                    _logger.LogInfo($"Log folder path: {TxtLogsPath.Text}");
                     WorkAsync(new WorkAsyncInfo
                     {
                         Message = null,
@@ -217,23 +212,26 @@ namespace XrmMigrationUtility
                             }
                             catch (Exception ex)
                             {
-                                _logger.Log(ex.Message, true);
-                                _logger.Log($"[trace log] {ex.StackTrace}", true);
+                                _logger.LogError(ex.Message);
+                                _logger.LogError($"[trace log] {ex.StackTrace}");
+                                isErrorOccured = true;
                             }
                             finally
                             {
                                 ChangeToolsState(true);
-                                _logger.Log("Result: ");
+                                _logger.LogInfo("Result: ");
                                 foreach (ResultItem resultItem in _transferOperation.ResultItems)
                                 {
-                                    if (resultItem.ErroredRecordsCount > 0)
-                                        _logger.Log($"{resultItem.EntityName}, {resultItem.SourceRecordCount } (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Migrated Records), {resultItem.ErroredRecordsCount} (Errօred Records)");
+                                    if (resultItem.ErroredRecordCount > 0)
+                                        _logger.LogInfo($"{resultItem.EntityName}, {resultItem.SourceRecordCount } (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Migrated Records), {resultItem.ErroredRecordCount} (Errօred Records)");
                                     else
-                                        _logger.Log($"{resultItem.EntityName}, {resultItem.SourceRecordCount } (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Migrated Records)");
+                                        _logger.LogInfo($"{resultItem.EntityName}, {resultItem.SourceRecordCount } (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Migrated Records)");
                                 }
                                 fetchXmls.Clear();
                                 SetLoadingDetails(false);
-                                if (_transferOperation.KeepRunning)
+                                if (isErrorOccured)
+                                    LblInfo.Text = string.Empty;
+                                else if (_transferOperation.KeepRunning && !isErrorOccured)
                                     MessageBox.Show("Data Migration Completed.", "Data Migration Completed", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 else
                                     MessageBox.Show("Migration is Stopped.", "Migration is Stopped", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -250,6 +248,18 @@ namespace XrmMigrationUtility
             {
                 MessageBox.Show("Select Target Instance. ", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void InitializeTransferOperation()
+        {
+            ConnectionDetails connectionDetails = new ConnectionDetails
+            {
+                AdditionalConnectionDetails = AdditionalConnectionDetails,
+                Service = Service
+            };
+            _transferOperation.DisplayNames = _displayNames;
+            _transferOperation.SetConnectionDetails(connectionDetails);
+            _transferOperation.SetLabel(LblInfo, LblTitle, LblErrorText);
         }
 
         private void SetLoadingDetails(bool visible)
@@ -284,8 +294,8 @@ namespace XrmMigrationUtility
 
         private void PictureBoxRecBin_Click(object sender, EventArgs e)
         {
-            errorIndexes.Clear();
-            errorPosition = 0;
+            _errorIndexes.Clear();
+            _errorPosition = 0;
             richTextBoxLogs.Text = null;
         }
 
@@ -300,32 +310,32 @@ namespace XrmMigrationUtility
         {
             if (_popup.ShowDialog() == DialogResult.OK)
             {
+                _dataverseService = new DataverseService(Service);
                 string fetch = _popup.TextBoxFetch.Text;
 
                 if (rowIndex != -1 && fetch == _popup.FetchXmls[rowIndex])
                     return;
 
-                EntityCollection returnCollection = Service.RetrieveMultiple(new FetchExpression(fetch));
-
-                RetrieveEntityRequest retrieveEntityRequest = new RetrieveEntityRequest
-                {
-                    EntityFilters = EntityFilters.All,
-                    LogicalName = returnCollection.Entities[0].LogicalName
-                };
-                RetrieveEntityResponse retrieveAccountEntityResponse = (RetrieveEntityResponse)Service.Execute(retrieveEntityRequest);
-                EntityMetadata AccountEntity = retrieveAccountEntityResponse.EntityMetadata;
+                string displayName = _dataverseService.GetDisplayName(fetch);
+                string logicalName = _dataverseService.GetLogicalName(fetch);
 
                 if (rowIndex != -1)
                 {
                     fetchXmlDataBindingSource[rowIndex] = new FetchXmlData()
-                    { DisplayName = AccountEntity.DisplayName.UserLocalizedLabel.Label, SchemaName = returnCollection.Entities[0].LogicalName };
-                    _displayNames[rowIndex] = AccountEntity.DisplayName.UserLocalizedLabel.Label;
+                    {
+                        DisplayName = displayName,
+                        SchemaName = logicalName
+                    };
+                    _displayNames[rowIndex] = displayName;
                 }
                 else
                 {
-                    _displayNames.Add(AccountEntity.DisplayName.UserLocalizedLabel.Label);
+                    _displayNames.Add(displayName);
                     fetchXmlDataBindingSource.Add(new FetchXmlData()
-                    { DisplayName = AccountEntity.DisplayName.UserLocalizedLabel.Label, SchemaName = returnCollection.Entities[0].LogicalName });
+                    {
+                        DisplayName = displayName,
+                        SchemaName = logicalName
+                    });
                 }
             }
         }
@@ -343,11 +353,11 @@ namespace XrmMigrationUtility
             }
             if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Edit")
             {
-                _popup.isEdit = true;
-                _popup.editIndex = e.RowIndex;
+                _popup.IsEdit = true;
+                _popup.EditIndex = e.RowIndex;
                 _popup.TextBoxFetch.Text = _popup.FetchXmls[e.RowIndex];
                 PopupDialog(e.RowIndex);
-                _popup.isEdit = false;
+                _popup.IsEdit = false;
             }
         }
 
@@ -364,23 +374,28 @@ namespace XrmMigrationUtility
 
         private void FindErrorIndexes()
         {
-            int errorIndex = richTextBoxLogs.Find("ERROR:", errorPosition, RichTextBoxFinds.None);
+            int errorIndex = richTextBoxLogs.Find("ERROR:", _errorPosition, RichTextBoxFinds.None);
             if (errorIndex < 0)
             {
                 return;
             }
-            errorPosition = errorIndex + 1;
-            errorIndexes.Add(errorIndex);
+            _errorPosition = errorIndex + 1;
+            _errorIndexes.Add(errorIndex);
         }
 
         private void ColorErrors()
         {
-            foreach (int index in errorIndexes)
+            foreach (int index in _errorIndexes)
             {
                 richTextBoxLogs.SelectionStart = index;
                 richTextBoxLogs.SelectionLength = 6;
                 richTextBoxLogs.SelectionColor = Color.Red;
             }
+        }
+
+        private void RichTextBoxLogs_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(e.LinkText);
         }
     }
 }

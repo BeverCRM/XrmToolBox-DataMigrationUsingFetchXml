@@ -13,69 +13,70 @@ namespace XrmMigrationUtility.Services.Implementations
     internal sealed class TransferOperation : ITransferOperation
     {
         public List<ResultItem> ResultItems { get; set; }
+        public List<string> DisplayNames { get; set; }
+        public bool KeepRunning { get; set; } = true;
 
-        private IOrganizationService _sourceService;
-
-        private IDataverseService _dataverseService;
+        private int _errorCount;
 
         private ResultItem _resultItem;
 
         private readonly ILogger _logger;
 
-        private List<string> _displayNames;
+        private const int ERROR_CODE = -2147220685;
 
         private string _organizationDataServiceUrl;
 
-        private const int ERROR_CODE = -2147220685;
+        private IOrganizationService _sourceService;
 
-        private int errorCount;
-
-        private ObservableCollection<ConnectionDetail> _additionalConnectionDetails;
-        public bool KeepRunning { get; set; } = true;
+        private IDataverseService _dataverseService;
 
         private System.Windows.Forms.Label _lblInfo;
         private System.Windows.Forms.Label _lblTitle;
         private System.Windows.Forms.Label _lblError;
+
+        private ObservableCollection<ConnectionDetail> _additionalConnectionDetails;
 
         public TransferOperation(ILogger logger)
         {
             _logger = logger;
         }
 
-        public void InitialiseFields(ConnectionDetails connectionDetails, System.Windows.Forms.Label lblInfo, System.Windows.Forms.Label lblTitle,
-            System.Windows.Forms.Label lblError, List<string> displayNames)
+        public void SetConnectionDetails(ConnectionDetails connectionDetails)
         {
             _sourceService = connectionDetails.Service;
             _additionalConnectionDetails = connectionDetails.AdditionalConnectionDetails;
             _organizationDataServiceUrl = _additionalConnectionDetails[0].OrganizationDataServiceUrl;
             _dataverseService = new DataverseService(_sourceService, _additionalConnectionDetails[0].ServiceClient, _logger);
+        }
+
+        public void SetLabel(System.Windows.Forms.Label lblInfo, System.Windows.Forms.Label lblTitle, System.Windows.Forms.Label lblError)
+        {
             _lblInfo = lblInfo;
             _lblTitle = lblTitle;
             _lblError = lblError;
-            _displayNames = displayNames;
         }
 
         public void Transfer(List<string> fetchXmls, List<int> tableIndexesForTransfer, RichTextBox richTextBoxLogs)
         {
             ResultItems = new List<ResultItem>();
-            int index = -1;
+            int index = 0;
 
             foreach (string fetchXml in fetchXmls)
             {
                 _resultItem = new ResultItem();
-                _lblTitle.Text = $"Migrating {_displayNames[tableIndexesForTransfer[++index]]} records";
+                _lblTitle.Text = $"Migrating {DisplayNames[tableIndexesForTransfer[index]]} records";
 
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
                 EntityCollection records = _dataverseService.GetAllRecords(fetchXml);
 
-                _logger.Log("Getting data of '" + records.Entities[0].LogicalName + "' from source instance");
+                _logger.LogInfo("Getting data of '" + records.Entities[0].LogicalName + "' from source instance");
                 _resultItem.SourceRecordCount = records.Entities.Count;
                 _resultItem.EntityName = records.Entities[0].LogicalName;
-                _logger.Log("Records count is: " + records.Entities.Count);
+                _logger.LogInfo("Records count is: " + records.Entities.Count);
 
                 if (records?.Entities?.Count > 0)
                 {
-                    _logger.Log("Transfering data to: " + _organizationDataServiceUrl);
+                    _logger.LogInfo("Transfering data to: " + _organizationDataServiceUrl);
                     foreach (Entity record in records.Entities)
                     {
                         if (!KeepRunning)
@@ -84,23 +85,23 @@ namespace XrmMigrationUtility.Services.Implementations
                         }
                         TransferData(record, searchAttrs, idExists);
                         _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {records.Entities.Count} is imported";
-                        if (errorCount > 0)
+                        if (_errorCount > 0)
                         {
-                            _lblError.Text = $"{errorCount} of {records.Entities.Count} is errored";
+                            _lblError.Text = $"{_errorCount} of {records.Entities.Count} is errored";
                         }
                         richTextBoxLogs.SelectionStart = richTextBoxLogs.Text.Length;
                         richTextBoxLogs.ScrollToCaret();
                     }
                     if (fetchXmls.Count == index + 1 || !KeepRunning)
                     {
-                        _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {records.Entities.Count} {_displayNames[tableIndexesForTransfer[index]]} is imported";
-                        if (errorCount > 0)
+                        _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {records.Entities.Count} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
+                        if (_errorCount > 0)
                         {
-                            _resultItem.ErroredRecordsCount = errorCount;
-                            _lblError.Text = $"{errorCount} of {records.Entities.Count} {_displayNames[tableIndexesForTransfer[index]]} is errored";
+                            _resultItem.ErroredRecordCount = _errorCount;
+                            _lblError.Text = $"{_errorCount} of {records.Entities.Count} {DisplayNames[tableIndexesForTransfer[index]]} is errored";
                         }
                     }
-                    errorCount = 0;
+                    _errorCount = 0;
                     if (!KeepRunning)
                     {
                         ResultItems.Add(_resultItem);
@@ -109,23 +110,24 @@ namespace XrmMigrationUtility.Services.Implementations
                 }
                 else
                 {
-                    _logger.Log("Records count is zero or not found", true);
+                    _logger.LogError("Records count is zero or not found");
                 }
                 if (_resultItem == null)
                 {
-                    _logger.Log("Process Stopped. Aborting! ", true);
+                    _logger.LogError("Process Stopped. Aborting! ");
                     break;
                 }
                 ResultItems.Add(_resultItem);
+                index++;
             }
         }
 
         private void TransferData(Entity record, List<string> searchAttrs, bool idExists)
         {
             string primaryAttr = _dataverseService.GetEntityPrimaryField(record.LogicalName);
-            string recordFirstValue = record.GetAttributeValue<string>(primaryAttr);
+            string recordName = record.GetAttributeValue<string>(primaryAttr);
             string recordId = record.Id.ToString();
-            _logger.Log("Record with id '" + recordId + "' and with name '" + recordFirstValue + "' is creating in target...");
+            _logger.LogInfo("Record with id '" + recordId + "' and with name '" + recordName + "' is creating in target...");
 
             Entity newRecord = new Entity(record.LogicalName);
             newRecord.Attributes.AddRange(record.Attributes);
@@ -138,23 +140,23 @@ namespace XrmMigrationUtility.Services.Implementations
                 _dataverseService.MapSearchAttributes(newRecord, searchAttrs);
                 Guid createdRecordId = _dataverseService.CreateRecord(newRecord, false);
                 ++_resultItem.SuccessfullyGeneratedRecordCount;
-                _logger.Log($"Record is created with id {{{createdRecordId}}}");
+                _logger.LogInfo($"Record is created with id {{{createdRecordId}}}");
             }
             catch (FaultException<OrganizationServiceFault> ex)
             {
-                errorCount++;
+                _errorCount++;
                 if (ex.Detail.ErrorCode == ERROR_CODE) //DuplicateRecordsFound
                 {
-                    _logger.Log("The record was not created because a duplicate of the current record already exists.", true);
+                    _logger.LogError("The record was not created because a duplicate of the current record already exists.");
                 }
                 else
                 {
-                    _logger.Log(ex.Message, true);
+                    _logger.LogError(ex.Message);
                 }
             }
             catch (Exception ex)
             {
-                _logger.Log(ex.Message, true);
+                _logger.LogError(ex.Message);
             }
         }
     }

@@ -3,18 +3,18 @@ using System.Xml;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
-using XrmMigrationUtility.Services.Interfaces;
 
-namespace XrmMigrationUtility
+namespace XrmMigrationUtility.Forms.Popup
 {
     internal partial class Popup : Form
     {
-        public bool isEdit;
-        public int editIndex;
-
-        public string FetchXml { get; private set; }
+        public bool IsEdit { get; set; }
+        public int EditIndex { get; set; }
         public List<string> FetchXmls { get; private set; }
         public TextBox TextBoxFetch { get; private set; }
+
+        private string _currentFetchXml;
+
 
         public Popup()
         {
@@ -34,7 +34,7 @@ namespace XrmMigrationUtility
                 {
                     XmlDocument xmlDoc = new XmlDocument();
                     xmlDoc.Load(openFileDialog.FileName);
-                    FetchXml = xmlDoc.OuterXml;
+                    _currentFetchXml = xmlDoc.OuterXml;
                     textBoxFetch.Text = string.Empty;
                 }
                 try
@@ -45,12 +45,12 @@ namespace XrmMigrationUtility
                         int startIndex = 0;
                         while (index >= 0)
                         {
-                            index = FetchXml.IndexOf(">", index);
+                            index = _currentFetchXml.IndexOf(">", index);
                             if (index == -1)
                             {
                                 break;
                             }
-                            textBoxFetch.Text += FetchXml.Substring(startIndex, ++index - startIndex);
+                            textBoxFetch.Text += _currentFetchXml.Substring(startIndex, ++index - startIndex);
                             textBoxFetch.Text += Environment.NewLine;
                             startIndex = index;
                         }
@@ -69,21 +69,21 @@ namespace XrmMigrationUtility
             bool isValidXml = CheckXml();
             if (isValidXml)
             {
-                if (!isEdit)
+                if (!IsEdit)
                 {
                     if (IsFetchDuplicate())
                         return;
 
-                    FetchXmls.Add(FetchXml);
+                    FetchXmls.Add(_currentFetchXml);
                 }
                 else
                 {
-                    if (FetchXmls[editIndex] != FetchXml)
+                    if (FetchXmls[EditIndex] != _currentFetchXml)
                     {
                         if (IsFetchDuplicate())
                             return;
                     }
-                    FetchXmls[editIndex] = FetchXml;
+                    FetchXmls[EditIndex] = _currentFetchXml;
                 }
                 DialogResult = DialogResult.OK;
             }
@@ -95,13 +95,10 @@ namespace XrmMigrationUtility
 
         private bool IsFetchDuplicate()
         {
-            foreach (string fetchXml in FetchXmls)
+            if (FetchXmls.Contains(textBoxFetch.Text))
             {
-                if (textBoxFetch.Text == fetchXml)
-                {
-                    MessageBox.Show("This FetchXML already exists. A duplicate FetchXML cannot be added.", "Duplicate FetchXML", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return true;
-                }
+                MessageBox.Show("This FetchXML already exists. A duplicate FetchXML cannot be added.", "Duplicate FetchXML", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return true;
             }
             return false;
         }
@@ -135,7 +132,7 @@ namespace XrmMigrationUtility
 
             if (textBoxFetch.Text.Length > validFetchLength) return false;
 
-            FetchXml = textBoxFetch.Text;
+            _currentFetchXml = textBoxFetch.Text;
 
             return true;
         }

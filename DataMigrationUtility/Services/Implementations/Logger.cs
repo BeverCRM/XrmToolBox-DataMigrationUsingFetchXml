@@ -7,12 +7,13 @@ namespace XrmMigrationUtility.Services.Implementations
 {
     internal sealed class Logger : ILogger
     {
-        private RichTextBox _richtxtBoxLogs;
         private string _logsPath;
+        private RichTextBox _richTxtBoxLogs;
+        private readonly string _dateTiemStr = DateTime.Now.ToString("G");
 
         public void SetTxtLogs(RichTextBox richtxtBoxLogs)
         {
-            _richtxtBoxLogs = richtxtBoxLogs;
+            _richTxtBoxLogs = richtxtBoxLogs;
         }
 
         public void SetLogsPath(string logsPath)
@@ -20,21 +21,12 @@ namespace XrmMigrationUtility.Services.Implementations
             _logsPath = $"{logsPath}\\Log - {(DateTime.Now - DateTime.MinValue).TotalSeconds}.txt";
         }
 
-        public void Log(string text, bool isError = false)
+        public void LogInfo(string text)
         {
             if (_logsPath != null)
             {
-                string dateTiemStr = DateTime.Now.ToString("G");
-                if (!isError)
-                {
-                    text = " INFO: " + text;
-                }
-                else
-                {
-                    text = " ERROR: " + text;
-                }
-                string logText = $"[{dateTiemStr}]" + text;
-
+                text = " INFO: " + text;
+                string logText = $"[{_dateTiemStr}]" + text;
                 LogToTextBox(logText);
                 LogToFile(logText);
             }
@@ -44,10 +36,25 @@ namespace XrmMigrationUtility.Services.Implementations
             }
         }
 
-        private void LogToTextBox(string logText, bool isError = false)
+        public void LogError(string text)
         {
-            _richtxtBoxLogs.Text += logText;
-            _richtxtBoxLogs.Text += Environment.NewLine;
+            if (_logsPath != null)
+            {
+                text = " ERROR: " + text;
+                string logText = $"[{_dateTiemStr}]" + text;
+                LogToTextBox(logText);
+                LogToFile(logText);
+            }
+            else
+            {
+                throw new Exception("Log Path is Null!");
+            }
+        }
+
+        private void LogToTextBox(string logText)
+        {
+            _richTxtBoxLogs.Text += logText;
+            _richTxtBoxLogs.Text += Environment.NewLine;
         }
 
         private void LogToFile(string logText)

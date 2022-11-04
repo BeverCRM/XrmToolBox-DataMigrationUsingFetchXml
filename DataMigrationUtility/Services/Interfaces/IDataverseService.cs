@@ -13,5 +13,9 @@ namespace XrmMigrationUtility.Services.Interfaces
         void MapSearchAttributes(Entity record, List<string> searchAttrs);
 
         string GetEntityPrimaryField(string entitySchemaName);
+
+        string GetDisplayName(string fetchXml);
+
+        string GetLogicalName(string fetchXml);
     }
 }

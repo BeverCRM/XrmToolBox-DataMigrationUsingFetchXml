@@ -1,6 +1,6 @@
 ﻿namespace XrmMigrationUtility.Model
 {
-    internal class FetchXmlData
+    internal sealed class FetchXmlData
     {
         public string DisplayName { get; set; }
 

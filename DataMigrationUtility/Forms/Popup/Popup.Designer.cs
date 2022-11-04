@@ -1,5 +1,5 @@
 ﻿
-namespace XrmMigrationUtility
+namespace XrmMigrationUtility.Forms.Popup
 {
     partial class Popup
     {

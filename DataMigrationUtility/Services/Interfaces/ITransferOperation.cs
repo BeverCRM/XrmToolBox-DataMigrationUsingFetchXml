@@ -8,10 +8,14 @@ namespace XrmMigrationUtility.Services.Interfaces
     {
         List<ResultItem> ResultItems { get; set; }
 
+        List<string> DisplayNames { get; set; }
+
         bool KeepRunning { get; set; }
 
         void Transfer(List<string> fetchXmls, List<int> indexesForTransfer, RichTextBox richTextBoxLogs);
 
-        void InitialiseFields(ConnectionDetails additionalDetailsm, Label lblInfo, Label lblTitle, Label lblError, List<string> displayNames);
+        void SetConnectionDetails(ConnectionDetails connectionDetails);
+
+        void SetLabel(Label lblInfo, Label lblTitle, Label lblError);
     }
 }

@@ -46,11 +46,8 @@ namespace XrmMigrationUtility
             this.LblAddFetchXml = new System.Windows.Forms.Label();
             this.FetchDataGridView = new System.Windows.Forms.DataGridView();
             this.CheckBox = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.displayNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.schemaNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Edit = new System.Windows.Forms.DataGridViewImageColumn();
             this.Remove = new System.Windows.Forms.DataGridViewImageColumn();
-            this.fetchXmlDataBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.richTextBoxLogs = new System.Windows.Forms.RichTextBox();
             this.LblInfo = new System.Windows.Forms.Label();
             this.LblTitle = new System.Windows.Forms.Label();
@@ -61,11 +58,14 @@ namespace XrmMigrationUtility
             this.pictureBoxStop = new System.Windows.Forms.PictureBox();
             this.pictureBoxRecBin = new System.Windows.Forms.PictureBox();
             this.pictureBoxAdd = new System.Windows.Forms.PictureBox();
+            this.displayNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.schemaNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.fetchXmlDataBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.FetchDataGridView)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.fetchXmlDataBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxStop)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRecBin)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxAdd)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fetchXmlDataBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // TxtLogsPath
@@ -73,7 +73,7 @@ namespace XrmMigrationUtility
             this.TxtLogsPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtLogsPath.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.TxtLogsPath.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TxtLogsPath.Location = new System.Drawing.Point(887, 129);
+            this.TxtLogsPath.Location = new System.Drawing.Point(867, 129);
             this.TxtLogsPath.MaxLength = 500;
             this.TxtLogsPath.Multiline = true;
             this.TxtLogsPath.Name = "TxtLogsPath";
@@ -88,7 +88,7 @@ namespace XrmMigrationUtility
             this.BtnBrowseLogs.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.BtnBrowseLogs.Location = new System.Drawing.Point(786, 129);
             this.BtnBrowseLogs.Name = "BtnBrowseLogs";
-            this.BtnBrowseLogs.Size = new System.Drawing.Size(95, 25);
+            this.BtnBrowseLogs.Size = new System.Drawing.Size(75, 25);
             this.BtnBrowseLogs.TabIndex = 6;
             this.BtnBrowseLogs.Text = "Browse";
             this.BtnBrowseLogs.UseVisualStyleBackColor = true;
@@ -239,22 +239,6 @@ namespace XrmMigrationUtility
             this.CheckBox.Name = "CheckBox";
             this.CheckBox.Width = 30;
             // 
-            // displayNameDataGridViewTextBoxColumn
-            // 
-            this.displayNameDataGridViewTextBoxColumn.DataPropertyName = "DisplayName";
-            this.displayNameDataGridViewTextBoxColumn.HeaderText = "DisplayName";
-            this.displayNameDataGridViewTextBoxColumn.Name = "displayNameDataGridViewTextBoxColumn";
-            this.displayNameDataGridViewTextBoxColumn.ReadOnly = true;
-            this.displayNameDataGridViewTextBoxColumn.Width = 220;
-            // 
-            // schemaNameDataGridViewTextBoxColumn
-            // 
-            this.schemaNameDataGridViewTextBoxColumn.DataPropertyName = "SchemaName";
-            this.schemaNameDataGridViewTextBoxColumn.HeaderText = "SchemaName";
-            this.schemaNameDataGridViewTextBoxColumn.Name = "schemaNameDataGridViewTextBoxColumn";
-            this.schemaNameDataGridViewTextBoxColumn.ReadOnly = true;
-            this.schemaNameDataGridViewTextBoxColumn.Width = 220;
-            // 
             // Edit
             // 
             this.Edit.HeaderText = "";
@@ -271,10 +255,6 @@ namespace XrmMigrationUtility
             this.Remove.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.Remove.Width = 25;
             // 
-            // fetchXmlDataBindingSource
-            // 
-            this.fetchXmlDataBindingSource.DataSource = typeof(XrmMigrationUtility.Model.FetchXmlData);
-            // 
             // richTextBoxLogs
             // 
             this.richTextBoxLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -282,12 +262,14 @@ namespace XrmMigrationUtility
             | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBoxLogs.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.richTextBoxLogs.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.richTextBoxLogs.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.richTextBoxLogs.Location = new System.Drawing.Point(23, 432);
             this.richTextBoxLogs.Name = "richTextBoxLogs";
             this.richTextBoxLogs.ReadOnly = true;
             this.richTextBoxLogs.Size = new System.Drawing.Size(1318, 276);
             this.richTextBoxLogs.TabIndex = 31;
             this.richTextBoxLogs.Text = "";
+            this.richTextBoxLogs.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.RichTextBoxLogs_LinkClicked);
             this.richTextBoxLogs.TextChanged += new System.EventHandler(this.RichTextBoxLogs_TextChanged);
             // 
             // LblInfo
@@ -390,6 +372,26 @@ namespace XrmMigrationUtility
             this.pictureBoxAdd.TabStop = false;
             this.pictureBoxAdd.Click += new System.EventHandler(this.PictureBoxAdd_Click);
             // 
+            // displayNameDataGridViewTextBoxColumn
+            // 
+            this.displayNameDataGridViewTextBoxColumn.DataPropertyName = "DisplayName";
+            this.displayNameDataGridViewTextBoxColumn.HeaderText = "DisplayName";
+            this.displayNameDataGridViewTextBoxColumn.Name = "displayNameDataGridViewTextBoxColumn";
+            this.displayNameDataGridViewTextBoxColumn.ReadOnly = true;
+            this.displayNameDataGridViewTextBoxColumn.Width = 220;
+            // 
+            // schemaNameDataGridViewTextBoxColumn
+            // 
+            this.schemaNameDataGridViewTextBoxColumn.DataPropertyName = "SchemaName";
+            this.schemaNameDataGridViewTextBoxColumn.HeaderText = "SchemaName";
+            this.schemaNameDataGridViewTextBoxColumn.Name = "schemaNameDataGridViewTextBoxColumn";
+            this.schemaNameDataGridViewTextBoxColumn.ReadOnly = true;
+            this.schemaNameDataGridViewTextBoxColumn.Width = 220;
+            // 
+            // fetchXmlDataBindingSource
+            // 
+            this.fetchXmlDataBindingSource.DataSource = typeof(XrmMigrationUtility.Model.FetchXmlData);
+            // 
             // DataMigrationUtilityControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -422,10 +424,10 @@ namespace XrmMigrationUtility
             this.Size = new System.Drawing.Size(1364, 722);
             this.Load += new System.EventHandler(this.DataMigrationUtilityControl_Load);
             ((System.ComponentModel.ISupportInitialize)(this.FetchDataGridView)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.fetchXmlDataBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxStop)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRecBin)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxAdd)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fetchXmlDataBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
