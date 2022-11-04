@@ -30,6 +30,10 @@ namespace XrmMigrationUtility
 
         private readonly List<string> _displayNames;
 
+        private readonly List<int> errorIndexes = new List<int>();
+
+        private int errorPosition;
+
         private readonly string _defaultPath = Environment.CurrentDirectory;
 
         public DataMigrationUtilityControl(ILogger logger, ITransferOperation transferOperation)
@@ -165,7 +169,7 @@ namespace XrmMigrationUtility
         {
             if (AdditionalConnectionDetails.Count > 0)
             {
-                InitializeLog(richTextBoxLogs);
+                InitializeLog();
                 _transferOperation.KeepRunning = true;
                 List<string> fetchXmls = new List<string>();
                 List<int> tableIndexesForTransfer = new List<int>();
@@ -182,10 +186,10 @@ namespace XrmMigrationUtility
                 }
                 if (fetchXmls.Count > 0)
                 {
+                    errorIndexes.Clear();
+                    errorPosition = 0;
                     SetLoadingDetails(true);
-                    LblErrorText.Visible = true;
-                    LblInfo.Visible = true;
-                    richTextBoxLogs.Text = "";
+                    richTextBoxLogs.Text = string.Empty;
 
                     ConnectionDetails connectionDetails = new ConnectionDetails
                     {
@@ -253,17 +257,18 @@ namespace XrmMigrationUtility
             if (visible == true)
             {
                 LblInfo.Text = "Loading...";
+                LblErrorText.Visible = visible;
+                LblInfo.Visible = visible;
+                LblErrorText.Text = string.Empty;
             }
             LblLoading.Visible = visible;
             LblTitle.Visible = visible;
             pictureBoxStop.Visible = visible;
         }
 
-        private void InitializeLog(RichTextBox TxtLogs)
+        private void InitializeLog()
         {
-            TxtLogs.Text = string.Empty;
-            richTextBoxLogs.Text = string.Empty;
-            _logger.SetTxtLogs(TxtLogs);
+            _logger.SetTxtLogs(richTextBoxLogs);
             _logger.SetLogsPath(_logsPath);
         }
 
@@ -279,12 +284,14 @@ namespace XrmMigrationUtility
 
         private void PictureBoxRecBin_Click(object sender, EventArgs e)
         {
+            errorIndexes.Clear();
+            errorPosition = 0;
             richTextBoxLogs.Text = null;
         }
 
         private void PictureBoxAdd_Click(object sender, EventArgs e)
         {
-            InitializeLog(richTextBoxLogs);
+            InitializeLog();
             _popup.TextBoxFetch.Text = string.Empty;
             PopupDialog();
         }
@@ -347,6 +354,33 @@ namespace XrmMigrationUtility
         private void PictureBoxStop_Click(object sender, EventArgs e)
         {
             _transferOperation.KeepRunning = false;
+        }
+
+        private void RichTextBoxLogs_TextChanged(object sender, EventArgs e)
+        {
+            FindErrorIndexes();
+            ColorErrors();
+        }
+
+        private void FindErrorIndexes()
+        {
+            int errorIndex = richTextBoxLogs.Find("ERROR:", errorPosition, RichTextBoxFinds.None);
+            if (errorIndex < 0)
+            {
+                return;
+            }
+            errorPosition = errorIndex + 1;
+            errorIndexes.Add(errorIndex);
+        }
+
+        private void ColorErrors()
+        {
+            foreach (int index in errorIndexes)
+            {
+                richTextBoxLogs.SelectionStart = index;
+                richTextBoxLogs.SelectionLength = 6;
+                richTextBoxLogs.SelectionColor = Color.Red;
+            }
         }
     }
 }

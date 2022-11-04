@@ -31,11 +31,11 @@ namespace XrmMigrationUtility.Services.Implementations
         private int errorCount;
 
         private ObservableCollection<ConnectionDetail> _additionalConnectionDetails;
+        public bool KeepRunning { get; set; } = true;
 
         private System.Windows.Forms.Label _lblInfo;
         private System.Windows.Forms.Label _lblTitle;
         private System.Windows.Forms.Label _lblError;
-        public bool KeepRunning { get; set; } = true;
 
         public TransferOperation(ILogger logger)
         {
@@ -88,6 +88,7 @@ namespace XrmMigrationUtility.Services.Implementations
                         {
                             _lblError.Text = $"{errorCount} of {records.Entities.Count} is errored";
                         }
+                        richTextBoxLogs.SelectionStart = richTextBoxLogs.Text.Length;
                         richTextBoxLogs.ScrollToCaret();
                     }
                     if (fetchXmls.Count == index + 1 || !KeepRunning)

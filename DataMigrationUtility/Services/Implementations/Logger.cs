@@ -10,8 +10,6 @@ namespace XrmMigrationUtility.Services.Implementations
         private RichTextBox _richtxtBoxLogs;
         private string _logsPath;
 
-        public int LastIndex { get; set; }
-
         public void SetTxtLogs(RichTextBox richtxtBoxLogs)
         {
             _richtxtBoxLogs = richtxtBoxLogs;

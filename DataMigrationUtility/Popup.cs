@@ -35,6 +35,7 @@ namespace XrmMigrationUtility
                     XmlDocument xmlDoc = new XmlDocument();
                     xmlDoc.Load(openFileDialog.FileName);
                     FetchXml = xmlDoc.OuterXml;
+                    textBoxFetch.Text = string.Empty;
                 }
                 try
                 {
