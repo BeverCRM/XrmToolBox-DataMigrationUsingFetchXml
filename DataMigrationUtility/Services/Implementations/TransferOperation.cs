@@ -88,6 +88,7 @@ namespace XrmMigrationUtility.Services.Implementations
                         if (_errorCount > 0)
                         {
                             _lblError.Text = $"{_errorCount} of {records.Entities.Count} is errored";
+                            _resultItem.ErroredRecordCount = _errorCount;
                         }
                         richTextBoxLogs.SelectionStart = richTextBoxLogs.Text.Length;
                         richTextBoxLogs.ScrollToCaret();
@@ -97,7 +98,6 @@ namespace XrmMigrationUtility.Services.Implementations
                         _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {records.Entities.Count} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
                         if (_errorCount > 0)
                         {
-                            _resultItem.ErroredRecordCount = _errorCount;
                             _lblError.Text = $"{_errorCount} of {records.Entities.Count} {DisplayNames[tableIndexesForTransfer[index]]} is errored";
                         }
                     }

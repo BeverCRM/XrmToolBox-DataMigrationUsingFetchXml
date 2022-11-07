@@ -29,7 +29,7 @@ namespace XrmMigrationUtility.Forms.Popup
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
                 openFileDialog.Title = "Select FetchXML File ";
-                openFileDialog.Filter = "Xml File (*.xml)|*.xml";
+                openFileDialog.Filter = "XML File (*.xml)|*.xml";
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     XmlDocument xmlDoc = new XmlDocument();
@@ -83,7 +83,6 @@ namespace XrmMigrationUtility.Forms.Popup
                         if (IsFetchDuplicate())
                             return;
                     }
-                    FetchXmls[EditIndex] = _currentFetchXml;
                 }
                 DialogResult = DialogResult.OK;
             }

@@ -314,13 +314,15 @@ namespace XrmMigrationUtility
                 string fetch = _popup.TextBoxFetch.Text;
 
                 if (rowIndex != -1 && fetch == _popup.FetchXmls[rowIndex])
+                {
                     return;
-
+                }
                 string displayName = _dataverseService.GetDisplayName(fetch);
                 string logicalName = _dataverseService.GetLogicalName(fetch);
 
                 if (rowIndex != -1)
                 {
+                    _popup.FetchXmls[rowIndex] = fetch;
                     fetchXmlDataBindingSource[rowIndex] = new FetchXmlData()
                     {
                         DisplayName = displayName,
