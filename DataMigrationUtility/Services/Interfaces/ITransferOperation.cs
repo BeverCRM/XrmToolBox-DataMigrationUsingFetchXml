@@ -1,4 +1,5 @@
-﻿using XrmMigrationUtility.Model;
+﻿using System.Windows.Forms;
+using XrmMigrationUtility.Model;
 using System.Collections.Generic;
 
 namespace XrmMigrationUtility.Services.Interfaces
@@ -7,8 +8,14 @@ namespace XrmMigrationUtility.Services.Interfaces
     {
         List<ResultItem> ResultItems { get; set; }
 
-        void Transfer();
+        List<string> DisplayNames { get; set; }
 
-        void InitialiseFields(ConnectionDetails additionalDetails, List<string> entityNames, string fetchPathText);
+        bool KeepRunning { get; set; }
+
+        void Transfer(List<string> fetchXmls, List<int> indexesForTransfer, RichTextBox richTextBoxLogs);
+
+        void SetConnectionDetails(ConnectionDetails connectionDetails);
+
+        void SetLabel(Label lblInfo, Label lblTitle, Label lblError);
     }
 }

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Data;
-using System.Linq;
 using System.Drawing;
 using Microsoft.Xrm.Sdk;
 using System.Windows.Forms;
@@ -10,7 +8,10 @@ using XrmToolBox.Extensibility;
 using XrmMigrationUtility.Model;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using XrmMigrationUtility.Forms.Popup;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using XrmMigrationUtility.Services.Interfaces;
+using XrmMigrationUtility.Services.Implementations;
 
 namespace XrmMigrationUtility
 {
@@ -18,54 +19,31 @@ namespace XrmMigrationUtility
     {
         private string _logsPath;
 
+        private int _errorPosition;
+
         private Settings _mySettings;
 
-        private List<string> _entityNames;
-
-        private string _fetchXmlFolderPath;
+        private readonly Popup _popup;
 
         private readonly ILogger _logger;
 
+        private readonly List<string> _displayNames;
+
+        private IDataverseService _dataverseService;
+
         private readonly ITransferOperation _transferOperation;
+
+        private readonly List<int> _errorIndexes = new List<int>();
 
         private readonly string _defaultPath = Environment.CurrentDirectory;
 
         public DataMigrationUtilityControl(ILogger logger, ITransferOperation transferOperation)
         {
+            InitializeComponent();
             _logger = logger;
             _transferOperation = transferOperation;
-            InitializeComponent();
-        }
-
-        private void GetFetchFileNames()
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(_fetchXmlFolderPath) || !string.IsNullOrWhiteSpace(_fetchXmlFolderPath))
-                {
-                    List<string> FetchXmlFileNames;
-                    _entityNames = new List<string>();
-                    FetchXmlFileNames = Directory.GetFiles(_fetchXmlFolderPath).Select(fileName => fileName.Replace(_fetchXmlFolderPath + @"\", "")).ToList();
-                    TextBoxFetchFiles.Text = null;
-                    foreach (string item in FetchXmlFileNames)
-                    {
-                        if (item.Contains(".xml"))
-                        {
-                            TextBoxFetchFiles.Text += item + ", ";
-                            _entityNames.Add(item.Replace(".xml", ""));
-                        }
-                    }
-                    if (_entityNames.Count >= 1)
-                    {
-                        TextBoxFetchFiles.Text = TextBoxFetchFiles.Text.Remove(TextBoxFetchFiles.Text.Length - 2);
-                    }
-                }
-            }
-            catch (DirectoryNotFoundException ex)
-            {
-                MessageBox.Show($"Input Valid Path!: {ex.Message}");
-                TxtFetchPath.Text = null;
-            }
+            _popup = new Popup();
+            _displayNames = new List<string>();
         }
 
         private void DataMigrationUtilityControl_Load(object sender, EventArgs e)
@@ -137,8 +115,6 @@ namespace XrmMigrationUtility
                     LblTargetText.Text = detail.ConnectionName;
                     LblTargetText.ForeColor = Color.Green;
                     LblTarget.ForeColor = Color.Green;
-                    LblIsTargetFilled.Text = detail.ConnectionName;
-                    LblIsTargetFilled.ForeColor = Color.Green;
                     LblTarget.Visible = true;
                     LblTargetText.Visible = true;
                     break;
@@ -152,42 +128,14 @@ namespace XrmMigrationUtility
 
         private void BtnBrowseLogs_Click(object sender, EventArgs e)
         {
-            using (FolderBrowserDialog fbd = new FolderBrowserDialog() { Description = "Select Logs path" })
+            using (CommonOpenFileDialog dialog = new CommonOpenFileDialog())
             {
-                if (fbd.ShowDialog() == DialogResult.OK)
+                dialog.IsFolderPicker = true;
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
-                    TxtLogsPath.Text = fbd.SelectedPath;
-                    _logsPath = fbd.SelectedPath;
+                    TxtLogsPath.Text = dialog.FileName;
+                    _logsPath = dialog.FileName;
                 }
-            }
-        }
-
-        private void BtnBrowseFetch_Click(object sender, EventArgs e)
-        {
-            using (FolderBrowserDialog fbd = new FolderBrowserDialog() { Description = "Select Fetch path" })
-            {
-                if (fbd.ShowDialog() == DialogResult.OK)
-                {
-                    _fetchXmlFolderPath = fbd.SelectedPath;
-                    TxtFetchPath.Text = fbd.SelectedPath;
-                }
-            }
-            if (TxtFetchPath.Text != string.Empty)
-            {
-                GetFetchFileNames();
-            }
-        }
-
-        private void TxtFetchPathLeave(object sender, EventArgs e)
-        {
-            if (TxtFetchPath.Text != string.Empty)
-            {
-                _fetchXmlFolderPath = TxtFetchPath.Text;
-                GetFetchFileNames();
-            }
-            else
-            {
-                TextBoxFetchFiles.Text = null;
             }
         }
 
@@ -195,7 +143,16 @@ namespace XrmMigrationUtility
         {
             if (!string.IsNullOrWhiteSpace(TxtLogsPath.Text))
             {
-                _logsPath = TxtLogsPath.Text;
+                if (Directory.Exists(TxtLogsPath.Text))
+                {
+                    _logsPath = TxtLogsPath.Text;
+                }
+                else
+                {
+                    MessageBox.Show($"Can't find {TxtLogsPath.Text}. Check the spelling and try again.", "Incorrect path", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    _logsPath = _defaultPath;
+                    TxtLogsPath.Text = _logsPath;
+                }
             }
             else
             {
@@ -211,71 +168,236 @@ namespace XrmMigrationUtility
 
         private void BtnTransferData_Click(object sender, EventArgs e)
         {
-            ConnectionDetails additionalDetails = new ConnectionDetails();
-            TxtLogs.Text = string.Empty;
-
-            _logger.SetTxtLogs(TxtLogs);
-            _logger.SetLogsPath(_logsPath);
-            additionalDetails.AdditionalConnectionDetails = AdditionalConnectionDetails;
-            additionalDetails.Service = Service;
-            _transferOperation.InitialiseFields(additionalDetails, _entityNames, TxtFetchPath.Text);
-
-            if (AdditionalConnectionDetails.Count < 1)
+            if (AdditionalConnectionDetails.Count > 0)
             {
-                MessageBox.Show("Add an organization for data transfer! ");
-                return;
-            }
-            _logger.Log("Transfer is started. ");
-            _logger.Log($"entities count: {_entityNames.Count}");
-            _logger.Log($"Log folder path: {TxtLogsPath.Text}");
-            _logger.Log($"Fetch folder path: {TxtFetchPath.Text}");
+                InitializeLog();
+                _transferOperation.KeepRunning = true;
+                bool isErrorOccured = false;
+                List<string> fetchXmls = new List<string>();
+                List<int> tableIndexesForTransfer = new List<int>();
 
-            List<ResultItem> resultItems = null;
-            WorkAsync(new WorkAsyncInfo
-            {
-                Message = null,
-                Work = (worker, args) =>
+                foreach (DataGridViewRow row in FetchDataGridView.Rows)
                 {
-                    try
+                    if (row.Cells[0].Value != null && row.Cells[0].Value.ToString() == "True")
                     {
-                        ChangeToolsState(false);
-                        _transferOperation.Transfer();
-
-                        resultItems = _transferOperation.ResultItems;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Log(ex.Message);
-                        _logger.Log($"[trace log] {ex.StackTrace}");
-                    }
-                    finally
-                    {
-                        ChangeToolsState(true);
-                        _logger.Log("Result: ");
-                        foreach (ResultItem resultItem in resultItems)
-                            _logger.Log($"{resultItem.EntityName}, {resultItem.SourceRecordCount } (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Generated Records)");
-
-                        MessageBox.Show("Transfer Completed");
+                        fetchXmls.Add(_popup.FetchXmls[row.Index]);
+                        tableIndexesForTransfer.Add(row.Index);
                     }
                 }
-            });
+                if (fetchXmls.Count > 0)
+                {
+                    _errorIndexes.Clear();
+                    _errorPosition = 0;
+                    SetLoadingDetails(true);
+                    richTextBoxLogs.Text = string.Empty;
+
+                    InitializeTransferOperation();
+
+                    if (AdditionalConnectionDetails.Count < 1)
+                    {
+                        MessageBox.Show("Add an organization for data transfer! ");
+                        return;
+                    }
+                    _logger.LogInfo("Transfer is started. ");
+                    _logger.LogInfo($"Log folder path: {TxtLogsPath.Text}");
+                    WorkAsync(new WorkAsyncInfo
+                    {
+                        Message = null,
+                        Work = (worker, args) =>
+                        {
+                            try
+                            {
+                                ChangeToolsState(false);
+                                _transferOperation.Transfer(fetchXmls, tableIndexesForTransfer, richTextBoxLogs);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex.Message);
+                                _logger.LogError($"[trace log] {ex.StackTrace}");
+                                isErrorOccured = true;
+                            }
+                            finally
+                            {
+                                ChangeToolsState(true);
+                                _logger.LogInfo("Result: ");
+                                foreach (ResultItem resultItem in _transferOperation.ResultItems)
+                                {
+                                    if (resultItem.ErroredRecordCount > 0)
+                                        _logger.LogInfo($"{resultItem.EntityName}, {resultItem.SourceRecordCount } (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Migrated Records), {resultItem.ErroredRecordCount} (Errօred Records)");
+                                    else
+                                        _logger.LogInfo($"{resultItem.EntityName}, {resultItem.SourceRecordCount } (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Migrated Records)");
+                                }
+                                fetchXmls.Clear();
+                                SetLoadingDetails(false);
+                                if (isErrorOccured)
+                                    LblInfo.Text = string.Empty;
+                                else if (_transferOperation.KeepRunning && !isErrorOccured)
+                                    MessageBox.Show("Data Migration Completed.", "Data Migration Completed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                else
+                                    MessageBox.Show("Migration is Stopped.", "Migration is Stopped", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                        }
+                    });
+                }
+                else
+                {
+                    MessageBox.Show("Select Entity For Data Transfering. ", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Select Target Instance. ", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void InitializeTransferOperation()
+        {
+            ConnectionDetails connectionDetails = new ConnectionDetails
+            {
+                AdditionalConnectionDetails = AdditionalConnectionDetails,
+                Service = Service
+            };
+            _transferOperation.DisplayNames = _displayNames;
+            _transferOperation.SetConnectionDetails(connectionDetails);
+            _transferOperation.SetLabel(LblInfo, LblTitle, LblErrorText);
+        }
+
+        private void SetLoadingDetails(bool visible)
+        {
+            if (visible == true)
+            {
+                LblInfo.Text = "Loading...";
+                LblErrorText.Visible = visible;
+                LblInfo.Visible = visible;
+                LblErrorText.Text = string.Empty;
+            }
+            LblLoading.Visible = visible;
+            LblTitle.Visible = visible;
+            pictureBoxStop.Visible = visible;
+        }
+
+        private void InitializeLog()
+        {
+            _logger.SetTxtLogs(richTextBoxLogs);
+            _logger.SetLogsPath(_logsPath);
         }
 
         private void ChangeToolsState(bool state)
         {
             TxtLogsPath.Enabled = state;
-            TxtFetchPath.Enabled = state;
             BtnBrowseLogs.Enabled = state;
-            BtnBrowseFetch.Enabled = state;
             BtnTransferData.Enabled = state;
             BtnSelectTargetInstance.Enabled = state;
-            TextBoxFetchFiles.Enabled = state;
-            BtnClearLogs.Enabled = state;
+            FetchDataGridView.Enabled = state;
+            pictureBoxAdd.Enabled = state;
         }
 
-        private void BtnClearLogs_Click(object sender, EventArgs e)
+        private void PictureBoxRecBin_Click(object sender, EventArgs e)
         {
-            TxtLogs.Text = null;
+            _errorIndexes.Clear();
+            _errorPosition = 0;
+            richTextBoxLogs.Text = null;
+        }
+
+        private void PictureBoxAdd_Click(object sender, EventArgs e)
+        {
+            InitializeLog();
+            _popup.TextBoxFetch.Text = string.Empty;
+            PopupDialog();
+        }
+
+        private void PopupDialog(int rowIndex = -1)
+        {
+            if (_popup.ShowDialog() == DialogResult.OK)
+            {
+                _dataverseService = new DataverseService(Service);
+                string fetch = _popup.TextBoxFetch.Text;
+
+                if (rowIndex != -1 && fetch == _popup.FetchXmls[rowIndex])
+                {
+                    return;
+                }
+                string displayName = _dataverseService.GetDisplayName(fetch);
+                string logicalName = _dataverseService.GetLogicalName(fetch);
+
+                if (rowIndex != -1)
+                {
+                    _popup.FetchXmls[rowIndex] = fetch;
+                    fetchXmlDataBindingSource[rowIndex] = new FetchXmlData()
+                    {
+                        DisplayName = displayName,
+                        SchemaName = logicalName
+                    };
+                    _displayNames[rowIndex] = displayName;
+                }
+                else
+                {
+                    _displayNames.Add(displayName);
+                    fetchXmlDataBindingSource.Add(new FetchXmlData()
+                    {
+                        DisplayName = displayName,
+                        SchemaName = logicalName
+                    });
+                }
+            }
+        }
+
+        private void FetchDataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Remove")
+            {
+                if (MessageBox.Show("Are you sure you want to delete this item?", "Delete Item", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    fetchXmlDataBindingSource.RemoveAt(e.RowIndex);
+                    _popup.FetchXmls.RemoveAt(e.RowIndex);
+                    _displayNames.RemoveAt(e.RowIndex);
+                }
+            }
+            if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Edit")
+            {
+                _popup.IsEdit = true;
+                _popup.EditIndex = e.RowIndex;
+                _popup.TextBoxFetch.Text = _popup.FetchXmls[e.RowIndex];
+                PopupDialog(e.RowIndex);
+                _popup.IsEdit = false;
+            }
+        }
+
+        private void PictureBoxStop_Click(object sender, EventArgs e)
+        {
+            _transferOperation.KeepRunning = false;
+        }
+
+        private void RichTextBoxLogs_TextChanged(object sender, EventArgs e)
+        {
+            FindErrorIndexes();
+            ColorErrors();
+        }
+
+        private void FindErrorIndexes()
+        {
+            int errorIndex = richTextBoxLogs.Find("ERROR:", _errorPosition, RichTextBoxFinds.None);
+            if (errorIndex < 0)
+            {
+                return;
+            }
+            _errorPosition = errorIndex + 1;
+            _errorIndexes.Add(errorIndex);
+        }
+
+        private void ColorErrors()
+        {
+            foreach (int index in _errorIndexes)
+            {
+                richTextBoxLogs.SelectionStart = index;
+                richTextBoxLogs.SelectionLength = 6;
+                richTextBoxLogs.SelectionColor = Color.Red;
+            }
+        }
+
+        private void RichTextBoxLogs_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(e.LinkText);
         }
     }
 }

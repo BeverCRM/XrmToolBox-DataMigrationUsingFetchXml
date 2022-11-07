@@ -23,6 +23,11 @@ namespace XrmMigrationUtility.Services.Implementations
             _logger = logger;
         }
 
+        public DataverseService(IOrganizationService service)
+        {
+            _sourceService = service;
+        }
+
         public EntityCollection GetAllRecords(string fetchQuery)
         {
             EntityCollection data = new EntityCollection();
@@ -34,10 +39,8 @@ namespace XrmMigrationUtility.Services.Implementations
             while (true)
             {
                 string xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, pageNumber, fetchCount);
-                EntityCollection returnCollection;
-                returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
+                EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
                 data.Entities.AddRange(returnCollection.Entities);
-
                 if (returnCollection.MoreRecords)
                 {
                     ++pageNumber;
@@ -80,8 +83,8 @@ namespace XrmMigrationUtility.Services.Implementations
                     }
                     else
                     {
-                        _logger.Log("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name);
-                        _logger.Log($"Creating a new record of '{refValue.LogicalName}' with name '{refValue.Name}'...");
+                        _logger.LogError("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name);
+                        _logger.LogInfo($"Creating a new record of '{refValue.LogicalName}' with name '{refValue.Name}'...");
                     }
                 }
             }
@@ -117,6 +120,28 @@ namespace XrmMigrationUtility.Services.Implementations
             EntityCollection records = _targetService.RetrieveMultiple(query);
 
             return records.Entities.FirstOrDefault();
+        }
+
+        public string GetDisplayName(string fetchXml)
+        {
+            EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(fetchXml));
+
+            RetrieveEntityRequest retrieveEntityRequest = new RetrieveEntityRequest
+            {
+                EntityFilters = EntityFilters.All,
+                LogicalName = returnCollection.Entities[0].LogicalName
+            };
+            RetrieveEntityResponse retrieveAccountEntityResponse = (RetrieveEntityResponse)_sourceService.Execute(retrieveEntityRequest);
+            EntityMetadata AccountEntity = retrieveAccountEntityResponse.EntityMetadata;
+
+            return AccountEntity.DisplayName.UserLocalizedLabel.Label;
+        }
+
+        public string GetLogicalName(string fetchXml)
+        {
+            EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(fetchXml));
+
+            return returnCollection.Entities[0].LogicalName;
         }
     }
 }
