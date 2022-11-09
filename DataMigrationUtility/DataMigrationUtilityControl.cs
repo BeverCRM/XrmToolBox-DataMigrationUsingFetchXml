@@ -241,7 +241,7 @@ namespace XrmMigrationUtility
                 }
                 else
                 {
-                    MessageBox.Show("Select Entity For Data Transfering. ", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Select at least one row from FetchXML table for data transfer. ", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
@@ -284,6 +284,7 @@ namespace XrmMigrationUtility
 
         private void ChangeToolsState(bool state)
         {
+            pictureBoxRecBin.Enabled = state;
             TxtLogsPath.Enabled = state;
             BtnBrowseLogs.Enabled = state;
             BtnTransferData.Enabled = state;
@@ -310,34 +311,45 @@ namespace XrmMigrationUtility
         {
             if (_popup.ShowDialog() == DialogResult.OK)
             {
-                _dataverseService = new DataverseService(Service);
-                string fetch = _popup.TextBoxFetch.Text;
+                try
+                {
+                    _dataverseService = new DataverseService(Service);
+                    string fetch = _popup.TextBoxFetch.Text;
 
-                if (rowIndex != -1 && fetch == _popup.FetchXmls[rowIndex])
-                {
-                    return;
-                }
-                string displayName = _dataverseService.GetDisplayName(fetch);
-                string logicalName = _dataverseService.GetLogicalName(fetch);
+                    if (rowIndex != -1 && fetch == _popup.FetchXmls[rowIndex])
+                    {
+                        return;
+                    }
+                    string displayName = _dataverseService.GetDisplayName(fetch);
+                    string logicalName = _dataverseService.GetLogicalName(fetch);
 
-                if (rowIndex != -1)
-                {
-                    _popup.FetchXmls[rowIndex] = fetch;
-                    fetchXmlDataBindingSource[rowIndex] = new FetchXmlData()
+                    if (rowIndex != -1)
                     {
-                        DisplayName = displayName,
-                        SchemaName = logicalName
-                    };
-                    _displayNames[rowIndex] = displayName;
+                        _popup.FetchXmls[rowIndex] = fetch;
+                        fetchXmlDataBindingSource[rowIndex] = new FetchXmlData()
+                        {
+                            DisplayName = displayName,
+                            SchemaName = logicalName
+                        };
+                        _displayNames[rowIndex] = displayName;
+                    }
+                    else
+                    {
+                        _displayNames.Add(displayName);
+                        fetchXmlDataBindingSource.Add(new FetchXmlData()
+                        {
+                            DisplayName = displayName,
+                            SchemaName = logicalName
+                        });
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    _displayNames.Add(displayName);
-                    fetchXmlDataBindingSource.Add(new FetchXmlData()
+                    if (rowIndex == -1)
                     {
-                        DisplayName = displayName,
-                        SchemaName = logicalName
-                    });
+                        _popup.FetchXmls.RemoveAt(_popup.FetchXmls.Count - 1);
+                    }
+                    MessageBox.Show($"{ex.Message}.", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }

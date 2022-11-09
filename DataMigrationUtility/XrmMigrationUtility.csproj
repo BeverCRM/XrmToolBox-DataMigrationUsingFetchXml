@@ -385,6 +385,12 @@
   <ItemGroup>
     <None Include="Resources\stop.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\clearLogs.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\stopMigration.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

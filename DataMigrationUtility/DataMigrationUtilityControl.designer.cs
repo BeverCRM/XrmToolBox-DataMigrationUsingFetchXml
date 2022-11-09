@@ -73,11 +73,11 @@ namespace XrmMigrationUtility
             this.TxtLogsPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtLogsPath.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.TxtLogsPath.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TxtLogsPath.Location = new System.Drawing.Point(867, 129);
+            this.TxtLogsPath.Location = new System.Drawing.Point(1091, 130);
             this.TxtLogsPath.MaxLength = 500;
             this.TxtLogsPath.Multiline = true;
             this.TxtLogsPath.Name = "TxtLogsPath";
-            this.TxtLogsPath.Size = new System.Drawing.Size(474, 25);
+            this.TxtLogsPath.Size = new System.Drawing.Size(443, 25);
             this.TxtLogsPath.TabIndex = 5;
             this.TxtLogsPath.Leave += new System.EventHandler(this.TxtLogsPathLeave);
             // 
@@ -86,7 +86,7 @@ namespace XrmMigrationUtility
             this.BtnBrowseLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnBrowseLogs.Cursor = System.Windows.Forms.Cursors.Hand;
             this.BtnBrowseLogs.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnBrowseLogs.Location = new System.Drawing.Point(786, 129);
+            this.BtnBrowseLogs.Location = new System.Drawing.Point(1010, 129);
             this.BtnBrowseLogs.Name = "BtnBrowseLogs";
             this.BtnBrowseLogs.Size = new System.Drawing.Size(75, 25);
             this.BtnBrowseLogs.TabIndex = 6;
@@ -99,7 +99,7 @@ namespace XrmMigrationUtility
             this.LblLogsPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.LblLogsPath.AutoSize = true;
             this.LblLogsPath.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblLogsPath.Location = new System.Drawing.Point(884, 110);
+            this.LblLogsPath.Location = new System.Drawing.Point(1097, 110);
             this.LblLogsPath.Name = "LblLogsPath";
             this.LblLogsPath.Size = new System.Drawing.Size(77, 16);
             this.LblLogsPath.TabIndex = 7;
@@ -108,7 +108,7 @@ namespace XrmMigrationUtility
             // vScrollBar1
             // 
             this.vScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.vScrollBar1.Location = new System.Drawing.Point(1364, 1);
+            this.vScrollBar1.Location = new System.Drawing.Point(1557, 1);
             this.vScrollBar1.Name = "vScrollBar1";
             this.vScrollBar1.Size = new System.Drawing.Size(17, 720);
             this.vScrollBar1.TabIndex = 9;
@@ -118,7 +118,7 @@ namespace XrmMigrationUtility
             this.BtnSelectTargetInstance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnSelectTargetInstance.Cursor = System.Windows.Forms.Cursors.Hand;
             this.BtnSelectTargetInstance.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnSelectTargetInstance.Location = new System.Drawing.Point(959, 9);
+            this.BtnSelectTargetInstance.Location = new System.Drawing.Point(1152, 9);
             this.BtnSelectTargetInstance.Name = "BtnSelectTargetInstance";
             this.BtnSelectTargetInstance.Size = new System.Drawing.Size(150, 30);
             this.BtnSelectTargetInstance.TabIndex = 10;
@@ -129,7 +129,7 @@ namespace XrmMigrationUtility
             // hScrollBar1
             // 
             this.hScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.hScrollBar1.Location = new System.Drawing.Point(0, 723);
+            this.hScrollBar1.Location = new System.Drawing.Point(0, 795);
             this.hScrollBar1.Name = "hScrollBar1";
             this.hScrollBar1.Size = new System.Drawing.Size(1361, 10);
             this.hScrollBar1.TabIndex = 16;
@@ -140,7 +140,7 @@ namespace XrmMigrationUtility
             this.BtnTransferData.BackColor = System.Drawing.SystemColors.ControlLight;
             this.BtnTransferData.Cursor = System.Windows.Forms.Cursors.Hand;
             this.BtnTransferData.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnTransferData.Location = new System.Drawing.Point(622, 20);
+            this.BtnTransferData.Location = new System.Drawing.Point(718, 20);
             this.BtnTransferData.Name = "BtnTransferData";
             this.BtnTransferData.Size = new System.Drawing.Size(120, 48);
             this.BtnTransferData.TabIndex = 18;
@@ -152,7 +152,7 @@ namespace XrmMigrationUtility
             // 
             this.LblTarget.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.LblTarget.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblTarget.Location = new System.Drawing.Point(1115, 9);
+            this.LblTarget.Location = new System.Drawing.Point(1308, 9);
             this.LblTarget.Name = "LblTarget";
             this.LblTarget.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
             this.LblTarget.Size = new System.Drawing.Size(83, 27);
@@ -164,7 +164,7 @@ namespace XrmMigrationUtility
             // 
             this.LblTargetText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.LblTargetText.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblTargetText.Location = new System.Drawing.Point(1204, 9);
+            this.LblTargetText.Location = new System.Drawing.Point(1397, 9);
             this.LblTargetText.Name = "LblTargetText";
             this.LblTargetText.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
             this.LblTargetText.Size = new System.Drawing.Size(137, 94);
@@ -228,7 +228,7 @@ namespace XrmMigrationUtility
             this.FetchDataGridView.DataSource = this.fetchXmlDataBindingSource;
             this.FetchDataGridView.Location = new System.Drawing.Point(23, 129);
             this.FetchDataGridView.Name = "FetchDataGridView";
-            this.FetchDataGridView.Size = new System.Drawing.Size(563, 178);
+            this.FetchDataGridView.Size = new System.Drawing.Size(525, 178);
             this.FetchDataGridView.TabIndex = 30;
             this.FetchDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.FetchDataGridView_CellContentClick);
             // 
@@ -266,7 +266,7 @@ namespace XrmMigrationUtility
             this.richTextBoxLogs.Location = new System.Drawing.Point(23, 432);
             this.richTextBoxLogs.Name = "richTextBoxLogs";
             this.richTextBoxLogs.ReadOnly = true;
-            this.richTextBoxLogs.Size = new System.Drawing.Size(1318, 276);
+            this.richTextBoxLogs.Size = new System.Drawing.Size(1511, 348);
             this.richTextBoxLogs.TabIndex = 31;
             this.richTextBoxLogs.Text = "";
             this.richTextBoxLogs.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.RichTextBoxLogs_LinkClicked);
@@ -277,9 +277,9 @@ namespace XrmMigrationUtility
             this.LblInfo.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblInfo.BackColor = System.Drawing.SystemColors.Window;
             this.LblInfo.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblInfo.Location = new System.Drawing.Point(601, 343);
+            this.LblInfo.Location = new System.Drawing.Point(678, 343);
             this.LblInfo.Name = "LblInfo";
-            this.LblInfo.Size = new System.Drawing.Size(260, 50);
+            this.LblInfo.Size = new System.Drawing.Size(200, 50);
             this.LblInfo.TabIndex = 34;
             this.LblInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.LblInfo.Visible = false;
@@ -289,9 +289,9 @@ namespace XrmMigrationUtility
             this.LblTitle.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblTitle.BackColor = System.Drawing.SystemColors.Window;
             this.LblTitle.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblTitle.Location = new System.Drawing.Point(600, 289);
+            this.LblTitle.Location = new System.Drawing.Point(648, 289);
             this.LblTitle.Name = "LblTitle";
-            this.LblTitle.Size = new System.Drawing.Size(261, 53);
+            this.LblTitle.Size = new System.Drawing.Size(260, 53);
             this.LblTitle.TabIndex = 35;
             this.LblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.LblTitle.Visible = false;
@@ -301,9 +301,9 @@ namespace XrmMigrationUtility
             this.LblErrorText.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblErrorText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LblErrorText.ForeColor = System.Drawing.Color.Red;
-            this.LblErrorText.Location = new System.Drawing.Point(601, 397);
+            this.LblErrorText.Location = new System.Drawing.Point(678, 397);
             this.LblErrorText.Name = "LblErrorText";
-            this.LblErrorText.Size = new System.Drawing.Size(260, 28);
+            this.LblErrorText.Size = new System.Drawing.Size(200, 28);
             this.LblErrorText.TabIndex = 37;
             this.LblErrorText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.LblErrorText.Visible = false;
@@ -330,7 +330,7 @@ namespace XrmMigrationUtility
             this.LblLoading.BackColor = System.Drawing.SystemColors.Window;
             this.LblLoading.Image = global::XrmMigrationUtility.Properties.Resources.loading;
             this.LblLoading.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.LblLoading.Location = new System.Drawing.Point(545, 343);
+            this.LblLoading.Location = new System.Drawing.Point(596, 343);
             this.LblLoading.Name = "LblLoading";
             this.LblLoading.Size = new System.Drawing.Size(50, 50);
             this.LblLoading.TabIndex = 33;
@@ -341,10 +341,10 @@ namespace XrmMigrationUtility
             // 
             this.pictureBoxStop.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.pictureBoxStop.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBoxStop.Image = global::XrmMigrationUtility.Properties.Resources.stop;
-            this.pictureBoxStop.Location = new System.Drawing.Point(867, 352);
+            this.pictureBoxStop.Image = global::XrmMigrationUtility.Properties.Resources.stopMigration;
+            this.pictureBoxStop.Location = new System.Drawing.Point(878, 378);
             this.pictureBoxStop.Name = "pictureBoxStop";
-            this.pictureBoxStop.Size = new System.Drawing.Size(33, 32);
+            this.pictureBoxStop.Size = new System.Drawing.Size(30, 32);
             this.pictureBoxStop.TabIndex = 28;
             this.pictureBoxStop.TabStop = false;
             this.pictureBoxStop.Visible = false;
@@ -353,8 +353,8 @@ namespace XrmMigrationUtility
             // pictureBoxRecBin
             // 
             this.pictureBoxRecBin.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBoxRecBin.Image = global::XrmMigrationUtility.Properties.Resources.recycle_bin;
-            this.pictureBoxRecBin.Location = new System.Drawing.Point(73, 401);
+            this.pictureBoxRecBin.Image = global::XrmMigrationUtility.Properties.Resources.clearLogs;
+            this.pictureBoxRecBin.Location = new System.Drawing.Point(64, 403);
             this.pictureBoxRecBin.Name = "pictureBoxRecBin";
             this.pictureBoxRecBin.Size = new System.Drawing.Size(35, 29);
             this.pictureBoxRecBin.TabIndex = 28;
@@ -378,7 +378,7 @@ namespace XrmMigrationUtility
             this.displayNameDataGridViewTextBoxColumn.HeaderText = "DisplayName";
             this.displayNameDataGridViewTextBoxColumn.Name = "displayNameDataGridViewTextBoxColumn";
             this.displayNameDataGridViewTextBoxColumn.ReadOnly = true;
-            this.displayNameDataGridViewTextBoxColumn.Width = 220;
+            this.displayNameDataGridViewTextBoxColumn.Width = 200;
             // 
             // schemaNameDataGridViewTextBoxColumn
             // 
@@ -386,7 +386,7 @@ namespace XrmMigrationUtility
             this.schemaNameDataGridViewTextBoxColumn.HeaderText = "SchemaName";
             this.schemaNameDataGridViewTextBoxColumn.Name = "schemaNameDataGridViewTextBoxColumn";
             this.schemaNameDataGridViewTextBoxColumn.ReadOnly = true;
-            this.schemaNameDataGridViewTextBoxColumn.Width = 220;
+            this.schemaNameDataGridViewTextBoxColumn.Width = 200;
             // 
             // fetchXmlDataBindingSource
             // 
@@ -421,7 +421,7 @@ namespace XrmMigrationUtility
             this.Controls.Add(this.BtnBrowseLogs);
             this.Controls.Add(this.TxtLogsPath);
             this.Name = "DataMigrationUtilityControl";
-            this.Size = new System.Drawing.Size(1364, 722);
+            this.Size = new System.Drawing.Size(1557, 794);
             this.Load += new System.EventHandler(this.DataMigrationUtilityControl_Load);
             ((System.ComponentModel.ISupportInitialize)(this.FetchDataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxStop)).EndInit();
@@ -456,13 +456,13 @@ namespace XrmMigrationUtility
         private System.Windows.Forms.Label LblTitle;
         private System.Windows.Forms.DataGridViewImageColumn dataGridViewImageColumn1;
         private System.Windows.Forms.DataGridViewImageColumn dataGridViewImageColumn2;
+        private System.Windows.Forms.Label LblErrorText;
+        private System.Windows.Forms.PictureBox pictureBoxRecBin;
+        private System.Windows.Forms.PictureBox pictureBoxStop;
         private System.Windows.Forms.DataGridViewCheckBoxColumn CheckBox;
         private System.Windows.Forms.DataGridViewTextBoxColumn displayNameDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn schemaNameDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewImageColumn Edit;
         private System.Windows.Forms.DataGridViewImageColumn Remove;
-        private System.Windows.Forms.Label LblErrorText;
-        private System.Windows.Forms.PictureBox pictureBoxRecBin;
-        private System.Windows.Forms.PictureBox pictureBoxStop;
     }
 }

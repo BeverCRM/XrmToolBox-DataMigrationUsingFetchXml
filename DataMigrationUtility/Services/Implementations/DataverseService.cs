@@ -60,7 +60,7 @@ namespace XrmMigrationUtility.Services.Implementations
             {
                 Target = record
             };
-            createRequest.Parameters.Add("SuppressDuplicateDetection", duplicateDetection);
+            //createRequest.Parameters.Add("SuppressDuplicateDetection", duplicateDetection);
             CreateResponse response = (CreateResponse)_targetService.Execute(createRequest);
 
             return response.id;

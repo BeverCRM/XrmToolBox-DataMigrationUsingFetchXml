@@ -18,7 +18,11 @@ namespace XrmMigrationUtility.Services.Implementations
 
         public void SetLogsPath(string logsPath)
         {
-            _logsPath = $"{logsPath}\\Log - {(DateTime.Now - DateTime.MinValue).TotalSeconds}.txt";
+            string dt = (DateTime.Now - DateTime.MinValue).TotalSeconds.ToString();
+            int dotIndex = dt.IndexOf('.');
+            dt = dt.Remove(dotIndex);
+
+            _logsPath = $"{logsPath}\\Log - {dt}.txt";
         }
 
         public void LogInfo(string text)
