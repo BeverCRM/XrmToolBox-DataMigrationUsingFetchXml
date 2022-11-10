@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
-using XrmMigrationUtility.Services.Interfaces;
+using DataMigrationUsingFetchXml.Services.Interfaces;
 
-namespace XrmMigrationUtility.Services.Implementations
+namespace DataMigrationUsingFetchXml.Services.Implementations
 {
     internal sealed class Logger : ILogger
     {

@@ -2,7 +2,7 @@
 using McTools.Xrm.Connection;
 using System.Collections.ObjectModel;
 
-namespace XrmMigrationUtility.Model
+namespace DataMigrationUsingFetchXml.Model
 {
     internal sealed class ConnectionDetails
     {

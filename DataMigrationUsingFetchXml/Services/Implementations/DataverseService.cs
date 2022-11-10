@@ -6,9 +6,9 @@ using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
 using System.Collections.Generic;
 using Microsoft.Xrm.Tooling.Connector;
-using XrmMigrationUtility.Services.Interfaces;
+using DataMigrationUsingFetchXml.Services.Interfaces;
 
-namespace XrmMigrationUtility.Services.Implementations
+namespace DataMigrationUsingFetchXml.Services.Implementations
 {
     internal sealed class DataverseService : IDataverseService
     {

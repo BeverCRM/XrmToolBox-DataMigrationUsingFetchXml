@@ -1,4 +1,4 @@
-﻿namespace XrmMigrationUtility.Model
+﻿namespace DataMigrationUsingFetchXml.Model
 {
     internal sealed class FetchXmlData
     {

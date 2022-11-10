@@ -2,7 +2,7 @@
 using Microsoft.Xrm.Sdk;
 using System.Collections.Generic;
 
-namespace XrmMigrationUtility.Services.Interfaces
+namespace DataMigrationUsingFetchXml.Services.Interfaces
 {
     internal interface IDataverseService
     {

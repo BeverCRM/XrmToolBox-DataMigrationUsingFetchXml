@@ -3,12 +3,12 @@ using Microsoft.Xrm.Sdk;
 using System.ServiceModel;
 using System.Windows.Forms;
 using McTools.Xrm.Connection;
-using XrmMigrationUtility.Model;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using XrmMigrationUtility.Services.Interfaces;
+using DataMigrationUsingFetchXml.Model;
+using DataMigrationUsingFetchXml.Services.Interfaces;
 
-namespace XrmMigrationUtility.Services.Implementations
+namespace DataMigrationUsingFetchXml.Services.Implementations
 {
     internal sealed class TransferOperation : ITransferOperation
     {

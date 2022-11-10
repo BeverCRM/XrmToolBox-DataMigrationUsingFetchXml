@@ -8,13 +8,13 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using XrmToolBox.Extensibility.Interfaces;
 
-namespace XrmMigrationUtility
+namespace DataMigrationUsingFetchXml
 {
     // Do not forget to update version number and author (company attribute) in AssemblyInfo.cs class
     // To generate Base64 string for Images below, you can use https://www.base64-image.de/
     [Export(typeof(IXrmToolBoxPlugin)),
-        ExportMetadata("Name", "Data Migration Utility"),
-        ExportMetadata("Description", "Data Migration Utility helps migrating data between environments."),
+        ExportMetadata("Name", "Data Migration using FetchXml"),
+        ExportMetadata("Description", "Data Migration using FetchXml helps migrating data between environments."),
         // Please specify the base64 content of a 32x32 pixels image
         ExportMetadata("SmallImageBase64", "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"),
         // Please specify the base64 content of a 80x80 pixels image
@@ -22,7 +22,7 @@ namespace XrmMigrationUtility
         ExportMetadata("BackgroundColor", "Lavender"),
         ExportMetadata("PrimaryFontColor", "Black"),
         ExportMetadata("SecondaryFontColor", "Gray")]
-    public class DataMigrationUtility : PluginBase
+    public class DataMigrationUsingFetchXml : PluginBase
     {
         private readonly IUnityContainer _unityContainer;
 
@@ -30,13 +30,13 @@ namespace XrmMigrationUtility
         {
             UnityConfig.RegisterTypes(_unityContainer);
 
-            return _unityContainer.Resolve<DataMigrationUtilityControl>();
+            return _unityContainer.Resolve<DataMigrationUsingFetchXmlControl>();
         }
 
         /// <summary>
         /// Constructor 
         /// </summary>
-        public DataMigrationUtility()
+        public DataMigrationUsingFetchXml()
         {
             _unityContainer = new UnityContainer();
             // If you have external assemblies that you need to load, uncomment the following to 

@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace XrmMigrationUtility.Services.Interfaces
+namespace DataMigrationUsingFetchXml.Services.Interfaces
 {
     internal interface ILogger
     {

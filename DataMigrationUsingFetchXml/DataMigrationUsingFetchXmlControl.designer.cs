@@ -1,7 +1,7 @@
 ﻿
-namespace XrmMigrationUtility
+namespace DataMigrationUsingFetchXml
 {
-    partial class DataMigrationUtilityControl
+    partial class DataMigrationUsingFetchXmlControl
     {
         /// <summary> 
         /// Variable nécessaire au concepteur.
@@ -30,7 +30,7 @@ namespace XrmMigrationUtility
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DataMigrationUtilityControl));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DataMigrationUsingFetchXmlControl));
             this.TxtLogsPath = new System.Windows.Forms.TextBox();
             this.BtnBrowseLogs = new System.Windows.Forms.Button();
             this.LblLogsPath = new System.Windows.Forms.Label();
@@ -242,7 +242,7 @@ namespace XrmMigrationUtility
             // Edit
             // 
             this.Edit.HeaderText = "";
-            this.Edit.Image = global::XrmMigrationUtility.Properties.Resources.Edit;
+            this.Edit.Image = global::DataMigrationUsingFetchXml.Properties.Resources.Edit;
             this.Edit.Name = "Edit";
             this.Edit.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.Edit.Width = 25;
@@ -250,7 +250,7 @@ namespace XrmMigrationUtility
             // Remove
             // 
             this.Remove.HeaderText = "";
-            this.Remove.Image = global::XrmMigrationUtility.Properties.Resources.Remove;
+            this.Remove.Image = global::DataMigrationUsingFetchXml.Properties.Resources.Remove;
             this.Remove.Name = "Remove";
             this.Remove.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.Remove.Width = 25;
@@ -328,7 +328,7 @@ namespace XrmMigrationUtility
             // 
             this.LblLoading.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblLoading.BackColor = System.Drawing.SystemColors.Window;
-            this.LblLoading.Image = global::XrmMigrationUtility.Properties.Resources.loading;
+            this.LblLoading.Image = global::DataMigrationUsingFetchXml.Properties.Resources.loading;
             this.LblLoading.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.LblLoading.Location = new System.Drawing.Point(596, 343);
             this.LblLoading.Name = "LblLoading";
@@ -341,7 +341,7 @@ namespace XrmMigrationUtility
             // 
             this.pictureBoxStop.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.pictureBoxStop.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBoxStop.Image = global::XrmMigrationUtility.Properties.Resources.stopMigration;
+            this.pictureBoxStop.Image = global::DataMigrationUsingFetchXml.Properties.Resources.stopMigration;
             this.pictureBoxStop.Location = new System.Drawing.Point(878, 378);
             this.pictureBoxStop.Name = "pictureBoxStop";
             this.pictureBoxStop.Size = new System.Drawing.Size(30, 32);
@@ -353,7 +353,7 @@ namespace XrmMigrationUtility
             // pictureBoxRecBin
             // 
             this.pictureBoxRecBin.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBoxRecBin.Image = global::XrmMigrationUtility.Properties.Resources.clearLogs;
+            this.pictureBoxRecBin.Image = global::DataMigrationUsingFetchXml.Properties.Resources.clearLogs;
             this.pictureBoxRecBin.Location = new System.Drawing.Point(64, 403);
             this.pictureBoxRecBin.Name = "pictureBoxRecBin";
             this.pictureBoxRecBin.Size = new System.Drawing.Size(35, 29);
@@ -364,7 +364,7 @@ namespace XrmMigrationUtility
             // pictureBoxAdd
             // 
             this.pictureBoxAdd.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBoxAdd.Image = global::XrmMigrationUtility.Properties.Resources.iconPlus30;
+            this.pictureBoxAdd.Image = global::DataMigrationUsingFetchXml.Properties.Resources.iconPlus30;
             this.pictureBoxAdd.Location = new System.Drawing.Point(23, 97);
             this.pictureBoxAdd.Name = "pictureBoxAdd";
             this.pictureBoxAdd.Size = new System.Drawing.Size(35, 35);
@@ -390,9 +390,9 @@ namespace XrmMigrationUtility
             // 
             // fetchXmlDataBindingSource
             // 
-            this.fetchXmlDataBindingSource.DataSource = typeof(XrmMigrationUtility.Model.FetchXmlData);
+            this.fetchXmlDataBindingSource.DataSource = typeof(global::DataMigrationUsingFetchXml.Model.FetchXmlData);
             // 
-            // DataMigrationUtilityControl
+            // DataMigrationUsingFetchXmlControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -420,9 +420,9 @@ namespace XrmMigrationUtility
             this.Controls.Add(this.LblLogsPath);
             this.Controls.Add(this.BtnBrowseLogs);
             this.Controls.Add(this.TxtLogsPath);
-            this.Name = "DataMigrationUtilityControl";
+            this.Name = "DataMigrationUsingFetchXmlControl";
             this.Size = new System.Drawing.Size(1557, 794);
-            this.Load += new System.EventHandler(this.DataMigrationUtilityControl_Load);
+            this.Load += new System.EventHandler(this.DataMigrationUsingFetchXmlControl_Load);
             ((System.ComponentModel.ISupportInitialize)(this.FetchDataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxStop)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRecBin)).EndInit();

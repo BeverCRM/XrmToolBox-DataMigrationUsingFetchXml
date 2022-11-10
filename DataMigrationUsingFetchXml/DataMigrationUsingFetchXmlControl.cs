@@ -5,17 +5,17 @@ using Microsoft.Xrm.Sdk;
 using System.Windows.Forms;
 using McTools.Xrm.Connection;
 using XrmToolBox.Extensibility;
-using XrmMigrationUtility.Model;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using XrmMigrationUtility.Forms.Popup;
+using DataMigrationUsingFetchXml.Model;
+using DataMigrationUsingFetchXml.Forms.Popup;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using XrmMigrationUtility.Services.Interfaces;
-using XrmMigrationUtility.Services.Implementations;
+using DataMigrationUsingFetchXml.Services.Interfaces;
+using DataMigrationUsingFetchXml.Services.Implementations;
 
-namespace XrmMigrationUtility
+namespace DataMigrationUsingFetchXml
 {
-    internal partial class DataMigrationUtilityControl : MultipleConnectionsPluginControlBase
+    internal partial class DataMigrationUsingFetchXmlControl : MultipleConnectionsPluginControlBase
     {
         private string _logsPath;
 
@@ -37,7 +37,7 @@ namespace XrmMigrationUtility
 
         private readonly string _defaultPath = Environment.CurrentDirectory;
 
-        public DataMigrationUtilityControl(ILogger logger, ITransferOperation transferOperation)
+        public DataMigrationUsingFetchXmlControl(ILogger logger, ITransferOperation transferOperation)
         {
             InitializeComponent();
             _logger = logger;
@@ -46,7 +46,7 @@ namespace XrmMigrationUtility
             _displayNames = new List<string>();
         }
 
-        private void DataMigrationUtilityControl_Load(object sender, EventArgs e)
+        private void DataMigrationUsingFetchXmlControl_Load(object sender, EventArgs e)
         {
             // Loads or creates the settings for the plugin
             if (!SettingsManager.Instance.TryLoad(GetType(), out _mySettings))
@@ -68,7 +68,7 @@ namespace XrmMigrationUtility
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void DataMigrationUtilityControl_OnCloseTool(object sender, EventArgs e)
+        private void DataMigrationUsingFetchXmlControl_OnCloseTool(object sender, EventArgs e)
         {
             // Before leaving, save the settings
             SettingsManager.Instance.Save(GetType(), _mySettings);

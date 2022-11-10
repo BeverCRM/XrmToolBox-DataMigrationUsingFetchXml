@@ -1,8 +1,8 @@
 ﻿using System.Windows.Forms;
-using XrmMigrationUtility.Model;
+using DataMigrationUsingFetchXml.Model;
 using System.Collections.Generic;
 
-namespace XrmMigrationUtility.Services.Interfaces
+namespace DataMigrationUsingFetchXml.Services.Interfaces
 {
     internal interface ITransferOperation
     {

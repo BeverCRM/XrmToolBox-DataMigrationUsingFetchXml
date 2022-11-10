@@ -1,7 +1,7 @@
 ﻿using System.Xml;
 using System.Collections.Generic;
 
-namespace XrmMigrationUtility.Services
+namespace DataMigrationUsingFetchXml.Services
 {
     internal sealed class ConfigReader
     {

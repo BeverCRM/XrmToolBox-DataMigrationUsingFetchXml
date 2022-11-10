@@ -1,5 +1,5 @@
 ﻿
-namespace XrmMigrationUtility.Forms.Popup
+namespace DataMigrationUsingFetchXml.Forms.Popup
 {
     partial class Popup
     {

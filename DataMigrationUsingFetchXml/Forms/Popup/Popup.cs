@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 
-namespace XrmMigrationUtility.Forms.Popup
+namespace DataMigrationUsingFetchXml.Forms.Popup
 {
     internal partial class Popup : Form
     {
