@@ -24,6 +24,6 @@
     <file src="../README.md" target="" />
     <file src="../LICENSE.txt" target="" />
     <file src="../DataMigrationUsingFetchXml/bin/Release/DataMigrationUsingFetchXml.dll" target="lib/net462/Plugins" />    
-    <file src="images/icon.png" target="images/icon.png" />
+    <file src="icon.png" target="images/icon.png" />
   </files>
 </package>
