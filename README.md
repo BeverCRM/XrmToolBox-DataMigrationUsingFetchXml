@@ -3,7 +3,7 @@
 This utility allows the user to migrate data of the entity from source to target. \
 The user needs to define FetchXml queries for each entity to which data should be migrated.   
 
-![Untitled](https://user-images.githubusercontent.com/60586462/201646610-1670de23-7695-411a-87f5-74db0c99185a.png)
+![01](https://user-images.githubusercontent.com/60586462/201646610-1670de23-7695-411a-87f5-74db0c99185a.png)
 
 The utility has the following input parameters: 
 
@@ -16,7 +16,9 @@ For the lookup fields, the user can specify the search by name instead of search
 
 For Example
 ```xml
-<attribute SearchByPrimaryField="true" name="transactioncurrencyid" />
+<attribute name="transactioncurrencyid" SearchByPrimaryField="true" />
 ```
+
+![02](https://user-images.githubusercontent.com/60586462/201902686-21f1587f-c029-4f77-8362-1e693fccabdf.png)
 
 > ***Note*** **Link entities can be used only for filtering or sorting purposes. For field values migration each FetchXml grid line should represent only one entity.** 

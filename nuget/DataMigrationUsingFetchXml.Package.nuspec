@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>DataMigrationUsingFetchXml</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <title>Data Migration using FetchXml</title>
     <authors>Bever</authors>
     <owners>Bever Ltd</owners>
@@ -10,12 +10,12 @@
     <readme type="file">README.md</readme>
     <license type="file">LICENSE.txt</license>
     <icon>images/icon.png</icon>
-    <repository type="git" url="https://github.com/BeverCRM/XrmToolbox-DataMigrationUtility" branch="release"/>
+    <repository type="git" url="https://github.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml" branch="master"/>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Tool helps to transfer entity records between environments by using FetchXml queries.</description>
     <releaseNotes>First version of DataMigrationUsingFetchXml.</releaseNotes>
     <copyright>Copyright ©2022 Bever</copyright>
-    <tags>XrmToolBox-Tools Bever-Tools</tags>
+    <tags>XrmToolBox Plugin Data Migration FetchXml Bever-Tools</tags>
     <dependencies>
       <dependency id="XrmToolBoxPackage" version="1.2022" />
     </dependencies>
@@ -23,7 +23,7 @@
   <files>
     <file src="../README.md" target="" />
     <file src="../LICENSE.txt" target="" />
-    <file src="../DataMigrationUsingFetchXml/bin/Release/DataMigrationUsingFetchXml.dll" target="lib/net462/Plugins" />    
+    <file src="../DataMigrationUsingFetchXml/bin/Release/DataMigrationUsingFetchXml.dll" target="lib/net462/Plugins" />
     <file src="icon.png" target="images/icon.png" />
   </files>
 </package>
