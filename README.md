@@ -16,7 +16,7 @@ For the lookup fields, the user can specify the search by name instead of search
 
 For Example
 ```xml
-<attribute SearchByPrimaryField="true" name="transactioncurrencyid" />
+<attribute name="transactioncurrencyid" SearchByPrimaryField="true" />
 ```
 
 ![02](https://user-images.githubusercontent.com/60586462/201902686-21f1587f-c029-4f77-8362-1e693fccabdf.png)
