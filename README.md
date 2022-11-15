@@ -14,7 +14,7 @@ The utility has the following input parameters:
 
 For the lookup fields, the user can specify the search by name instead of searching by id. For that, it’s needed to add the `SearchByPrimaryField="true"` attribute in the FetchXml `attribute` tag. 
 
-For Example
+For example
 ```xml
 <attribute name="transactioncurrencyid" SearchByPrimaryField="true" />
 ```
