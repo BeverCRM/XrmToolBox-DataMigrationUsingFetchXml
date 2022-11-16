@@ -46,8 +46,11 @@ namespace DataMigrationUsingFetchXml
             this.LblAddFetchXml = new System.Windows.Forms.Label();
             this.FetchDataGridView = new System.Windows.Forms.DataGridView();
             this.CheckBox = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.displayNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.schemaNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Edit = new System.Windows.Forms.DataGridViewImageColumn();
             this.Remove = new System.Windows.Forms.DataGridViewImageColumn();
+            this.fetchXmlDataBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.richTextBoxLogs = new System.Windows.Forms.RichTextBox();
             this.LblInfo = new System.Windows.Forms.Label();
             this.LblTitle = new System.Windows.Forms.Label();
@@ -58,14 +61,11 @@ namespace DataMigrationUsingFetchXml
             this.pictureBoxStop = new System.Windows.Forms.PictureBox();
             this.pictureBoxRecBin = new System.Windows.Forms.PictureBox();
             this.pictureBoxAdd = new System.Windows.Forms.PictureBox();
-            this.displayNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.schemaNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.fetchXmlDataBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.FetchDataGridView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fetchXmlDataBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxStop)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRecBin)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxAdd)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.fetchXmlDataBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // TxtLogsPath
@@ -73,7 +73,7 @@ namespace DataMigrationUsingFetchXml
             this.TxtLogsPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtLogsPath.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.TxtLogsPath.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TxtLogsPath.Location = new System.Drawing.Point(1096, 130);
+            this.TxtLogsPath.Location = new System.Drawing.Point(1108, 130);
             this.TxtLogsPath.MaxLength = 500;
             this.TxtLogsPath.Multiline = true;
             this.TxtLogsPath.Name = "TxtLogsPath";
@@ -86,7 +86,7 @@ namespace DataMigrationUsingFetchXml
             this.BtnBrowseLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnBrowseLogs.Cursor = System.Windows.Forms.Cursors.Hand;
             this.BtnBrowseLogs.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnBrowseLogs.Location = new System.Drawing.Point(1015, 129);
+            this.BtnBrowseLogs.Location = new System.Drawing.Point(1027, 129);
             this.BtnBrowseLogs.Name = "BtnBrowseLogs";
             this.BtnBrowseLogs.Size = new System.Drawing.Size(75, 25);
             this.BtnBrowseLogs.TabIndex = 6;
@@ -99,7 +99,7 @@ namespace DataMigrationUsingFetchXml
             this.LblLogsPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.LblLogsPath.AutoSize = true;
             this.LblLogsPath.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblLogsPath.Location = new System.Drawing.Point(1093, 111);
+            this.LblLogsPath.Location = new System.Drawing.Point(1105, 111);
             this.LblLogsPath.Name = "LblLogsPath";
             this.LblLogsPath.Size = new System.Drawing.Size(77, 16);
             this.LblLogsPath.TabIndex = 7;
@@ -108,7 +108,7 @@ namespace DataMigrationUsingFetchXml
             // vScrollBar1
             // 
             this.vScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.vScrollBar1.Location = new System.Drawing.Point(1558, 1);
+            this.vScrollBar1.Location = new System.Drawing.Point(1570, 1);
             this.vScrollBar1.Name = "vScrollBar1";
             this.vScrollBar1.Size = new System.Drawing.Size(17, 720);
             this.vScrollBar1.TabIndex = 9;
@@ -118,7 +118,7 @@ namespace DataMigrationUsingFetchXml
             this.BtnSelectTargetInstance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnSelectTargetInstance.Cursor = System.Windows.Forms.Cursors.Hand;
             this.BtnSelectTargetInstance.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnSelectTargetInstance.Location = new System.Drawing.Point(1153, 9);
+            this.BtnSelectTargetInstance.Location = new System.Drawing.Point(1165, 9);
             this.BtnSelectTargetInstance.Name = "BtnSelectTargetInstance";
             this.BtnSelectTargetInstance.Size = new System.Drawing.Size(150, 30);
             this.BtnSelectTargetInstance.TabIndex = 10;
@@ -129,7 +129,7 @@ namespace DataMigrationUsingFetchXml
             // hScrollBar1
             // 
             this.hScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.hScrollBar1.Location = new System.Drawing.Point(0, 782);
+            this.hScrollBar1.Location = new System.Drawing.Point(0, 871);
             this.hScrollBar1.Name = "hScrollBar1";
             this.hScrollBar1.Size = new System.Drawing.Size(1361, 10);
             this.hScrollBar1.TabIndex = 16;
@@ -140,7 +140,7 @@ namespace DataMigrationUsingFetchXml
             this.BtnTransferData.BackColor = System.Drawing.SystemColors.ControlLight;
             this.BtnTransferData.Cursor = System.Windows.Forms.Cursors.Hand;
             this.BtnTransferData.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnTransferData.Location = new System.Drawing.Point(719, 20);
+            this.BtnTransferData.Location = new System.Drawing.Point(725, 20);
             this.BtnTransferData.Name = "BtnTransferData";
             this.BtnTransferData.Size = new System.Drawing.Size(120, 48);
             this.BtnTransferData.TabIndex = 18;
@@ -152,7 +152,7 @@ namespace DataMigrationUsingFetchXml
             // 
             this.LblTarget.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.LblTarget.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblTarget.Location = new System.Drawing.Point(1309, 9);
+            this.LblTarget.Location = new System.Drawing.Point(1321, 9);
             this.LblTarget.Name = "LblTarget";
             this.LblTarget.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
             this.LblTarget.Size = new System.Drawing.Size(83, 27);
@@ -164,7 +164,7 @@ namespace DataMigrationUsingFetchXml
             // 
             this.LblTargetText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.LblTargetText.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblTargetText.Location = new System.Drawing.Point(1398, 9);
+            this.LblTargetText.Location = new System.Drawing.Point(1410, 9);
             this.LblTargetText.Name = "LblTargetText";
             this.LblTargetText.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
             this.LblTargetText.Size = new System.Drawing.Size(137, 94);
@@ -239,6 +239,22 @@ namespace DataMigrationUsingFetchXml
             this.CheckBox.Name = "CheckBox";
             this.CheckBox.Width = 25;
             // 
+            // displayNameDataGridViewTextBoxColumn
+            // 
+            this.displayNameDataGridViewTextBoxColumn.DataPropertyName = "DisplayName";
+            this.displayNameDataGridViewTextBoxColumn.HeaderText = "DisplayName";
+            this.displayNameDataGridViewTextBoxColumn.Name = "displayNameDataGridViewTextBoxColumn";
+            this.displayNameDataGridViewTextBoxColumn.ReadOnly = true;
+            this.displayNameDataGridViewTextBoxColumn.Width = 200;
+            // 
+            // schemaNameDataGridViewTextBoxColumn
+            // 
+            this.schemaNameDataGridViewTextBoxColumn.DataPropertyName = "SchemaName";
+            this.schemaNameDataGridViewTextBoxColumn.HeaderText = "SchemaName";
+            this.schemaNameDataGridViewTextBoxColumn.Name = "schemaNameDataGridViewTextBoxColumn";
+            this.schemaNameDataGridViewTextBoxColumn.ReadOnly = true;
+            this.schemaNameDataGridViewTextBoxColumn.Width = 200;
+            // 
             // Edit
             // 
             this.Edit.HeaderText = "";
@@ -255,6 +271,10 @@ namespace DataMigrationUsingFetchXml
             this.Remove.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.Remove.Width = 25;
             // 
+            // fetchXmlDataBindingSource
+            // 
+            this.fetchXmlDataBindingSource.DataSource = typeof(global::DataMigrationUsingFetchXml.Model.FetchXmlData);
+            // 
             // richTextBoxLogs
             // 
             this.richTextBoxLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -263,10 +283,10 @@ namespace DataMigrationUsingFetchXml
             this.richTextBoxLogs.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.richTextBoxLogs.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.richTextBoxLogs.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.richTextBoxLogs.Location = new System.Drawing.Point(23, 432);
+            this.richTextBoxLogs.Location = new System.Drawing.Point(23, 438);
             this.richTextBoxLogs.Name = "richTextBoxLogs";
             this.richTextBoxLogs.ReadOnly = true;
-            this.richTextBoxLogs.Size = new System.Drawing.Size(1512, 391);
+            this.richTextBoxLogs.Size = new System.Drawing.Size(1524, 361);
             this.richTextBoxLogs.TabIndex = 31;
             this.richTextBoxLogs.Text = "";
             this.richTextBoxLogs.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.RichTextBoxLogs_LinkClicked);
@@ -277,7 +297,7 @@ namespace DataMigrationUsingFetchXml
             this.LblInfo.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblInfo.BackColor = System.Drawing.SystemColors.Window;
             this.LblInfo.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblInfo.Location = new System.Drawing.Point(675, 343);
+            this.LblInfo.Location = new System.Drawing.Point(681, 343);
             this.LblInfo.Name = "LblInfo";
             this.LblInfo.Size = new System.Drawing.Size(207, 50);
             this.LblInfo.TabIndex = 34;
@@ -289,7 +309,7 @@ namespace DataMigrationUsingFetchXml
             this.LblTitle.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblTitle.BackColor = System.Drawing.SystemColors.Window;
             this.LblTitle.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblTitle.Location = new System.Drawing.Point(641, 289);
+            this.LblTitle.Location = new System.Drawing.Point(647, 289);
             this.LblTitle.Name = "LblTitle";
             this.LblTitle.Size = new System.Drawing.Size(275, 53);
             this.LblTitle.TabIndex = 35;
@@ -301,7 +321,7 @@ namespace DataMigrationUsingFetchXml
             this.LblErrorText.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblErrorText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LblErrorText.ForeColor = System.Drawing.Color.Red;
-            this.LblErrorText.Location = new System.Drawing.Point(675, 397);
+            this.LblErrorText.Location = new System.Drawing.Point(681, 397);
             this.LblErrorText.Name = "LblErrorText";
             this.LblErrorText.Size = new System.Drawing.Size(207, 28);
             this.LblErrorText.TabIndex = 37;
@@ -330,7 +350,7 @@ namespace DataMigrationUsingFetchXml
             this.LblLoading.BackColor = System.Drawing.SystemColors.Window;
             this.LblLoading.Image = global::DataMigrationUsingFetchXml.Properties.Resources.loading;
             this.LblLoading.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.LblLoading.Location = new System.Drawing.Point(589, 343);
+            this.LblLoading.Location = new System.Drawing.Point(595, 343);
             this.LblLoading.Name = "LblLoading";
             this.LblLoading.Size = new System.Drawing.Size(50, 50);
             this.LblLoading.TabIndex = 33;
@@ -342,7 +362,7 @@ namespace DataMigrationUsingFetchXml
             this.pictureBoxStop.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.pictureBoxStop.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pictureBoxStop.Image = global::DataMigrationUsingFetchXml.Properties.Resources.stopMigration;
-            this.pictureBoxStop.Location = new System.Drawing.Point(883, 378);
+            this.pictureBoxStop.Location = new System.Drawing.Point(889, 378);
             this.pictureBoxStop.Name = "pictureBoxStop";
             this.pictureBoxStop.Size = new System.Drawing.Size(32, 32);
             this.pictureBoxStop.TabIndex = 28;
@@ -371,26 +391,6 @@ namespace DataMigrationUsingFetchXml
             this.pictureBoxAdd.TabIndex = 28;
             this.pictureBoxAdd.TabStop = false;
             this.pictureBoxAdd.Click += new System.EventHandler(this.PictureBoxAdd_Click);
-            // 
-            // displayNameDataGridViewTextBoxColumn
-            // 
-            this.displayNameDataGridViewTextBoxColumn.DataPropertyName = "DisplayName";
-            this.displayNameDataGridViewTextBoxColumn.HeaderText = "DisplayName";
-            this.displayNameDataGridViewTextBoxColumn.Name = "displayNameDataGridViewTextBoxColumn";
-            this.displayNameDataGridViewTextBoxColumn.ReadOnly = true;
-            this.displayNameDataGridViewTextBoxColumn.Width = 200;
-            // 
-            // schemaNameDataGridViewTextBoxColumn
-            // 
-            this.schemaNameDataGridViewTextBoxColumn.DataPropertyName = "SchemaName";
-            this.schemaNameDataGridViewTextBoxColumn.HeaderText = "SchemaName";
-            this.schemaNameDataGridViewTextBoxColumn.Name = "schemaNameDataGridViewTextBoxColumn";
-            this.schemaNameDataGridViewTextBoxColumn.ReadOnly = true;
-            this.schemaNameDataGridViewTextBoxColumn.Width = 200;
-            // 
-            // fetchXmlDataBindingSource
-            // 
-            this.fetchXmlDataBindingSource.DataSource = typeof(global::DataMigrationUsingFetchXml.Model.FetchXmlData);
             // 
             // DataMigrationUsingFetchXmlControl
             // 
@@ -421,13 +421,13 @@ namespace DataMigrationUsingFetchXml
             this.Controls.Add(this.BtnBrowseLogs);
             this.Controls.Add(this.TxtLogsPath);
             this.Name = "DataMigrationUsingFetchXmlControl";
-            this.Size = new System.Drawing.Size(1558, 725);
+            this.Size = new System.Drawing.Size(1570, 814);
             this.Load += new System.EventHandler(this.DataMigrationUsingFetchXmlControl_Load);
             ((System.ComponentModel.ISupportInitialize)(this.FetchDataGridView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fetchXmlDataBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxStop)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRecBin)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxAdd)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.fetchXmlDataBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

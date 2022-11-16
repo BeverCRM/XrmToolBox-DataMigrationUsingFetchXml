@@ -15,7 +15,9 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         private readonly IOrganizationService _sourceService;
         private readonly CrmServiceClient _targetService;
         private readonly ILogger _logger;
-
+        private int fetchCount = 5000;
+        private int pageNumber = 1;
+        private string pagingCookie = null;
         public DataverseService(IOrganizationService sourceService, CrmServiceClient targetService, ILogger logger)
         {
             _sourceService = sourceService;
@@ -30,28 +32,32 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public EntityCollection GetAllRecords(string fetchQuery)
         {
-            EntityCollection data = new EntityCollection();
+            //EntityCollection data = new EntityCollection();
 
-            int fetchCount = 5000;
-            int pageNumber = 1;
-            string pagingCookie = null;
+            //string xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, pageNumber, fetchCount);
+            //EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(fetchQuery));
+            //data.Entities.AddRange(returnCollection.Entities);
 
-            while (true)
+            //int fetchCount = 5000;
+            //int pageNumber = 1;
+            //string pagingCookie = null;
+
+            //while (true)
+            //{
+            string xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, pageNumber, fetchCount);
+            EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
+            //data.Entities.AddRange(returnCollection.Entities);
+            if (returnCollection.MoreRecords)
             {
-                string xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, pageNumber, fetchCount);
-                EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
-                data.Entities.AddRange(returnCollection.Entities);
-                if (returnCollection.MoreRecords)
-                {
-                    ++pageNumber;
-                    pagingCookie = returnCollection.PagingCookie;
-                }
-                else
-                {
-                    break;
-                }
+                ++pageNumber;
+                pagingCookie = returnCollection.PagingCookie;
             }
-            return data;
+            //    else
+            //    {
+            //        break;
+            //    }
+            //}
+            return returnCollection;
         }
 
         public Guid CreateRecord(Entity record, bool duplicateDetection = true)
@@ -142,6 +148,34 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(fetchXml));
 
             return returnCollection.Entities[0].LogicalName;
+        }
+
+        public int GetEntityRecordsCount(string fetch)
+        {
+            string entityName = GetEntityName(fetch);
+
+            string countAlias = "entity_count";
+            string query = FormattableString.Invariant($@" 
+                <fetch distinct='false' aggregate='true'> 
+                  <entity name='{entityName}'> 
+                    <attribute name='createdon' alias='{countAlias}' aggregate='count'/> 
+                  </entity> 
+                </fetch>");
+
+            EntityCollection response = _sourceService.RetrieveMultiple(new FetchExpression(query));
+            Entity entity = response.Entities.First();
+
+            return (int)((AliasedValue)entity[countAlias]).Value;
+        }
+
+        public string GetEntityName(string fetch)
+        {
+            fetch = fetch.Replace(" ", string.Empty);
+            int index1 = fetch.IndexOf("<entityname=");
+            int index2 = fetch.IndexOf(">", index1);
+            int length = index2 - 3 - (index1 + 11);
+
+            return fetch.Substring(index1 + 13, length);
         }
     }
 }

@@ -15,7 +15,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 
         private string _currentFetchXml;
 
-
         public Popup()
         {
             InitializeComponent();

@@ -193,6 +193,7 @@ namespace DataMigrationUsingFetchXml
 
                     InitializeTransferOperation();
 
+
                     if (AdditionalConnectionDetails.Count < 1)
                     {
                         MessageBox.Show("Add an organization for data transfer! ");
@@ -284,6 +285,7 @@ namespace DataMigrationUsingFetchXml
 
         private void ChangeToolsState(bool state)
         {
+            richTextBoxLogs.Enabled = state;
             pictureBoxRecBin.Enabled = state;
             TxtLogsPath.Enabled = state;
             BtnBrowseLogs.Enabled = state;
