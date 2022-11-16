@@ -18,7 +18,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public void SetLogsPath(string logsPath)
         {
-            string logName = $"Log_{DateTime.Now:yyyy-MM-dd_hh:mm:ss}.txt";
+            string logName = $"Log_{DateTime.Now:yyyy-MM-dd_hh-mm-ss}.txt";
             _logsPath = $"{logsPath}\\{logName}";
         }
 
