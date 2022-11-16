@@ -20,7 +20,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         {
             string dt = (DateTime.Now - DateTime.MinValue).TotalSeconds.ToString();
             int dotIndex = dt.IndexOf('.');
-            dt = dt.Remove(dotIndex);
+            if (dotIndex > 0)
+              dt = dt.Remove(dotIndex);
 
             _logsPath = $"{logsPath}\\Log - {dt}.txt";
         }
