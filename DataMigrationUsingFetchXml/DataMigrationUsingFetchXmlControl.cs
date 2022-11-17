@@ -173,8 +173,8 @@ namespace DataMigrationUsingFetchXml
                 if (BtnTransferData.Text == "Cancel")
                 {
                     _transferOperation.KeepRunning = false;
+                    BtnTransferData.Enabled = false;
                     BtnTransferData.Text = "Transfer Data";
-
                     return;
                 }
                 InitializeLog();
@@ -216,7 +216,7 @@ namespace DataMigrationUsingFetchXml
                             try
                             {
                                 ChangeToolsState(false);
-                                _transferOperation.Transfer(fetchXmls, tableIndexesForTransfer, richTextBoxLogs, BtnTransferData);
+                                _transferOperation.Transfer(fetchXmls, tableIndexesForTransfer, richTextBoxLogs);
                             }
                             catch (Exception ex)
                             {
@@ -243,7 +243,10 @@ namespace DataMigrationUsingFetchXml
                                 else if (_transferOperation.KeepRunning && !isErrorOccured)
                                     MessageBox.Show("Data Migration Completed.", "Data Migration Completed", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 else
+                                {
+                                    BtnTransferData.Enabled = true;
                                     MessageBox.Show("Migration is Stopped.", "Migration is Stopped", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                }
                             }
                         }
                     });
@@ -296,7 +299,7 @@ namespace DataMigrationUsingFetchXml
             pictureBoxRecBin.Enabled = state;
             TxtLogsPath.Enabled = state;
             BtnBrowseLogs.Enabled = state;
-            BtnTransferData.Enabled = state;
+            //BtnTransferData.Enabled = state;
             BtnSelectTargetInstance.Enabled = state;
             FetchDataGridView.Enabled = state;
             pictureBoxAdd.Enabled = state;

@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
-using DataMigrationUsingFetchXml.Model;
 using System.Collections.Generic;
+using global::DataMigrationUsingFetchXml.Model;
 
 namespace DataMigrationUsingFetchXml.Services.Interfaces
 {
@@ -12,7 +12,7 @@ namespace DataMigrationUsingFetchXml.Services.Interfaces
 
         bool KeepRunning { get; set; }
 
-        void Transfer(List<string> fetchXmls, List<int> indexesForTransfer, RichTextBox richTextBoxLogs, Button btnTransferData);
+        void Transfer(List<string> fetchXmls, List<int> indexesForTransfer, RichTextBox richTextBoxLogs);
 
         void SetConnectionDetails(ConnectionDetails connectionDetails);
 

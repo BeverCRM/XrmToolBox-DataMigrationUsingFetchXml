@@ -56,7 +56,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             _lblError = lblError;
         }
 
-        public void Transfer(List<string> fetchXmls, List<int> tableIndexesForTransfer, RichTextBox richTextBoxLogs, Button btnTransferData)
+        public void Transfer(List<string> fetchXmls, List<int> tableIndexesForTransfer, RichTextBox richTextBoxLogs)
         {
             ResultItems = new List<ResultItem>();
             int index = 0;
@@ -68,7 +68,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
                 EntityCollection records = _dataverseService.GetAllRecords(fetchXml);
-                btnTransferData.Enabled = true;
+
                 _logger.LogInfo("Getting data of '" + records.Entities[0].LogicalName + "' from source instance");
                 _resultItem.SourceRecordCount = records.Entities.Count;
                 _resultItem.EntityName = records.Entities[0].LogicalName;
