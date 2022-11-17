@@ -58,12 +58,10 @@ namespace DataMigrationUsingFetchXml
             this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
             this.dataGridViewImageColumn2 = new System.Windows.Forms.DataGridViewImageColumn();
             this.LblLoading = new System.Windows.Forms.Label();
-            this.pictureBoxStop = new System.Windows.Forms.PictureBox();
             this.pictureBoxRecBin = new System.Windows.Forms.PictureBox();
             this.pictureBoxAdd = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.FetchDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fetchXmlDataBindingSource)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxStop)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRecBin)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxAdd)).BeginInit();
             this.SuspendLayout();
@@ -197,7 +195,7 @@ namespace DataMigrationUsingFetchXml
             // LogsLabel
             // 
             this.LogsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LogsLabel.Location = new System.Drawing.Point(24, 405);
+            this.LogsLabel.Location = new System.Drawing.Point(24, 410);
             this.LogsLabel.Name = "LogsLabel";
             this.LogsLabel.Size = new System.Drawing.Size(43, 21);
             this.LogsLabel.TabIndex = 26;
@@ -297,9 +295,9 @@ namespace DataMigrationUsingFetchXml
             this.LblInfo.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblInfo.BackColor = System.Drawing.SystemColors.Window;
             this.LblInfo.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblInfo.Location = new System.Drawing.Point(681, 343);
+            this.LblInfo.Location = new System.Drawing.Point(671, 375);
             this.LblInfo.Name = "LblInfo";
-            this.LblInfo.Size = new System.Drawing.Size(207, 50);
+            this.LblInfo.Size = new System.Drawing.Size(227, 30);
             this.LblInfo.TabIndex = 34;
             this.LblInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.LblInfo.Visible = false;
@@ -309,7 +307,7 @@ namespace DataMigrationUsingFetchXml
             this.LblTitle.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblTitle.BackColor = System.Drawing.SystemColors.Window;
             this.LblTitle.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblTitle.Location = new System.Drawing.Point(647, 289);
+            this.LblTitle.Location = new System.Drawing.Point(647, 270);
             this.LblTitle.Name = "LblTitle";
             this.LblTitle.Size = new System.Drawing.Size(275, 53);
             this.LblTitle.TabIndex = 35;
@@ -321,9 +319,9 @@ namespace DataMigrationUsingFetchXml
             this.LblErrorText.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblErrorText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LblErrorText.ForeColor = System.Drawing.Color.Red;
-            this.LblErrorText.Location = new System.Drawing.Point(681, 397);
+            this.LblErrorText.Location = new System.Drawing.Point(671, 405);
             this.LblErrorText.Name = "LblErrorText";
-            this.LblErrorText.Size = new System.Drawing.Size(207, 28);
+            this.LblErrorText.Size = new System.Drawing.Size(227, 30);
             this.LblErrorText.TabIndex = 37;
             this.LblErrorText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.LblErrorText.Visible = false;
@@ -350,31 +348,18 @@ namespace DataMigrationUsingFetchXml
             this.LblLoading.BackColor = System.Drawing.SystemColors.Window;
             this.LblLoading.Image = global::DataMigrationUsingFetchXml.Properties.Resources.loading;
             this.LblLoading.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.LblLoading.Location = new System.Drawing.Point(595, 343);
+            this.LblLoading.Location = new System.Drawing.Point(759, 323);
             this.LblLoading.Name = "LblLoading";
             this.LblLoading.Size = new System.Drawing.Size(50, 50);
             this.LblLoading.TabIndex = 33;
             this.LblLoading.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.LblLoading.Visible = false;
             // 
-            // pictureBoxStop
-            // 
-            this.pictureBoxStop.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.pictureBoxStop.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBoxStop.Image = global::DataMigrationUsingFetchXml.Properties.Resources.stopMigration;
-            this.pictureBoxStop.Location = new System.Drawing.Point(889, 378);
-            this.pictureBoxStop.Name = "pictureBoxStop";
-            this.pictureBoxStop.Size = new System.Drawing.Size(32, 32);
-            this.pictureBoxStop.TabIndex = 28;
-            this.pictureBoxStop.TabStop = false;
-            this.pictureBoxStop.Visible = false;
-            this.pictureBoxStop.Click += new System.EventHandler(this.PictureBoxStop_Click);
-            // 
             // pictureBoxRecBin
             // 
             this.pictureBoxRecBin.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pictureBoxRecBin.Image = global::DataMigrationUsingFetchXml.Properties.Resources.clearLogs;
-            this.pictureBoxRecBin.Location = new System.Drawing.Point(61, 403);
+            this.pictureBoxRecBin.Location = new System.Drawing.Point(61, 408);
             this.pictureBoxRecBin.Name = "pictureBoxRecBin";
             this.pictureBoxRecBin.Size = new System.Drawing.Size(35, 29);
             this.pictureBoxRecBin.TabIndex = 28;
@@ -405,7 +390,6 @@ namespace DataMigrationUsingFetchXml
             this.Controls.Add(this.richTextBoxLogs);
             this.Controls.Add(this.FetchDataGridView);
             this.Controls.Add(this.LblAddFetchXml);
-            this.Controls.Add(this.pictureBoxStop);
             this.Controls.Add(this.pictureBoxRecBin);
             this.Controls.Add(this.pictureBoxAdd);
             this.Controls.Add(this.LogsLabel);
@@ -425,7 +409,6 @@ namespace DataMigrationUsingFetchXml
             this.Load += new System.EventHandler(this.DataMigrationUsingFetchXmlControl_Load);
             ((System.ComponentModel.ISupportInitialize)(this.FetchDataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.fetchXmlDataBindingSource)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxStop)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRecBin)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxAdd)).EndInit();
             this.ResumeLayout(false);
@@ -458,7 +441,6 @@ namespace DataMigrationUsingFetchXml
         private System.Windows.Forms.DataGridViewImageColumn dataGridViewImageColumn2;
         private System.Windows.Forms.Label LblErrorText;
         private System.Windows.Forms.PictureBox pictureBoxRecBin;
-        private System.Windows.Forms.PictureBox pictureBoxStop;
         private System.Windows.Forms.DataGridViewCheckBoxColumn CheckBox;
         private System.Windows.Forms.DataGridViewTextBoxColumn displayNameDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn schemaNameDataGridViewTextBoxColumn;

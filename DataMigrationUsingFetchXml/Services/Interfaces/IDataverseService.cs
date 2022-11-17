@@ -17,9 +17,5 @@ namespace DataMigrationUsingFetchXml.Services.Interfaces
         string GetDisplayName(string fetchXml);
 
         string GetLogicalName(string fetchXml);
-
-        int GetEntityRecordsCount(string fetch);
-
-        string GetEntityName(string fetch);
     }
 }

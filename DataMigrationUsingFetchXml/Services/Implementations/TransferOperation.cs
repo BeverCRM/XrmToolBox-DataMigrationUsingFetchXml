@@ -56,7 +56,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             _lblError = lblError;
         }
 
-        public void Transfer(List<string> fetchXmls, List<int> tableIndexesForTransfer, RichTextBox richTextBoxLogs)
+        public void Transfer(List<string> fetchXmls, List<int> tableIndexesForTransfer, RichTextBox richTextBoxLogs, Button btnTransferData)
         {
             ResultItems = new List<ResultItem>();
             int index = 0;
@@ -65,74 +65,62 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 _resultItem = new ResultItem();
                 _lblTitle.Text = $"Migrating {DisplayNames[tableIndexesForTransfer[index]]} records";
-                EntityCollection records;
+
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
-                int recordsCount = _dataverseService.GetEntityRecordsCount(fetchXml);
-                string entityName = _dataverseService.GetEntityName(fetchXml);
+                EntityCollection records = _dataverseService.GetAllRecords(fetchXml);
+                btnTransferData.Enabled = true;
+                _logger.LogInfo("Getting data of '" + records.Entities[0].LogicalName + "' from source instance");
+                _resultItem.SourceRecordCount = records.Entities.Count;
+                _resultItem.EntityName = records.Entities[0].LogicalName;
+                _logger.LogInfo("Records count is: " + records.Entities.Count);
 
-                _logger.LogInfo("Getting data of '" + entityName + "' from source instance");
-                _resultItem.SourceRecordCount = recordsCount;
-                _resultItem.EntityName = entityName;
-                _logger.LogInfo("Records count is: " + recordsCount);
-
-                do
+                if (records?.Entities?.Count > 0)
                 {
-                    records = _dataverseService.GetAllRecords(fetchXml);
-                    if (records?.Entities?.Count > 0)
+                    _logger.LogInfo("Transfering data to: " + _organizationDataServiceUrl);
+                    foreach (Entity record in records.Entities)
                     {
-                        _logger.LogInfo("Transfering data to: " + _organizationDataServiceUrl);
-                        foreach (Entity record in records.Entities)
-                        {
-                            if (!KeepRunning)
-                            {
-                                break;
-                            }
-                            TransferData(record, searchAttrs, idExists);
-                            _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {recordsCount} is imported";
-                            if (_errorCount > 0)
-                            {
-                                _lblError.Text = $"{_errorCount} of {records.Entities.Count} is errored";
-                                _resultItem.ErroredRecordCount = _errorCount;
-                            }
-                            richTextBoxLogs.SelectionStart = richTextBoxLogs.Text.Length;
-                            richTextBoxLogs.ScrollToCaret();
-                        }
-                        if (fetchXmls.Count == index + 1 || !KeepRunning)
-                        {
-                            _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {recordsCount} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
-                            if (_errorCount > 0)
-                            {
-                                _lblError.Text = $"{_errorCount} of {records.Entities.Count} {DisplayNames[tableIndexesForTransfer[index]]} is errored";
-                            }
-                        }
-                        _errorCount = 0;
                         if (!KeepRunning)
                         {
-                            ResultItems.Add(_resultItem);
                             break;
                         }
+                        TransferData(record, searchAttrs, idExists);
+                        _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {records.Entities.Count} is imported";
+                        if (_errorCount > 0)
+                        {
+                            _lblError.Text = $"{_errorCount} of {records.Entities.Count} is errored";
+                            _resultItem.ErroredRecordCount = _errorCount;
+                        }
+                        richTextBoxLogs.SelectionStart = richTextBoxLogs.Text.Length;
+                        richTextBoxLogs.ScrollToCaret();
                     }
-                    else
+                    if (fetchXmls.Count == index + 1 || !KeepRunning)
                     {
-                        _logger.LogError("Records count is zero or not found");
+                        _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {records.Entities.Count} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
+                        if (_errorCount > 0)
+                        {
+                            _lblError.Text = $"{_errorCount} of {records.Entities.Count} {DisplayNames[tableIndexesForTransfer[index]]} is errored";
+                        }
                     }
-                    if (_resultItem == null)
+                    _errorCount = 0;
+                    if (!KeepRunning)
                     {
-                        _logger.LogError("Process Stopped. Aborting! ");
+                        ResultItems.Add(_resultItem);
                         break;
                     }
-                    ResultItems.Add(_resultItem);
-                    index++;
-
-                    if (!records.MoreRecords)
-                    {
-                        break;
-                    }
-                } while (records != null);
+                }
+                else
+                {
+                    _logger.LogError("Records count is zero or not found");
+                }
+                if (_resultItem == null)
+                {
+                    _logger.LogError("Process Stopped. Aborting! ");
+                    break;
+                }
+                ResultItems.Add(_resultItem);
+                index++;
             }
         }
-
-
 
         private void TransferData(Entity record, List<string> searchAttrs, bool idExists)
         {

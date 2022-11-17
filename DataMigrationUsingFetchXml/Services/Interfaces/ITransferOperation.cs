@@ -12,7 +12,7 @@ namespace DataMigrationUsingFetchXml.Services.Interfaces
 
         bool KeepRunning { get; set; }
 
-        void Transfer(List<string> fetchXmls, List<int> indexesForTransfer, RichTextBox richTextBoxLogs);
+        void Transfer(List<string> fetchXmls, List<int> indexesForTransfer, RichTextBox richTextBoxLogs, Button btnTransferData);
 
         void SetConnectionDetails(ConnectionDetails connectionDetails);
 
