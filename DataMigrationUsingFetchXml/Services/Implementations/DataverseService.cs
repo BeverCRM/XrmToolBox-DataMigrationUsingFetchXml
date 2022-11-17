@@ -6,7 +6,7 @@ using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
 using System.Collections.Generic;
 using Microsoft.Xrm.Tooling.Connector;
-using global::DataMigrationUsingFetchXml.Services.Interfaces;
+using DataMigrationUsingFetchXml.Services.Interfaces;
 
 namespace DataMigrationUsingFetchXml.Services.Implementations
 {
