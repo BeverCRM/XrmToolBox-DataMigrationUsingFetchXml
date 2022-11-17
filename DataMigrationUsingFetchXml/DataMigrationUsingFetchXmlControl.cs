@@ -170,11 +170,19 @@ namespace DataMigrationUsingFetchXml
         {
             if (AdditionalConnectionDetails.Count > 0)
             {
+                if (BtnTransferData.Text == "Cancel")
+                {
+                    _transferOperation.KeepRunning = false;
+                    BtnTransferData.Enabled = false;
+                    BtnTransferData.Text = "Transfer Data";
+                    return;
+                }
                 InitializeLog();
                 _transferOperation.KeepRunning = true;
                 bool isErrorOccured = false;
                 List<string> fetchXmls = new List<string>();
                 List<int> tableIndexesForTransfer = new List<int>();
+                BtnTransferData.Text = "Cancel";
 
                 foreach (DataGridViewRow row in FetchDataGridView.Rows)
                 {
@@ -229,12 +237,16 @@ namespace DataMigrationUsingFetchXml
                                 }
                                 fetchXmls.Clear();
                                 SetLoadingDetails(false);
+                                BtnTransferData.Text = "Transfer Data";
                                 if (isErrorOccured)
                                     LblInfo.Text = string.Empty;
                                 else if (_transferOperation.KeepRunning && !isErrorOccured)
                                     MessageBox.Show("Data Migration Completed.", "Data Migration Completed", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 else
+                                {
+                                    BtnTransferData.Enabled = true;
                                     MessageBox.Show("Migration is Stopped.", "Migration is Stopped", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                }
                             }
                         }
                     });
@@ -273,7 +285,6 @@ namespace DataMigrationUsingFetchXml
             }
             LblLoading.Visible = visible;
             LblTitle.Visible = visible;
-            pictureBoxStop.Visible = visible;
         }
 
         private void InitializeLog()
@@ -284,10 +295,11 @@ namespace DataMigrationUsingFetchXml
 
         private void ChangeToolsState(bool state)
         {
+            //richTextBoxLogs.Enabled = state;
             pictureBoxRecBin.Enabled = state;
             TxtLogsPath.Enabled = state;
             BtnBrowseLogs.Enabled = state;
-            BtnTransferData.Enabled = state;
+            //BtnTransferData.Enabled = state;
             BtnSelectTargetInstance.Enabled = state;
             FetchDataGridView.Enabled = state;
             pictureBoxAdd.Enabled = state;
@@ -298,6 +310,8 @@ namespace DataMigrationUsingFetchXml
             _errorIndexes.Clear();
             _errorPosition = 0;
             richTextBoxLogs.Text = null;
+            LblInfo.Text = string.Empty;
+            LblErrorText.Text = string.Empty;
         }
 
         private void PictureBoxAdd_Click(object sender, EventArgs e)
@@ -311,46 +325,55 @@ namespace DataMigrationUsingFetchXml
         {
             if (_popup.ShowDialog() == DialogResult.OK)
             {
-                try
+                WorkAsync(new WorkAsyncInfo
                 {
-                    _dataverseService = new DataverseService(Service);
-                    string fetch = _popup.TextBoxFetch.Text;
-
-                    if (rowIndex != -1 && fetch == _popup.FetchXmls[rowIndex])
+                    Message = "Loading...",
+                    Work = (worker, args) =>
                     {
-                        return;
-                    }
-                    string displayName = _dataverseService.GetDisplayName(fetch);
-                    string logicalName = _dataverseService.GetLogicalName(fetch);
-
-                    if (rowIndex != -1)
-                    {
-                        _popup.FetchXmls[rowIndex] = fetch;
-                        fetchXmlDataBindingSource[rowIndex] = new FetchXmlData()
+                        try
                         {
-                            DisplayName = displayName,
-                            SchemaName = logicalName
-                        };
-                        _displayNames[rowIndex] = displayName;
-                    }
-                    else
-                    {
-                        _displayNames.Add(displayName);
-                        fetchXmlDataBindingSource.Add(new FetchXmlData()
+                            ChangeToolsState(false);
+                            _dataverseService = new DataverseService(Service);
+                            string fetch = _popup.TextBoxFetch.Text;
+
+                            if (rowIndex != -1 && fetch == _popup.FetchXmls[rowIndex])
+                            {
+                                return;
+                            }
+                            string displayName = _dataverseService.GetDisplayName(fetch);
+                            string logicalName = _dataverseService.GetLogicalName(fetch);
+
+                            if (rowIndex != -1)
+                            {
+                                _popup.FetchXmls[rowIndex] = fetch;
+                                fetchXmlDataBindingSource[rowIndex] = new FetchXmlData()
+                                {
+                                    DisplayName = displayName,
+                                    SchemaName = logicalName
+                                };
+                                _displayNames[rowIndex] = displayName;
+                            }
+                            else
+                            {
+                                _displayNames.Add(displayName);
+                                fetchXmlDataBindingSource.Add(new FetchXmlData()
+                                {
+                                    DisplayName = displayName,
+                                    SchemaName = logicalName
+                                });
+                            }
+                        }
+                        catch (Exception ex)
                         {
-                            DisplayName = displayName,
-                            SchemaName = logicalName
-                        });
+                            if (rowIndex == -1)
+                            {
+                                _popup.FetchXmls.RemoveAt(_popup.FetchXmls.Count - 1);
+                            }
+                            MessageBox.Show($"{ex.Message}.", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                        ChangeToolsState(true);
                     }
-                }
-                catch (Exception ex)
-                {
-                    if (rowIndex == -1)
-                    {
-                        _popup.FetchXmls.RemoveAt(_popup.FetchXmls.Count - 1);
-                    }
-                    MessageBox.Show($"{ex.Message}.", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                });
             }
         }
 
@@ -373,11 +396,6 @@ namespace DataMigrationUsingFetchXml
                 PopupDialog(e.RowIndex);
                 _popup.IsEdit = false;
             }
-        }
-
-        private void PictureBoxStop_Click(object sender, EventArgs e)
-        {
-            _transferOperation.KeepRunning = false;
         }
 
         private void RichTextBoxLogs_TextChanged(object sender, EventArgs e)

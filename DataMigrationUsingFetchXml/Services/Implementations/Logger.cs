@@ -18,11 +18,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public void SetLogsPath(string logsPath)
         {
-            string dt = (DateTime.Now - DateTime.MinValue).TotalSeconds.ToString();
-            int dotIndex = dt.IndexOf('.');
-            dt = dt.Remove(dotIndex);
-
-            _logsPath = $"{logsPath}\\Log - {dt}.txt";
+            string logName = $"Log_{DateTime.Now:yyyy-MM-dd_hh-mm-ss}.txt";
+            _logsPath = $"{logsPath}\\{logName}";
         }
 
         public void LogInfo(string text)
