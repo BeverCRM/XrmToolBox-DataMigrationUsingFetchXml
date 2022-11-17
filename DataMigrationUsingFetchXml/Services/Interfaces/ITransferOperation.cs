@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
-using DataMigrationUsingFetchXml.Model;
 using System.Collections.Generic;
+using DataMigrationUsingFetchXml.Model;
 
 namespace DataMigrationUsingFetchXml.Services.Interfaces
 {
