@@ -7,7 +7,6 @@ using McTools.Xrm.Connection;
 using XrmToolBox.Extensibility;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using Microsoft.Xrm.Tooling.Connector;
 using DataMigrationUsingFetchXml.Model;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using DataMigrationUsingFetchXml.Forms.Popup;
@@ -78,7 +77,6 @@ namespace DataMigrationUsingFetchXml
         /// </summary>
         public override void UpdateConnection(IOrganizationService newService, ConnectionDetail detail, string actionName, object parameter)
         {
-            //CrmServiceClient.MaxConnectionTimeout = new TimeSpan(0, 10, 0);
             base.UpdateConnection(newService, detail, actionName, parameter);
 
             if (_mySettings != null && detail != null)
@@ -321,7 +319,7 @@ namespace DataMigrationUsingFetchXml
         {
             if (_popup.ShowDialog() == DialogResult.OK)
             {
-                _dataverseService = new DataverseService((CrmServiceClient)Service);
+                _dataverseService = new DataverseService(Service);
                 WorkAsync(new WorkAsyncInfo
                 {
                     Message = "Loading...",

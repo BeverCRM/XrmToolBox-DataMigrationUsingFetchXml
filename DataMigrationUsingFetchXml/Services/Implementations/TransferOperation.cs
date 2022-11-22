@@ -5,7 +5,6 @@ using System.Windows.Forms;
 using McTools.Xrm.Connection;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Microsoft.Xrm.Tooling.Connector;
 using DataMigrationUsingFetchXml.Model;
 using DataMigrationUsingFetchXml.Services.Interfaces;
 
@@ -24,8 +23,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         private const int ERROR_CODE = -2147220685;
 
         private string _organizationDataServiceUrl;
-
-        private CrmServiceClient _sourceService;
+        
+        private IOrganizationService _sourceService;
 
         private IDataverseService _dataverseService;
 
@@ -42,7 +41,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public void SetConnectionDetails(ConnectionDetails connectionDetails)
         {
-            _sourceService = (CrmServiceClient)connectionDetails.Service;
+            _sourceService = connectionDetails.Service;
             _additionalConnectionDetails = connectionDetails.AdditionalConnectionDetails;
             _organizationDataServiceUrl = _additionalConnectionDetails[0].OrganizationDataServiceUrl;
             _dataverseService = new DataverseService(_sourceService, _additionalConnectionDetails[0].ServiceClient, _logger);

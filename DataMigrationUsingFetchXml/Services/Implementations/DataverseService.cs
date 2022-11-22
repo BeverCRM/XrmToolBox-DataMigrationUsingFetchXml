@@ -2,32 +2,30 @@
 using System.Linq;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
-using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
 using System.Collections.Generic;
-using Microsoft.Xrm.Tooling.Connector;
 using DataMigrationUsingFetchXml.Services.Interfaces;
 
 namespace DataMigrationUsingFetchXml.Services.Implementations
 {
     internal sealed class DataverseService : IDataverseService
     {
-        private readonly CrmServiceClient _sourceService;
-        private readonly CrmServiceClient _targetService;
+        private readonly IOrganizationService _sourceService;
+        private readonly IOrganizationService _targetService;
         private readonly ILogger _logger;
         private int pageNumber = 1;
         private string pagingCookie = null;
         private readonly int fetchCount = 5000;
 
-        public DataverseService(CrmServiceClient sourceService, CrmServiceClient targetService, ILogger logger)
+        public DataverseService(IOrganizationService sourceService, IOrganizationService targetService, ILogger logger)
         {
             _sourceService = sourceService;
             _targetService = targetService;
             _logger = logger;
         }
 
-        public DataverseService(CrmServiceClient service)
+        public DataverseService(IOrganizationService service)
         {
             _sourceService = service;
         }
