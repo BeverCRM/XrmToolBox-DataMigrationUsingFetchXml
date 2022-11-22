@@ -288,7 +288,6 @@ namespace DataMigrationUsingFetchXml
             this.richTextBoxLogs.TabIndex = 31;
             this.richTextBoxLogs.Text = "";
             this.richTextBoxLogs.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.RichTextBoxLogs_LinkClicked);
-            this.richTextBoxLogs.TextChanged += new System.EventHandler(this.RichTextBoxLogs_TextChanged);
             // 
             // LblInfo
             // 

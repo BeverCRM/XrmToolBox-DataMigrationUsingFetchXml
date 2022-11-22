@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Drawing;
 using System.Windows.Forms;
 using DataMigrationUsingFetchXml.Services.Interfaces;
 
@@ -9,7 +10,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
     {
         private string _logsPath;
         private RichTextBox _richTxtBoxLogs;
-        private readonly string _dateTiemStr = DateTime.Now.ToString("G");
 
         public void SetTxtLogs(RichTextBox richtxtBoxLogs)
         {
@@ -27,7 +27,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             if (_logsPath != null)
             {
                 text = " INFO: " + text;
-                string logText = $"[{_dateTiemStr}]" + text;
+                string logText = $"[{DateTime.Now:G}]" + text + "\n";
                 LogToTextBox(logText);
                 LogToFile(logText);
             }
@@ -42,8 +42,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             if (_logsPath != null)
             {
                 text = " ERROR: " + text;
-                string logText = $"[{_dateTiemStr}]" + text;
-                LogToTextBox(logText);
+                string logText = $"[{DateTime.Now:G}]" + text + "\n";
+                LogErrorToTextBox(logText);
                 LogToFile(logText);
             }
             else
@@ -52,16 +52,23 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
         }
 
+        private void LogErrorToTextBox(string logText)
+        {
+            _richTxtBoxLogs.AppendText(logText);
+            int errorIndex = _richTxtBoxLogs.Find("ERROR:", _richTxtBoxLogs.Text.Length - logText.Length, RichTextBoxFinds.None);
+            _richTxtBoxLogs.SelectionStart = errorIndex;
+            _richTxtBoxLogs.SelectionLength = 6;
+            _richTxtBoxLogs.SelectionColor = Color.Red;
+        }
+
         private void LogToTextBox(string logText)
         {
-            _richTxtBoxLogs.Text += logText;
-            _richTxtBoxLogs.Text += Environment.NewLine;
+            _richTxtBoxLogs.AppendText(logText);
         }
 
         private void LogToFile(string logText)
         {
             File.AppendAllText(_logsPath, logText);
-            File.AppendAllText(_logsPath, Environment.NewLine);
         }
     }
 }
