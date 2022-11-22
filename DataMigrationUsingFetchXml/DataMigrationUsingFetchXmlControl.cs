@@ -5,6 +5,7 @@ using Microsoft.Xrm.Sdk;
 using System.Windows.Forms;
 using McTools.Xrm.Connection;
 using XrmToolBox.Extensibility;
+using Microsoft.Xrm.Sdk.Metadata;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using DataMigrationUsingFetchXml.Model;
@@ -334,8 +335,9 @@ namespace DataMigrationUsingFetchXml
                             {
                                 return;
                             }
-                            string displayName = _dataverseService.GetDisplayName(fetch);
-                            string logicalName = _dataverseService.GetLogicalName(fetch);
+                            EntityMetadata entityData = _dataverseService.GetEntityData(fetch);
+                            string displayName = entityData.DisplayName.UserLocalizedLabel.Label;
+                            string logicalName = entityData.LogicalName;
 
                             if (rowIndex != -1)
                             {
