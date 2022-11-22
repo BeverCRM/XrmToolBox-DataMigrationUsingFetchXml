@@ -5,6 +5,7 @@ using Microsoft.Xrm.Sdk;
 using System.Windows.Forms;
 using McTools.Xrm.Connection;
 using XrmToolBox.Extensibility;
+using Microsoft.Xrm.Sdk.Metadata;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using DataMigrationUsingFetchXml.Model;
@@ -18,8 +19,6 @@ namespace DataMigrationUsingFetchXml
     internal partial class DataMigrationUsingFetchXmlControl : MultipleConnectionsPluginControlBase
     {
         private string _logsPath;
-
-        private int _errorPosition;
 
         private Settings _mySettings;
 
@@ -61,6 +60,7 @@ namespace DataMigrationUsingFetchXml
             }
             TxtLogsPath.Text = _defaultPath;
             _logsPath = _defaultPath;
+            richTextBoxLogs.HideSelection = false;
         }
 
         /// <summary>
@@ -182,7 +182,6 @@ namespace DataMigrationUsingFetchXml
                 bool isErrorOccured = false;
                 List<string> fetchXmls = new List<string>();
                 List<int> tableIndexesForTransfer = new List<int>();
-                BtnTransferData.Text = "Cancel";
 
                 foreach (DataGridViewRow row in FetchDataGridView.Rows)
                 {
@@ -194,8 +193,8 @@ namespace DataMigrationUsingFetchXml
                 }
                 if (fetchXmls.Count > 0)
                 {
+                    BtnTransferData.Text = "Cancel";
                     _errorIndexes.Clear();
-                    _errorPosition = 0;
                     SetLoadingDetails(true);
                     richTextBoxLogs.Text = string.Empty;
 
@@ -295,11 +294,9 @@ namespace DataMigrationUsingFetchXml
 
         private void ChangeToolsState(bool state)
         {
-            //richTextBoxLogs.Enabled = state;
             pictureBoxRecBin.Enabled = state;
             TxtLogsPath.Enabled = state;
             BtnBrowseLogs.Enabled = state;
-            //BtnTransferData.Enabled = state;
             BtnSelectTargetInstance.Enabled = state;
             FetchDataGridView.Enabled = state;
             pictureBoxAdd.Enabled = state;
@@ -308,7 +305,6 @@ namespace DataMigrationUsingFetchXml
         private void PictureBoxRecBin_Click(object sender, EventArgs e)
         {
             _errorIndexes.Clear();
-            _errorPosition = 0;
             richTextBoxLogs.Text = null;
             LblInfo.Text = string.Empty;
             LblErrorText.Text = string.Empty;
@@ -325,6 +321,7 @@ namespace DataMigrationUsingFetchXml
         {
             if (_popup.ShowDialog() == DialogResult.OK)
             {
+                _dataverseService = new DataverseService(Service);
                 WorkAsync(new WorkAsyncInfo
                 {
                     Message = "Loading...",
@@ -332,16 +329,17 @@ namespace DataMigrationUsingFetchXml
                     {
                         try
                         {
-                            ChangeToolsState(false);
-                            _dataverseService = new DataverseService(Service);
+                            if (rowIndex == -1)
+                            {
+                                ChangeToolsState(false);
+                            }
                             string fetch = _popup.TextBoxFetch.Text;
 
                             if (rowIndex != -1 && fetch == _popup.FetchXmls[rowIndex])
                             {
                                 return;
                             }
-                            string displayName = _dataverseService.GetDisplayName(fetch);
-                            string logicalName = _dataverseService.GetLogicalName(fetch);
+                            (string logicalName, string displayName) = _dataverseService.GetEntityName(fetch);
 
                             if (rowIndex != -1)
                             {
@@ -395,33 +393,6 @@ namespace DataMigrationUsingFetchXml
                 _popup.TextBoxFetch.Text = _popup.FetchXmls[e.RowIndex];
                 PopupDialog(e.RowIndex);
                 _popup.IsEdit = false;
-            }
-        }
-
-        private void RichTextBoxLogs_TextChanged(object sender, EventArgs e)
-        {
-            FindErrorIndexes();
-            ColorErrors();
-        }
-
-        private void FindErrorIndexes()
-        {
-            int errorIndex = richTextBoxLogs.Find("ERROR:", _errorPosition, RichTextBoxFinds.None);
-            if (errorIndex < 0)
-            {
-                return;
-            }
-            _errorPosition = errorIndex + 1;
-            _errorIndexes.Add(errorIndex);
-        }
-
-        private void ColorErrors()
-        {
-            foreach (int index in _errorIndexes)
-            {
-                richTextBoxLogs.SelectionStart = index;
-                richTextBoxLogs.SelectionLength = 6;
-                richTextBoxLogs.SelectionColor = Color.Red;
             }
         }
 

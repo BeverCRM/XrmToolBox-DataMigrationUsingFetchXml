@@ -5,7 +5,6 @@ using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
 using System.Collections.Generic;
-using Microsoft.Xrm.Tooling.Connector;
 using DataMigrationUsingFetchXml.Services.Interfaces;
 
 namespace DataMigrationUsingFetchXml.Services.Implementations
@@ -13,10 +12,13 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
     internal sealed class DataverseService : IDataverseService
     {
         private readonly IOrganizationService _sourceService;
-        private readonly CrmServiceClient _targetService;
+        private readonly IOrganizationService _targetService;
         private readonly ILogger _logger;
+        private int pageNumber = 1;
+        private string pagingCookie = null;
+        private readonly int fetchCount = 5000;
 
-        public DataverseService(IOrganizationService sourceService, CrmServiceClient targetService, ILogger logger)
+        public DataverseService(IOrganizationService sourceService, IOrganizationService targetService, ILogger logger)
         {
             _sourceService = sourceService;
             _targetService = targetService;
@@ -30,28 +32,15 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public EntityCollection GetAllRecords(string fetchQuery)
         {
-            EntityCollection data = new EntityCollection();
+            string xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, pageNumber, fetchCount);
+            EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
 
-            int fetchCount = 5000;
-            int pageNumber = 1;
-            string pagingCookie = null;
-
-            while (true)
+            if (returnCollection.MoreRecords)
             {
-                string xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, pageNumber, fetchCount);
-                EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
-                data.Entities.AddRange(returnCollection.Entities);
-                if (returnCollection.MoreRecords)
-                {
-                    ++pageNumber;
-                    pagingCookie = returnCollection.PagingCookie;
-                }
-                else
-                {
-                    break;
-                }
+                ++pageNumber;
+                pagingCookie = returnCollection.PagingCookie;
             }
-            return data;
+            return returnCollection;
         }
 
         public Guid CreateRecord(Entity record, bool duplicateDetection = true)
@@ -122,7 +111,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             return records.Entities.FirstOrDefault();
         }
 
-        public string GetDisplayName(string fetchXml)
+        public (string logicalName, string displayName) GetEntityName(string fetchXml)
         {
             EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(fetchXml));
 
@@ -134,14 +123,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             RetrieveEntityResponse retrieveAccountEntityResponse = (RetrieveEntityResponse)_sourceService.Execute(retrieveEntityRequest);
             EntityMetadata AccountEntity = retrieveAccountEntityResponse.EntityMetadata;
 
-            return AccountEntity.DisplayName.UserLocalizedLabel.Label;
-        }
-
-        public string GetLogicalName(string fetchXml)
-        {
-            EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(fetchXml));
-
-            return returnCollection.Entities[0].LogicalName;
+            return (AccountEntity.LogicalName, AccountEntity.DisplayName.UserLocalizedLabel.Label);
         }
     }
 }

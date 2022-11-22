@@ -1,10 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
-namespace DataMigrationUsingFetchXml
+﻿namespace DataMigrationUsingFetchXml
 {
     /// <summary>
     /// This class can help you to store settings for your plugin
