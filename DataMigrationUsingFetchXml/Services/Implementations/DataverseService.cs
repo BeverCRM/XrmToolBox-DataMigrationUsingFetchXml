@@ -134,28 +134,5 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
             return returnCollection.Entities[0].LogicalName;
         }
-
-        public int GetEntityRecordsCount(string fetch)
-        {
-            string entityName = GetEntityName(fetch);
-
-            var countRequest = new RetrieveTotalRecordCountRequest
-            {
-                EntityNames = new[] { entityName }
-            };
-            var countResponse = ((RetrieveTotalRecordCountResponse)_sourceService.Execute(countRequest));
-
-            return (int)countResponse.EntityRecordCountCollection[entityName];
-        }
-
-        public string GetEntityName(string fetch)
-        {
-            fetch = fetch.Replace(" ", string.Empty);
-            int index1 = fetch.IndexOf("<entityname=");
-            int index2 = fetch.IndexOf(">", index1);
-            int length = index2 - 3 - (index1 + 11);
-
-            return fetch.Substring(index1 + 13, length);
-        }
     }
 }
