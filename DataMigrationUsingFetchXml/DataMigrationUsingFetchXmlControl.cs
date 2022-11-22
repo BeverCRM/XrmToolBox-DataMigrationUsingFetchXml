@@ -60,6 +60,7 @@ namespace DataMigrationUsingFetchXml
             }
             TxtLogsPath.Text = _defaultPath;
             _logsPath = _defaultPath;
+            richTextBoxLogs.HideSelection = false;
         }
 
         /// <summary>
@@ -328,16 +329,17 @@ namespace DataMigrationUsingFetchXml
                     {
                         try
                         {
-                            ChangeToolsState(false);
+                            if (rowIndex == -1)
+                            {
+                                ChangeToolsState(false);
+                            }
                             string fetch = _popup.TextBoxFetch.Text;
 
                             if (rowIndex != -1 && fetch == _popup.FetchXmls[rowIndex])
                             {
                                 return;
                             }
-                            EntityMetadata entityData = _dataverseService.GetEntityData(fetch);
-                            string displayName = entityData.DisplayName.UserLocalizedLabel.Label;
-                            string logicalName = entityData.LogicalName;
+                            (string logicalName, string displayName) = _dataverseService.GetEntityName(fetch);
 
                             if (rowIndex != -1)
                             {

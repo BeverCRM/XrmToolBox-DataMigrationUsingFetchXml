@@ -111,7 +111,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             return records.Entities.FirstOrDefault();
         }
 
-        public EntityMetadata GetEntityData(string fetchXml)
+        public (string logicalName, string displayName) GetEntityName(string fetchXml)
         {
             EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(fetchXml));
 
@@ -123,7 +123,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             RetrieveEntityResponse retrieveAccountEntityResponse = (RetrieveEntityResponse)_sourceService.Execute(retrieveEntityRequest);
             EntityMetadata AccountEntity = retrieveAccountEntityResponse.EntityMetadata;
 
-            return AccountEntity;
+            return (AccountEntity.LogicalName, AccountEntity.DisplayName.UserLocalizedLabel.Label);
         }
     }
 }

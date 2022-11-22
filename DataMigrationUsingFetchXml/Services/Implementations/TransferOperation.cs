@@ -23,7 +23,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         private const int ERROR_CODE = -2147220685;
 
         private string _organizationDataServiceUrl;
-        
+
         private IOrganizationService _sourceService;
 
         private IDataverseService _dataverseService;
@@ -95,8 +95,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                                 ResultItems.Add(_resultItem);
                                 return;
                             }
-                            richTextBoxLogs.SelectionStart = richTextBoxLogs.Text.Length;
-                            richTextBoxLogs.ScrollToCaret();
                         }
                     }
                     else

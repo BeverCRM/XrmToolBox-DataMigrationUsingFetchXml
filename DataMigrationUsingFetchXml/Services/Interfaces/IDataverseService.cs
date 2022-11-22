@@ -15,6 +15,6 @@ namespace DataMigrationUsingFetchXml.Services.Interfaces
 
         string GetEntityPrimaryField(string entitySchemaName);
 
-        EntityMetadata GetEntityData(string fetchXml);
+        (string logicalName, string displayName) GetEntityName(string fetchXml);
     }
 }
