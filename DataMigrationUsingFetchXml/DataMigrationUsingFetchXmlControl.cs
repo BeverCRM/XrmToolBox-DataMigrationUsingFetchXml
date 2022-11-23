@@ -77,7 +77,6 @@ namespace DataMigrationUsingFetchXml
         /// </summary>
         public override void UpdateConnection(IOrganizationService newService, ConnectionDetail detail, string actionName, object parameter)
         {
-            ChangeToolsState(true);
             base.UpdateConnection(newService, detail, actionName, parameter);
             if (_mySettings != null && detail != null)
             {
