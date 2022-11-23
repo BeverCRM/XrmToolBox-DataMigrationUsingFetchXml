@@ -228,9 +228,9 @@ namespace DataMigrationUsingFetchXml
                                 foreach (ResultItem resultItem in _transferOperation.ResultItems)
                                 {
                                     if (resultItem.ErroredRecordCount > 0)
-                                        _logger.LogInfo($"{resultItem.EntityName}, {resultItem.SourceRecordCount } (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Migrated Records), {resultItem.ErroredRecordCount} (Errօred Records)");
+                                        _logger.LogInfo($"{resultItem.EntityName}, {resultItem.SourceRecordCountWithSign} (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Migrated Records), {resultItem.ErroredRecordCount} (Errօred Records)");
                                     else
-                                        _logger.LogInfo($"{resultItem.EntityName}, {resultItem.SourceRecordCount } (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Migrated Records)");
+                                        _logger.LogInfo($"{resultItem.EntityName}, {resultItem.SourceRecordCountWithSign} (Source Records), {resultItem.SuccessfullyGeneratedRecordCount } (Migrated Records)");
                                 }
                                 fetchXmls.Clear();
                                 SetLoadingDetails(false);

@@ -63,7 +63,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 _resultItem = new ResultItem();
                 _lblTitle.Text = $"Migrating {DisplayNames[tableIndexesForTransfer[index]]} records";
-                string sourceRecordCount = string.Empty;
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
                 EntityCollection records = _dataverseService.GetAllRecords(fetchXml);
 
@@ -73,17 +72,12 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 do
                 {
                     _resultItem.SourceRecordCount += records.Entities.Count;
-                    sourceRecordCount = _resultItem.SourceRecordCount.ToString();
+                    _resultItem.SourceRecordCountWithSign = _resultItem.SourceRecordCount.ToString();
                     if (records.MoreRecords)
                     {
-                        sourceRecordCount += '+';
-                        _logger.LogInfo("Records count is: " + records.Entities.Count + "+");
+                        _resultItem.SourceRecordCountWithSign += '+';
                     }
-                    else
-                    {
-                        _logger.LogInfo("Records count is: " + records.Entities.Count);
-                    }
-
+                    _logger.LogInfo("Records count is: " + _resultItem.SourceRecordCountWithSign);
 
                     if (records?.Entities?.Count > 0)
                     {
@@ -91,17 +85,17 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                         {
                             TransferData(record, searchAttrs, idExists);
 
-                            _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {sourceRecordCount} is imported";
+                            _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of { _resultItem.SourceRecordCountWithSign} is imported";
                             if (_resultItem.ErroredRecordCount > 0)
                             {
-                                _lblError.Text = $"{_resultItem.ErroredRecordCount} of {sourceRecordCount} is errored";
+                                _lblError.Text = $"{_resultItem.ErroredRecordCount} of { _resultItem.SourceRecordCountWithSign} is errored";
                             }
                             if (!KeepRunning)
                             {
-                                _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {sourceRecordCount} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
+                                _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of { _resultItem.SourceRecordCountWithSign} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
                                 if (_resultItem.ErroredRecordCount > 0)
                                 {
-                                    _lblError.Text = $"{_resultItem.ErroredRecordCount} of {sourceRecordCount} {DisplayNames[tableIndexesForTransfer[index]]} is errored";
+                                    _lblError.Text = $"{_resultItem.ErroredRecordCount} of { _resultItem.SourceRecordCountWithSign} {DisplayNames[tableIndexesForTransfer[index]]} is errored";
                                 }
                                 ResultItems.Add(_resultItem);
                                 return;
@@ -131,9 +125,9 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 {
                     if (_resultItem.ErroredRecordCount > 0)
                     {
-                        _lblError.Text = $"{_resultItem.ErroredRecordCount} of {sourceRecordCount} {DisplayNames[tableIndexesForTransfer[index]]} is errored";
+                        _lblError.Text = $"{_resultItem.ErroredRecordCount} of { _resultItem.SourceRecordCountWithSign} {DisplayNames[tableIndexesForTransfer[index]]} is errored";
                     }
-                    _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {sourceRecordCount} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
+                    _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of { _resultItem.SourceRecordCountWithSign} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
                 }
                 index++;
             }
