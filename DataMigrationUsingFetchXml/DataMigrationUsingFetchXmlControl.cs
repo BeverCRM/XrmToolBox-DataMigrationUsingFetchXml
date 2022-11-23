@@ -5,7 +5,6 @@ using Microsoft.Xrm.Sdk;
 using System.Windows.Forms;
 using McTools.Xrm.Connection;
 using XrmToolBox.Extensibility;
-using Microsoft.Xrm.Sdk.Metadata;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using DataMigrationUsingFetchXml.Model;
@@ -51,7 +50,6 @@ namespace DataMigrationUsingFetchXml
             if (!SettingsManager.Instance.TryLoad(GetType(), out _mySettings))
             {
                 _mySettings = new Settings();
-
                 LogWarning("Settings not found => a new settings file has been created!");
             }
             else
@@ -79,8 +77,8 @@ namespace DataMigrationUsingFetchXml
         /// </summary>
         public override void UpdateConnection(IOrganizationService newService, ConnectionDetail detail, string actionName, object parameter)
         {
+            ChangeToolsState(true);
             base.UpdateConnection(newService, detail, actionName, parameter);
-
             if (_mySettings != null && detail != null)
             {
                 _mySettings.LastUsedOrganizationWebappUrl = detail.WebApplicationUrl;
@@ -215,6 +213,7 @@ namespace DataMigrationUsingFetchXml
                             try
                             {
                                 ChangeToolsState(false);
+                                BtnTransferData.Enabled = true;
                                 _transferOperation.Transfer(fetchXmls, tableIndexesForTransfer, richTextBoxLogs);
                             }
                             catch (Exception ex)
@@ -300,6 +299,7 @@ namespace DataMigrationUsingFetchXml
             BtnSelectTargetInstance.Enabled = state;
             FetchDataGridView.Enabled = state;
             pictureBoxAdd.Enabled = state;
+            BtnTransferData.Enabled = state;
         }
 
         private void PictureBoxRecBin_Click(object sender, EventArgs e)
@@ -329,14 +329,12 @@ namespace DataMigrationUsingFetchXml
                     {
                         try
                         {
-                            if (rowIndex == -1)
-                            {
-                                ChangeToolsState(false);
-                            }
+                            ChangeToolsState(false);
                             string fetch = _popup.TextBoxFetch.Text;
 
                             if (rowIndex != -1 && fetch == _popup.FetchXmls[rowIndex])
                             {
+                                ChangeToolsState(true);
                                 return;
                             }
                             (string logicalName, string displayName) = _dataverseService.GetEntityName(fetch);

@@ -63,7 +63,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 _resultItem = new ResultItem();
                 _lblTitle.Text = $"Migrating {DisplayNames[tableIndexesForTransfer[index]]} records";
-
+                string sourceRecordCount = string.Empty;
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
                 EntityCollection records = _dataverseService.GetAllRecords(fetchXml);
 
@@ -73,24 +73,35 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 do
                 {
                     _resultItem.SourceRecordCount += records.Entities.Count;
-                    _logger.LogInfo("Records count is: " + records.Entities.Count);
+                    sourceRecordCount = _resultItem.SourceRecordCount.ToString();
+                    if (records.MoreRecords)
+                    {
+                        sourceRecordCount += '+';
+                        _logger.LogInfo("Records count is: " + records.Entities.Count + "+");
+                    }
+                    else
+                    {
+                        _logger.LogInfo("Records count is: " + records.Entities.Count);
+                    }
+
 
                     if (records?.Entities?.Count > 0)
                     {
                         foreach (Entity record in records.Entities)
                         {
                             TransferData(record, searchAttrs, idExists);
-                            _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {_resultItem.SourceRecordCount} is imported";
+
+                            _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {sourceRecordCount} is imported";
                             if (_resultItem.ErroredRecordCount > 0)
                             {
-                                _lblError.Text = $"{_resultItem.ErroredRecordCount} of {_resultItem.SourceRecordCount} is errored";
+                                _lblError.Text = $"{_resultItem.ErroredRecordCount} of {sourceRecordCount} is errored";
                             }
                             if (!KeepRunning)
                             {
-                                _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {_resultItem.SourceRecordCount} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
+                                _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {sourceRecordCount} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
                                 if (_resultItem.ErroredRecordCount > 0)
                                 {
-                                    _lblError.Text = $"{_resultItem.ErroredRecordCount} of {_resultItem.SourceRecordCount} {DisplayNames[tableIndexesForTransfer[index]]} is errored";
+                                    _lblError.Text = $"{_resultItem.ErroredRecordCount} of {sourceRecordCount} {DisplayNames[tableIndexesForTransfer[index]]} is errored";
                                 }
                                 ResultItems.Add(_resultItem);
                                 return;
@@ -120,9 +131,9 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 {
                     if (_resultItem.ErroredRecordCount > 0)
                     {
-                        _lblError.Text = $"{_resultItem.ErroredRecordCount} of {_resultItem.SourceRecordCount} {DisplayNames[tableIndexesForTransfer[index]]} is errored";
+                        _lblError.Text = $"{_resultItem.ErroredRecordCount} of {sourceRecordCount} {DisplayNames[tableIndexesForTransfer[index]]} is errored";
                     }
-                    _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {_resultItem.SourceRecordCount} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
+                    _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of {sourceRecordCount} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
                 }
                 index++;
             }
