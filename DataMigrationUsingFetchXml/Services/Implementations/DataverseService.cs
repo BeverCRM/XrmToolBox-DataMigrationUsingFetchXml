@@ -32,9 +32,16 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public EntityCollection GetAllRecords(string fetchQuery)
         {
-            string xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, pageNumber, fetchCount);
+            string xml;
+            if (ConfigReader.IsFetchContainsTop)
+            {
+                xml = ConfigReader.CreateXml(fetchQuery);
+            }
+            else
+            {
+                xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, pageNumber, fetchCount);
+            }
             EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
-            
             if (returnCollection.MoreRecords)
             {
                 ++pageNumber;
@@ -114,7 +121,10 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         public (string logicalName, string displayName) GetEntityName(string fetchXml)
         {
             EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(fetchXml));
-
+            if (returnCollection.Entities.Count == 0)
+            {
+                throw new Exception($"Records not found: '{returnCollection.EntityName}'");
+            }
             RetrieveEntityRequest retrieveEntityRequest = new RetrieveEntityRequest
             {
                 EntityFilters = EntityFilters.All,

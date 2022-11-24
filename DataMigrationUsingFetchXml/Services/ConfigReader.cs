@@ -5,6 +5,8 @@ namespace DataMigrationUsingFetchXml.Services
 {
     internal sealed class ConfigReader
     {
+        public static bool IsFetchContainsTop { get; set; }
+
         public static List<string> GetPrimaryFields(string fetchXml, out bool idExists)
         {
             idExists = false;
@@ -12,7 +14,13 @@ namespace DataMigrationUsingFetchXml.Services
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(fetchXml);
             XmlNodeList nodes = xmlDoc.DocumentElement.SelectNodes("/fetch/entity/attribute");
+            XmlNodeList fetchNodes = xmlDoc.DocumentElement.SelectNodes("/fetch");
             string entityName = xmlDoc.DocumentElement.SelectNodes("/fetch/entity")[0].Attributes["name"].Value;
+
+            if (fetchNodes[0].Attributes["top"] != null)
+            {
+                IsFetchContainsTop = true;
+            }
 
             foreach (XmlNode node in nodes)
             {
@@ -51,6 +59,15 @@ namespace DataMigrationUsingFetchXml.Services
             XmlAttribute countAttr = doc.CreateAttribute("count");
             countAttr.Value = System.Convert.ToString(count);
             attrs.Append(countAttr);
+
+            return doc.OuterXml;
+        }
+
+        public static string CreateXml(string xml)
+        {
+            // Load document
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(xml);
 
             return doc.OuterXml;
         }
