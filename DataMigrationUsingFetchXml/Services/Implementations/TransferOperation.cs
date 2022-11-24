@@ -129,6 +129,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     }
                     _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of { _resultItem.SourceRecordCountWithSign} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
                 }
+                _lblError.Text = string.Empty;
                 index++;
             }
         }

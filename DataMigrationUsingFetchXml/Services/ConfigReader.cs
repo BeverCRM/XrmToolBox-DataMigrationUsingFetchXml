@@ -5,7 +5,7 @@ namespace DataMigrationUsingFetchXml.Services
 {
     internal sealed class ConfigReader
     {
-        public static bool IsFetchContainsTop { get; set; }
+        public static bool ContainsPaginationAttribute { get; set; }
 
         public static List<string> GetPrimaryFields(string fetchXml, out bool idExists)
         {
@@ -17,9 +17,9 @@ namespace DataMigrationUsingFetchXml.Services
             XmlNodeList fetchNodes = xmlDoc.DocumentElement.SelectNodes("/fetch");
             string entityName = xmlDoc.DocumentElement.SelectNodes("/fetch/entity")[0].Attributes["name"].Value;
 
-            if (fetchNodes[0].Attributes["top"] != null)
+            if (fetchNodes[0].Attributes["top"] != null || fetchNodes[0].Attributes["count"] != null || fetchNodes[0].Attributes["page"] != null)
             {
-                IsFetchContainsTop = true;
+                ContainsPaginationAttribute = true;
             }
 
             foreach (XmlNode node in nodes)

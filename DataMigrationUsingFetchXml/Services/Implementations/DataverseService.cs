@@ -33,7 +33,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         public EntityCollection GetAllRecords(string fetchQuery)
         {
             string xml;
-            if (ConfigReader.IsFetchContainsTop)
+            if (ConfigReader.ContainsPaginationAttribute)
             {
                 xml = ConfigReader.CreateXml(fetchQuery);
             }
