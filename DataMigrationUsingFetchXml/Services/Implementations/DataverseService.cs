@@ -34,7 +34,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         {
             string xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, pageNumber, fetchCount);
             EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
-
+            
             if (returnCollection.MoreRecords)
             {
                 ++pageNumber;
