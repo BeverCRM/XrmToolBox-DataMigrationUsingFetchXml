@@ -65,7 +65,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 _lblTitle.Text = $"Migrating {DisplayNames[tableIndexesForTransfer[index]]} records";
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
                 EntityCollection records = _dataverseService.GetAllRecords(fetchXml);
-
                 _logger.LogInfo("Getting data of '" + records.Entities[0].LogicalName + "' from source instance");
                 _resultItem.EntityName = records.Entities[0].LogicalName;
                 _logger.LogInfo("Transfering data to: " + _organizationDataServiceUrl);
@@ -112,7 +111,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                         _logger.LogError("Process Stopped. Aborting! ");
                         break;
                     }
-
                     if (!records.MoreRecords)
                     {
                         ResultItems.Add(_resultItem);

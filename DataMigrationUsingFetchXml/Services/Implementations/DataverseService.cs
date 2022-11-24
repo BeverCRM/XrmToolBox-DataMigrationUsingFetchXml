@@ -14,9 +14,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         private readonly IOrganizationService _sourceService;
         private readonly IOrganizationService _targetService;
         private readonly ILogger _logger;
-        private int pageNumber = 1;
         private string pagingCookie = null;
-        private readonly int fetchCount = 5000;
 
         public DataverseService(IOrganizationService sourceService, IOrganizationService targetService, ILogger logger)
         {
@@ -33,18 +31,18 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         public EntityCollection GetAllRecords(string fetchQuery)
         {
             string xml;
-            if (ConfigReader.ContainsPaginationAttribute)
+            if (ConfigReader.ContainsTopAttribute)
             {
                 xml = ConfigReader.CreateXml(fetchQuery);
             }
             else
             {
-                xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, pageNumber, fetchCount);
+                xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, ConfigReader.PageNumber, ConfigReader.PageCount);
             }
             EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
             if (returnCollection.MoreRecords)
             {
-                ++pageNumber;
+                ++ConfigReader.PageNumber;
                 pagingCookie = returnCollection.PagingCookie;
             }
             return returnCollection;

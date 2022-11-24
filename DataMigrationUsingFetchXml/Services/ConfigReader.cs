@@ -1,11 +1,16 @@
 ﻿using System.Xml;
 using System.Collections.Generic;
+using System;
 
 namespace DataMigrationUsingFetchXml.Services
 {
     internal sealed class ConfigReader
     {
-        public static bool ContainsPaginationAttribute { get; set; }
+        public static bool ContainsTopAttribute { get; set; }
+
+        public static int PageNumber { get; set; } = 1;
+
+        public static int PageCount { get; set; } = 5000;
 
         public static List<string> GetPrimaryFields(string fetchXml, out bool idExists)
         {
@@ -17,9 +22,17 @@ namespace DataMigrationUsingFetchXml.Services
             XmlNodeList fetchNodes = xmlDoc.DocumentElement.SelectNodes("/fetch");
             string entityName = xmlDoc.DocumentElement.SelectNodes("/fetch/entity")[0].Attributes["name"].Value;
 
-            if (fetchNodes[0].Attributes["top"] != null || fetchNodes[0].Attributes["count"] != null || fetchNodes[0].Attributes["page"] != null)
+            if (fetchNodes[0].Attributes["top"] != null)
             {
-                ContainsPaginationAttribute = true;
+                ContainsTopAttribute = true;
+            }
+            if (fetchNodes[0].Attributes["count"] != null)
+            {
+                PageCount = Convert.ToInt32(fetchNodes[0].Attributes["count"].Value);
+            }
+            if (fetchNodes[0].Attributes["page"] != null)
+            {
+                PageNumber = Convert.ToInt32(fetchNodes[0].Attributes["page"].Value);
             }
 
             foreach (XmlNode node in nodes)
