@@ -33,11 +33,11 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             string xml;
             if (ConfigReader.ContainsTopAttribute)
             {
-                xml = ConfigReader.CreateXml(fetchQuery);
+                xml = fetchQuery;
             }
             else
             {
-                xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, ConfigReader.PageNumber, ConfigReader.PageCount);
+                xml = ConfigReader.CreateXml(fetchQuery, pagingCookie);
             }
             EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
             if (returnCollection.MoreRecords)

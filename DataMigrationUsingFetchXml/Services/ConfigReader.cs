@@ -56,7 +56,7 @@ namespace DataMigrationUsingFetchXml.Services
             }
         }
 
-        public static string CreateXml(string xml, string cookie, int page, int count)
+        public static string CreateXml(string xml, string cookie)
         {
             // Load document
             XmlDocument doc = new XmlDocument();
@@ -72,21 +72,12 @@ namespace DataMigrationUsingFetchXml.Services
             }
 
             XmlAttribute pageAttr = doc.CreateAttribute("page");
-            pageAttr.Value = System.Convert.ToString(page);
+            pageAttr.Value = System.Convert.ToString(PageNumber);
             attrs.Append(pageAttr);
 
             XmlAttribute countAttr = doc.CreateAttribute("count");
-            countAttr.Value = System.Convert.ToString(count);
+            countAttr.Value = System.Convert.ToString(PageCount);
             attrs.Append(countAttr);
-
-            return doc.OuterXml;
-        }
-
-        public static string CreateXml(string xml)
-        {
-            // Load document
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(xml);
 
             return doc.OuterXml;
         }
