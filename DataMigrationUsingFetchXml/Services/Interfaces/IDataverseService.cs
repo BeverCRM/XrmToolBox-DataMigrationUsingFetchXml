@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xrm.Sdk;
 using System.Collections.Generic;
+using Microsoft.Xrm.Sdk.Metadata;
 
 namespace DataMigrationUsingFetchXml.Services.Interfaces
 {
@@ -14,8 +15,6 @@ namespace DataMigrationUsingFetchXml.Services.Interfaces
 
         string GetEntityPrimaryField(string entitySchemaName);
 
-        string GetDisplayName(string fetchXml);
-
-        string GetLogicalName(string fetchXml);
+        (string logicalName, string displayName) GetEntityName(string fetchXml);
     }
 }

@@ -127,7 +127,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             {
                 return false;
             }
-
             if (textBoxFetch.Text.Length > validFetchLength) return false;
 
             _currentFetchXml = textBoxFetch.Text;

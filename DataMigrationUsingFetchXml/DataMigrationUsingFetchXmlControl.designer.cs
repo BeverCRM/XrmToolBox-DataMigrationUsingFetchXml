@@ -275,20 +275,20 @@ namespace DataMigrationUsingFetchXml
             // 
             // richTextBoxLogs
             // 
-            this.richTextBoxLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.richTextBoxLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBoxLogs.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.richTextBoxLogs.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.richTextBoxLogs.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.richTextBoxLogs.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.richTextBoxLogs.Location = new System.Drawing.Point(23, 438);
             this.richTextBoxLogs.Name = "richTextBoxLogs";
             this.richTextBoxLogs.ReadOnly = true;
             this.richTextBoxLogs.Size = new System.Drawing.Size(1524, 361);
             this.richTextBoxLogs.TabIndex = 31;
-            this.richTextBoxLogs.Text = "";
+            this.richTextBoxLogs.Text = "\n";
             this.richTextBoxLogs.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.RichTextBoxLogs_LinkClicked);
-            this.richTextBoxLogs.TextChanged += new System.EventHandler(this.RichTextBoxLogs_TextChanged);
             // 
             // LblInfo
             // 
