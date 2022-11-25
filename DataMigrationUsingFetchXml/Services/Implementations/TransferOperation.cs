@@ -61,13 +61,15 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
             foreach (string fetchXml in fetchXmls)
             {
+                ConfigReader.SetPaginationAttributes(fetchXml);
                 _resultItem = new ResultItem();
                 _lblTitle.Text = $"Migrating {DisplayNames[tableIndexesForTransfer[index]]} records";
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
                 EntityCollection records = _dataverseService.GetAllRecords(fetchXml);
-                _logger.LogInfo("Getting data of '" + records.Entities[0].LogicalName + "' from source instance");
-                _resultItem.EntityName = records.Entities[0].LogicalName;
+                _logger.LogInfo("Getting data of '" + records.EntityName + "' from source instance");
+                _resultItem.EntityName = records.EntityName;
                 _logger.LogInfo("Transfering data to: " + _organizationDataServiceUrl);
+
                 do
                 {
                     _resultItem.SourceRecordCount += records.Entities.Count;
@@ -127,7 +129,10 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     }
                     _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of { _resultItem.SourceRecordCountWithSign} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
                 }
-                _lblError.Text = string.Empty;
+                else
+                {
+                    _lblError.Text = string.Empty;
+                }
                 index++;
             }
         }
