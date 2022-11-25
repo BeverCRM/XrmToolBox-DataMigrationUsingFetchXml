@@ -14,9 +14,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         private readonly IOrganizationService _sourceService;
         private readonly IOrganizationService _targetService;
         private readonly ILogger _logger;
-        private int pageNumber = 1;
         private string pagingCookie = null;
-        private readonly int fetchCount = 5000;
 
         public DataverseService(IOrganizationService sourceService, IOrganizationService targetService, ILogger logger)
         {
@@ -32,12 +30,19 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public EntityCollection GetAllRecords(string fetchQuery)
         {
-            string xml = ConfigReader.CreateXml(fetchQuery, pagingCookie, pageNumber, fetchCount);
+            string xml;
+            if (ConfigReader.ContainsTopAttribute)
+            {
+                xml = fetchQuery;
+            }
+            else
+            {
+                xml = ConfigReader.CreateXml(fetchQuery, pagingCookie);
+            }
             EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
-            
             if (returnCollection.MoreRecords)
             {
-                ++pageNumber;
+                ++ConfigReader.PageNumber;
                 pagingCookie = returnCollection.PagingCookie;
             }
             return returnCollection;
@@ -114,7 +119,10 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         public (string logicalName, string displayName) GetEntityName(string fetchXml)
         {
             EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(fetchXml));
-
+            if (returnCollection.Entities.Count == 0)
+            {
+                throw new Exception($"Records not found: '{returnCollection.EntityName}'");
+            }
             RetrieveEntityRequest retrieveEntityRequest = new RetrieveEntityRequest
             {
                 EntityFilters = EntityFilters.All,
