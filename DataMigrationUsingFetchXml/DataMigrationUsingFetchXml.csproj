@@ -339,7 +339,6 @@
     <Compile Include="Forms\Popup\Popup.Designer.cs">
       <DependentUpon>Popup.cs</DependentUpon>
     </Compile>
-    <Compile Include="Model\FormData.cs" />
     <Compile Include="Model\PaginationDetails.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

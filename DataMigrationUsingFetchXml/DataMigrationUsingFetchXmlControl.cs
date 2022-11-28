@@ -262,10 +262,9 @@ namespace DataMigrationUsingFetchXml
         private void InitializeTransferOperation()
         {
             ConnectionDetails connectionDetails = new ConnectionDetails(Service, AdditionalConnectionDetails);
-            FormData formData = new FormData(LblInfo, LblTitle, LblError);
             _transferOperation.DisplayNames = _displayNames;
             _transferOperation.SetConnectionDetails(connectionDetails);
-            _transferOperation.SetFormData(formData);
+            _transferOperation.SetLabel(LblInfo, LblTitle, LblError);
         }
 
         private void SetLoadingDetails(bool visible)

@@ -16,6 +16,6 @@ namespace DataMigrationUsingFetchXml.Services.Interfaces
 
         void SetConnectionDetails(ConnectionDetails connectionDetails);
 
-        void SetFormData(FormData formData);
+        void SetLabel(Label lblInfo, Label lblTitle, Label lblError);
     }
 }

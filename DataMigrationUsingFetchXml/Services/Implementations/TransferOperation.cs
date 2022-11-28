@@ -39,11 +39,11 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             _dataverseService = new DataverseService(connectionDetails.Service, connectionDetails.AdditionalConnectionDetails[0].ServiceClient, _logger);
         }
 
-        public void SetFormData(FormData formData)
+        public void SetLabel(System.Windows.Forms.Label lblInfo, System.Windows.Forms.Label lblTitle, System.Windows.Forms.Label lblError)
         {
-            _lblInfo = formData.LblInfo;
-            _lblTitle = formData.LblTitle;
-            _lblError = formData.LblError;
+            _lblInfo = lblInfo;
+            _lblTitle = lblTitle;
+            _lblError = lblError;
         }
 
         public void Transfer(List<string> fetchXmls, List<int> tableIndexesForTransfer, RichTextBox richTextBoxLogs)
@@ -53,7 +53,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
             foreach (string fetchXml in fetchXmls)
             {
-                PaginationDetails.SetPaginationAttributes(fetchXml);
+                ConfigReader.SetPaginationAttributes(fetchXml);
                 _resultItem = new ResultItem();
                 _lblTitle.Text = $"Migrating {DisplayNames[tableIndexesForTransfer[index]]} records";
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
@@ -105,12 +105,10 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                         _logger.LogError("Process Stopped. Aborting! ");
                         break;
                     }
-                    if (records.MoreRecords)
+                    if (!records.MoreRecords)
                     {
-                        continue;
+                        ResultItems.Add(_resultItem);
                     }
-                    ResultItems.Add(_resultItem);
-                    break;
                 }
 
                 if (fetchXmls.Count == index + 1)

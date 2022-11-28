@@ -30,6 +30,31 @@ namespace DataMigrationUsingFetchXml.Services
             return searchAttrs;
         }
 
+        public static void SetPaginationAttributes(string fetchXml)
+        {
+            PaginationDetails.PageNumber = 1;
+            PaginationDetails.PageCount = 5000;
+            PaginationDetails.PagingCookie = null;
+            PaginationDetails.ContainsTopAttribute = false;
+
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(fetchXml);
+            XmlNodeList fetchNodes = xmlDoc.DocumentElement.SelectNodes("/fetch");
+
+            if (fetchNodes[0].Attributes["top"] != null)
+            {
+                PaginationDetails.ContainsTopAttribute = true;
+            }
+            if (fetchNodes[0].Attributes["count"] != null)
+            {
+                PaginationDetails.PageCount = System.Convert.ToInt32(fetchNodes[0].Attributes["count"].Value);
+            }
+            if (fetchNodes[0].Attributes["page"] != null)
+            {
+                PaginationDetails.PageNumber = System.Convert.ToInt32(fetchNodes[0].Attributes["page"].Value);
+            }
+        }
+
         public static string CreateXml(string xml, string cookie)
         {
             // Load document
