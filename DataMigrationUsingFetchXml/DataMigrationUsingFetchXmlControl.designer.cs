@@ -54,7 +54,7 @@ namespace DataMigrationUsingFetchXml
             this.richTextBoxLogs = new System.Windows.Forms.RichTextBox();
             this.LblInfo = new System.Windows.Forms.Label();
             this.LblTitle = new System.Windows.Forms.Label();
-            this.LblErrorText = new System.Windows.Forms.Label();
+            this.LblError = new System.Windows.Forms.Label();
             this.dataGridViewImageColumn1 = new System.Windows.Forms.DataGridViewImageColumn();
             this.dataGridViewImageColumn2 = new System.Windows.Forms.DataGridViewImageColumn();
             this.LblLoading = new System.Windows.Forms.Label();
@@ -275,8 +275,8 @@ namespace DataMigrationUsingFetchXml
             // 
             // richTextBoxLogs
             // 
-            this.richTextBoxLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.richTextBoxLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBoxLogs.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.richTextBoxLogs.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -314,17 +314,17 @@ namespace DataMigrationUsingFetchXml
             this.LblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.LblTitle.Visible = false;
             // 
-            // LblErrorText
+            // LblError
             // 
-            this.LblErrorText.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.LblErrorText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblErrorText.ForeColor = System.Drawing.Color.Red;
-            this.LblErrorText.Location = new System.Drawing.Point(671, 405);
-            this.LblErrorText.Name = "LblErrorText";
-            this.LblErrorText.Size = new System.Drawing.Size(227, 30);
-            this.LblErrorText.TabIndex = 37;
-            this.LblErrorText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.LblErrorText.Visible = false;
+            this.LblError.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.LblError.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.LblError.ForeColor = System.Drawing.Color.Red;
+            this.LblError.Location = new System.Drawing.Point(671, 405);
+            this.LblError.Name = "LblError";
+            this.LblError.Size = new System.Drawing.Size(227, 30);
+            this.LblError.TabIndex = 37;
+            this.LblError.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.LblError.Visible = false;
             // 
             // dataGridViewImageColumn1
             // 
@@ -383,7 +383,7 @@ namespace DataMigrationUsingFetchXml
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.Controls.Add(this.LblErrorText);
+            this.Controls.Add(this.LblError);
             this.Controls.Add(this.LblTitle);
             this.Controls.Add(this.LblInfo);
             this.Controls.Add(this.LblLoading);
@@ -439,7 +439,7 @@ namespace DataMigrationUsingFetchXml
         private System.Windows.Forms.Label LblTitle;
         private System.Windows.Forms.DataGridViewImageColumn dataGridViewImageColumn1;
         private System.Windows.Forms.DataGridViewImageColumn dataGridViewImageColumn2;
-        private System.Windows.Forms.Label LblErrorText;
+        private System.Windows.Forms.Label LblError;
         private System.Windows.Forms.PictureBox pictureBoxRecBin;
         private System.Windows.Forms.DataGridViewCheckBoxColumn CheckBox;
         private System.Windows.Forms.DataGridViewTextBoxColumn displayNameDataGridViewTextBoxColumn;

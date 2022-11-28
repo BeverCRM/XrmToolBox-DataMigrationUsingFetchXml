@@ -2,9 +2,7 @@
 using Microsoft.Xrm.Sdk;
 using System.ServiceModel;
 using System.Windows.Forms;
-using McTools.Xrm.Connection;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using DataMigrationUsingFetchXml.Model;
 using DataMigrationUsingFetchXml.Services.Interfaces;
 
@@ -16,23 +14,19 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         public List<string> DisplayNames { get; set; }
         public bool KeepRunning { get; set; } = true;
 
+        private string _organizationServiceUrl;
+
         private ResultItem _resultItem;
 
         private readonly ILogger _logger;
 
         private const int ERROR_CODE = -2147220685;
 
-        private string _organizationDataServiceUrl;
-
-        private IOrganizationService _sourceService;
-
         private IDataverseService _dataverseService;
 
         private System.Windows.Forms.Label _lblInfo;
         private System.Windows.Forms.Label _lblTitle;
         private System.Windows.Forms.Label _lblError;
-
-        private ObservableCollection<ConnectionDetail> _additionalConnectionDetails;
 
         public TransferOperation(ILogger logger)
         {
@@ -41,17 +35,15 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public void SetConnectionDetails(ConnectionDetails connectionDetails)
         {
-            _sourceService = connectionDetails.Service;
-            _additionalConnectionDetails = connectionDetails.AdditionalConnectionDetails;
-            _organizationDataServiceUrl = _additionalConnectionDetails[0].OrganizationDataServiceUrl;
-            _dataverseService = new DataverseService(_sourceService, _additionalConnectionDetails[0].ServiceClient, _logger);
+            _organizationServiceUrl = connectionDetails.AdditionalConnectionDetails[0].OrganizationDataServiceUrl;
+            _dataverseService = new DataverseService(connectionDetails.Service, connectionDetails.AdditionalConnectionDetails[0].ServiceClient, _logger);
         }
 
-        public void SetLabel(System.Windows.Forms.Label lblInfo, System.Windows.Forms.Label lblTitle, System.Windows.Forms.Label lblError)
+        public void SetFormData(FormData formData)
         {
-            _lblInfo = lblInfo;
-            _lblTitle = lblTitle;
-            _lblError = lblError;
+            _lblInfo = formData.LblInfo;
+            _lblTitle = formData.LblTitle;
+            _lblError = formData.LblError;
         }
 
         public void Transfer(List<string> fetchXmls, List<int> tableIndexesForTransfer, RichTextBox richTextBoxLogs)
@@ -61,17 +53,17 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
             foreach (string fetchXml in fetchXmls)
             {
-                ConfigReader.SetPaginationAttributes(fetchXml);
+                PaginationDetails.SetPaginationAttributes(fetchXml);
                 _resultItem = new ResultItem();
                 _lblTitle.Text = $"Migrating {DisplayNames[tableIndexesForTransfer[index]]} records";
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
-                EntityCollection records = _dataverseService.GetAllRecords(fetchXml);
-                _logger.LogInfo("Getting data of '" + records.EntityName + "' from source instance");
-                _resultItem.EntityName = records.EntityName;
-                _logger.LogInfo("Transfering data to: " + _organizationDataServiceUrl);
 
-                do
+                _logger.LogInfo("Getting data of '" + DisplayNames[tableIndexesForTransfer[index]] + "' from source instance");
+                _logger.LogInfo("Transfering data to: " + _organizationServiceUrl);
+
+                foreach (EntityCollection records in _dataverseService.GetAllRecords(fetchXml))
                 {
+                    _resultItem.EntityName = records.EntityName;
                     _resultItem.SourceRecordCount += records.Entities.Count;
                     _resultItem.SourceRecordCountWithSign = _resultItem.SourceRecordCount.ToString();
                     if (records.MoreRecords)
@@ -113,13 +105,13 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                         _logger.LogError("Process Stopped. Aborting! ");
                         break;
                     }
-                    if (!records.MoreRecords)
+                    if (records.MoreRecords)
                     {
-                        ResultItems.Add(_resultItem);
-                        break;
+                        continue;
                     }
-                    records = _dataverseService.GetAllRecords(fetchXml);
-                } while (true);
+                    ResultItems.Add(_resultItem);
+                    break;
+                }
 
                 if (fetchXmls.Count == index + 1)
                 {
