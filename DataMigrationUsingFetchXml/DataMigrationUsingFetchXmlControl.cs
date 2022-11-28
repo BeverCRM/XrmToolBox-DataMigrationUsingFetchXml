@@ -261,14 +261,10 @@ namespace DataMigrationUsingFetchXml
 
         private void InitializeTransferOperation()
         {
-            ConnectionDetails connectionDetails = new ConnectionDetails
-            {
-                AdditionalConnectionDetails = AdditionalConnectionDetails,
-                Service = Service
-            };
+            ConnectionDetails connectionDetails = new ConnectionDetails(Service, AdditionalConnectionDetails);
             _transferOperation.DisplayNames = _displayNames;
             _transferOperation.SetConnectionDetails(connectionDetails);
-            _transferOperation.SetLabel(LblInfo, LblTitle, LblErrorText);
+            _transferOperation.SetLabel(LblInfo, LblTitle, LblError);
         }
 
         private void SetLoadingDetails(bool visible)
@@ -276,9 +272,9 @@ namespace DataMigrationUsingFetchXml
             if (visible == true)
             {
                 LblInfo.Text = "Loading...";
-                LblErrorText.Visible = visible;
+                LblError.Visible = visible;
                 LblInfo.Visible = visible;
-                LblErrorText.Text = string.Empty;
+                LblError.Text = string.Empty;
             }
             LblLoading.Visible = visible;
             LblTitle.Visible = visible;
@@ -306,7 +302,7 @@ namespace DataMigrationUsingFetchXml
             _errorIndexes.Clear();
             richTextBoxLogs.Text = null;
             LblInfo.Text = string.Empty;
-            LblErrorText.Text = string.Empty;
+            LblError.Text = string.Empty;
         }
 
         private void PictureBoxAdd_Click(object sender, EventArgs e)

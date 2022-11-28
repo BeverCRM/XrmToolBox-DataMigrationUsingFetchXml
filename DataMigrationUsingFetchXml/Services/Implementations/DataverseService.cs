@@ -5,6 +5,7 @@ using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
 using System.Collections.Generic;
+using DataMigrationUsingFetchXml.Model;
 using DataMigrationUsingFetchXml.Services.Interfaces;
 
 namespace DataMigrationUsingFetchXml.Services.Implementations
@@ -14,7 +15,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         private readonly IOrganizationService _sourceService;
         private readonly IOrganizationService _targetService;
         private readonly ILogger _logger;
-        private string pagingCookie = null;
 
         public DataverseService(IOrganizationService sourceService, IOrganizationService targetService, ILogger logger)
         {
@@ -28,24 +28,27 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             _sourceService = service;
         }
 
-        public EntityCollection GetAllRecords(string fetchQuery)
+        public IEnumerable<EntityCollection> GetAllRecords(string fetchQuery)
         {
-            string xml;
-            if (ConfigReader.ContainsTopAttribute)
+            EntityCollection returnCollection;
+            do
             {
-                xml = fetchQuery;
-            }
-            else
-            {
-                xml = ConfigReader.CreateXml(fetchQuery, pagingCookie);
-            }
-            EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
-            if (returnCollection.MoreRecords)
-            {
-                ++ConfigReader.PageNumber;
-                pagingCookie = returnCollection.PagingCookie;
-            }
-            return returnCollection;
+                string xml;
+                if (PaginationDetails.ContainsTopAttribute)
+                {
+                    xml = fetchQuery;
+                }
+                else
+                {
+                    xml = ConfigReader.CreateXml(fetchQuery, PaginationDetails.PagingCookie);
+                }
+                returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
+
+                ++PaginationDetails.PageNumber;
+                PaginationDetails.PagingCookie = returnCollection.PagingCookie;
+
+                yield return returnCollection;
+            } while (returnCollection.MoreRecords);
         }
 
         public Guid CreateRecord(Entity record, bool duplicateDetection = true)
