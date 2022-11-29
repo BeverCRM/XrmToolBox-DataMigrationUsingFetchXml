@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using DataMigrationUsingFetchXml.Model;
 using DataMigrationUsingFetchXml.Services.Interfaces;
+using System.ComponentModel;
 
 namespace DataMigrationUsingFetchXml.Services.Implementations
 {
@@ -12,7 +13,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
     {
         public List<ResultItem> ResultItems { get; set; }
         public List<string> DisplayNames { get; set; }
-        public bool KeepRunning { get; set; } = true;
 
         private string _organizationServiceUrl;
 
@@ -23,10 +23,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         private const int DUPPLICATE_RECORDS_FOUND_ERROR_CODE = -2147220685;
 
         private IDataverseService _dataverseService;
-
-        private System.Windows.Forms.Label _lblInfo;
-        private System.Windows.Forms.Label _lblTitle;
-        private System.Windows.Forms.Label _lblError;
 
         public TransferOperation(ILogger logger)
         {
@@ -39,14 +35,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             _dataverseService = new DataverseService(connectionDetails.Service, connectionDetails.AdditionalConnectionDetails[0].ServiceClient, _logger);
         }
 
-        public void SetLabel(System.Windows.Forms.Label lblInfo, System.Windows.Forms.Label lblTitle, System.Windows.Forms.Label lblError)
-        {
-            _lblInfo = lblInfo;
-            _lblTitle = lblTitle;
-            _lblError = lblError;
-        }
-
-        public void Transfer(List<string> fetchXmls, List<int> tableIndexesForTransfer)
+        public void Transfer(List<string> fetchXmls, List<int> tableIndexesForTransfer, BackgroundWorker worker, DoWorkEventArgs args)
         {
             ResultItems = new List<ResultItem>();
             int index = 0;
@@ -55,7 +44,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 ConfigReader.SetPaginationAttributes(fetchXml);
                 _resultItem = new ResultItem();
-                _lblTitle.Text = $"Migrating {DisplayNames[tableIndexesForTransfer[index]]} records";
+                
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
 
                 _logger.LogInfo("Getting data of '" + DisplayNames[tableIndexesForTransfer[index]] + "' from source instance");
@@ -63,7 +52,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
                 foreach (EntityCollection records in _dataverseService.GetAllRecords(fetchXml))
                 {
-                    _resultItem.EntityName = records.EntityName;
+                    _resultItem.DisplayName = DisplayNames[tableIndexesForTransfer[index]];
+                    _resultItem.SchemaName = records.EntityName;
                     _resultItem.SourceRecordCount += records.Entities.Count;
                     _resultItem.SourceRecordCountWithSign = _resultItem.SourceRecordCount.ToString();
                     if (records.MoreRecords)
@@ -72,27 +62,20 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     }
                     _logger.LogInfo("Records count is: " + _resultItem.SourceRecordCountWithSign);
 
-                    if (records?.Entities?.Count > 0)
+                    if (records.Entities.Count > 0)
                     {
                         foreach (Entity record in records.Entities)
                         {
-                            TransferData(record, searchAttrs, idExists);
-
-                            _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of { _resultItem.SourceRecordCountWithSign} is imported";
-                            if (_resultItem.ErroredRecordCount > 0)
+                            if (worker.CancellationPending)
                             {
-                                _lblError.Text = $"{_resultItem.ErroredRecordCount} of { _resultItem.SourceRecordCountWithSign} is errored";
-                            }
-                            if (!KeepRunning)
-                            {
-                                _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of { _resultItem.SourceRecordCountWithSign} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
-                                if (_resultItem.ErroredRecordCount > 0)
-                                {
-                                    _lblError.Text = $"{_resultItem.ErroredRecordCount} of { _resultItem.SourceRecordCountWithSign} {DisplayNames[tableIndexesForTransfer[index]]} is errored";
-                                }
                                 ResultItems.Add(_resultItem);
+
+                                args.Cancel = true;
                                 return;
                             }
+
+                            TransferData(record, searchAttrs, idExists);
+                            worker.ReportProgress(-1, _resultItem);
                         }
                     }
                     else
@@ -100,29 +83,12 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                         _logger.LogError("Records count is zero or not found");
                     }
 
-                    if (_resultItem == null)
-                    {
-                        _logger.LogError("Process Stopped. Aborting! ");
-                        break;
-                    }
                     if (!records.MoreRecords)
                     {
                         ResultItems.Add(_resultItem);
                     }
                 }
 
-                if (fetchXmls.Count == index + 1)
-                {
-                    if (_resultItem.ErroredRecordCount > 0)
-                    {
-                        _lblError.Text = $"{_resultItem.ErroredRecordCount} of { _resultItem.SourceRecordCountWithSign} {DisplayNames[tableIndexesForTransfer[index]]} is errored";
-                    }
-                    _lblInfo.Text = $"{_resultItem.SuccessfullyGeneratedRecordCount} of { _resultItem.SourceRecordCountWithSign} {DisplayNames[tableIndexesForTransfer[index]]} is imported";
-                }
-                else
-                {
-                    _lblError.Text = string.Empty;
-                }
                 index++;
             }
         }
