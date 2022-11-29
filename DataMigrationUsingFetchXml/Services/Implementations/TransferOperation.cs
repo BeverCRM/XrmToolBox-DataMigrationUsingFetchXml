@@ -20,7 +20,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private readonly ILogger _logger;
 
-        private const int ERROR_CODE = -2147220685;
+        private const int DUPPLICATE_RECORDS_FOUND_ERROR_CODE = -2147220685;
 
         private IDataverseService _dataverseService;
 
@@ -46,7 +46,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             _lblError = lblError;
         }
 
-        public void Transfer(List<string> fetchXmls, List<int> tableIndexesForTransfer, RichTextBox richTextBoxLogs)
+        public void Transfer(List<string> fetchXmls, List<int> tableIndexesForTransfer)
         {
             ResultItems = new List<ResultItem>();
             int index = 0;
@@ -150,7 +150,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             catch (FaultException<OrganizationServiceFault> ex)
             {
                 ++_resultItem.ErroredRecordCount;
-                if (ex.Detail.ErrorCode == ERROR_CODE) //DuplicateRecordsFound
+                if (ex.Detail.ErrorCode == DUPPLICATE_RECORDS_FOUND_ERROR_CODE)
                 {
                     _logger.LogError("The record was not created because a duplicate of the current record already exists.");
                 }

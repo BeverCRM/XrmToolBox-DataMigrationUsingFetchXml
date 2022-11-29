@@ -27,11 +27,7 @@ namespace DataMigrationUsingFetchXml
 
         private readonly List<string> _displayNames;
 
-        private IDataverseService _dataverseService;
-
         private readonly ITransferOperation _transferOperation;
-
-        private readonly List<int> _errorIndexes = new List<int>();
 
         private readonly string _defaultPath = Environment.CurrentDirectory;
 
@@ -42,6 +38,8 @@ namespace DataMigrationUsingFetchXml
             _transferOperation = transferOperation;
             _popup = new Popup();
             _displayNames = new List<string>();
+
+            CheckForIllegalCrossThreadCalls = false;
         }
 
         private void DataMigrationUsingFetchXmlControl_Load(object sender, EventArgs e)
@@ -191,7 +189,6 @@ namespace DataMigrationUsingFetchXml
                 if (fetchXmls.Count > 0)
                 {
                     BtnTransferData.Text = "Cancel";
-                    _errorIndexes.Clear();
                     SetLoadingDetails(true);
                     richTextBoxLogs.Text = string.Empty;
 
@@ -213,7 +210,7 @@ namespace DataMigrationUsingFetchXml
                             {
                                 ChangeToolsState(false);
                                 BtnTransferData.Enabled = true;
-                                _transferOperation.Transfer(fetchXmls, tableIndexesForTransfer, richTextBoxLogs);
+                                _transferOperation.Transfer(fetchXmls, tableIndexesForTransfer);
                             }
                             catch (Exception ex)
                             {
@@ -299,7 +296,6 @@ namespace DataMigrationUsingFetchXml
 
         private void PictureBoxRecBin_Click(object sender, EventArgs e)
         {
-            _errorIndexes.Clear();
             richTextBoxLogs.Text = null;
             LblInfo.Text = string.Empty;
             LblError.Text = string.Empty;
@@ -316,7 +312,7 @@ namespace DataMigrationUsingFetchXml
         {
             if (_popup.ShowDialog() == DialogResult.OK)
             {
-                _dataverseService = new DataverseService(Service);
+                IDataverseService dataverseService = new DataverseService(Service);
                 WorkAsync(new WorkAsyncInfo
                 {
                     Message = "Loading...",
@@ -332,7 +328,7 @@ namespace DataMigrationUsingFetchXml
                                 ChangeToolsState(true);
                                 return;
                             }
-                            (string logicalName, string displayName) = _dataverseService.GetEntityName(fetch);
+                            (string logicalName, string displayName) = dataverseService.GetEntityName(fetch);
 
                             if (rowIndex != -1)
                             {

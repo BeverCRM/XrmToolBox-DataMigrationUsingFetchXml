@@ -33,15 +33,10 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             EntityCollection returnCollection;
             do
             {
-                string xml;
-                if (PaginationDetails.ContainsTopAttribute)
-                {
-                    xml = fetchQuery;
-                }
-                else
-                {
-                    xml = ConfigReader.CreateXml(fetchQuery, PaginationDetails.PagingCookie);
-                }
+                string xml = PaginationDetails.ContainsTopAttribute
+                    ? fetchQuery
+                    : ConfigReader.CreateXml(fetchQuery, PaginationDetails.PagingCookie);
+
                 returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
 
                 ++PaginationDetails.PageNumber;
