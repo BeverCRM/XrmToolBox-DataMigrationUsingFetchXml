@@ -400,18 +400,14 @@
   <ItemGroup>
     <None Include="Resources\clearLogs.jpg" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\stopMigration.jpg" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>IF $(ConfigurationName) == Debug (
    IF NOT EXIST Plugins mkdir Plugins
-   ilmerge DataMigrationUsingFetchXml.dll Unity.Container.dll Unity.Abstractions.dll System.Runtime.CompilerServices.Unsafe.dll Microsoft.WindowsAPICodePack.Shell.dll Microsoft.WindowsAPICodePack.dll /out:DataMigrationUsingFetchXml.dll
-   xcopy "$(TargetDir)$(TargetFileName)" "$(TargetDir)Plugins\" /Y
-   xcopy "$(TargetDir)$(TargetName).pdb" "$(TargetDir)Plugins\" /Y
-)
-		</PostBuildEvent>
+   ilmerge DataMigrationUsingFetchXml.dll Unity.Container.dll Unity.Abstractions.dll System.Runtime.CompilerServices.Unsafe.dll Microsoft.WindowsAPICodePack.Shell.dll Microsoft.WindowsAPICodePack.dll /out:MDataMigrationUsingFetchXml.dll
+   move /Y MDataMigrationUsingFetchXml.dll Plugins
+   move /Y MDataMigrationUsingFetchXml.pdb Plugins
+)</PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

@@ -71,8 +71,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             // 
             // textBoxFetch
             // 
-            this.textBoxFetch.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBoxFetch.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBoxFetch.Location = new System.Drawing.Point(12, 12);
             this.textBoxFetch.Multiline = true;
