@@ -72,6 +72,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                                 args.Cancel = true;
                                 return;
                             }
+
                             TransferData(record, searchAttrs, idExists);
                             worker.ReportProgress(-1, _resultItem);
                         }

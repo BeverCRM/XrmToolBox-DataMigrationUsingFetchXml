@@ -39,7 +39,6 @@ namespace DataMigrationUsingFetchXml
             _transferOperation = transferOperation;
             _popup = new Popup();
             _displayNames = new List<string>();
-            //CheckForIllegalCrossThreadCalls = false;
         }
 
         private void DataMigrationUsingFetchXmlControl_Load(object sender, EventArgs e)
@@ -366,13 +365,7 @@ namespace DataMigrationUsingFetchXml
             {
                 IDataverseService dataverseService = new DataverseService(Service);
                 ChangeToolsState(false);
-                string fetch = _popup.GetTextBoxText();
 
-                if (rowIndex != -1 && fetch == _popup.FetchXmls[rowIndex])
-                {
-                    ChangeToolsState(true);
-                    return;
-                }
                 WorkAsync(new WorkAsyncInfo
                 {
                     Message = "Loading...",
@@ -380,34 +373,37 @@ namespace DataMigrationUsingFetchXml
                     {
                         try
                         {
+                            string fetch = _popup.GetTextBoxText();
+
+                            if (rowIndex != -1 && fetch == _popup.FetchXmls[rowIndex])
+                            {
+                                return;
+                            }
                             (string logicalName, string displayName) = dataverseService.GetEntityName(fetch);
 
-                            if (rowIndex != -1)
+                            FetchDataGridView.Invoke(new MethodInvoker(delegate
                             {
-                                _popup.FetchXmls[rowIndex] = fetch;
-                                FetchDataGridView.Invoke(new MethodInvoker(delegate
+                                if (rowIndex != -1)
                                 {
+                                    _popup.FetchXmls[rowIndex] = fetch;
                                     fetchXmlDataBindingSource[rowIndex] = new FetchXmlData()
                                     {
                                         DisplayName = displayName,
                                         SchemaName = logicalName
                                     };
-                                }));
-                                _displayNames[rowIndex] = displayName;
-                            }
-                            else
-                            {
-                                _displayNames.Add(displayName);
-                                FetchDataGridView.Invoke(new MethodInvoker(delegate
+                                    _displayNames[rowIndex] = displayName;
+                                }
+                                else
                                 {
+                                    _displayNames.Add(displayName);
                                     fetchXmlDataBindingSource.Add(new FetchXmlData()
                                     {
                                         DisplayName = displayName,
                                         SchemaName = logicalName
                                     });
-                                }));
-                                FetchDataGridView.Invoke((MethodInvoker)(() => FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[0].Value = true));
-                            }
+                                    FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[0].Value = true;
+                                }
+                            }));
                         }
                         catch (Exception ex)
                         {
