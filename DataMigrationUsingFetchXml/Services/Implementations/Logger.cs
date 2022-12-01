@@ -53,18 +53,21 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private void LogErrorToTextBox(string text)
         {
-            _richTxtBoxLogs.AppendText($"[{DateTime.Now:G}]");
-            _richTxtBoxLogs.SelectionStart = _richTxtBoxLogs.Text.Length;
-            _richTxtBoxLogs.SelectionLength = 0;
-            _richTxtBoxLogs.SelectionColor = Color.Red;
-            _richTxtBoxLogs.AppendText(" ERROR: ");
-            _richTxtBoxLogs.SelectionColor = _richTxtBoxLogs.ForeColor;
-            _richTxtBoxLogs.AppendText(text + "\n");
+            _richTxtBoxLogs.Invoke(new MethodInvoker(delegate
+            {
+                _richTxtBoxLogs.AppendText($"[{DateTime.Now:G}]");
+                _richTxtBoxLogs.SelectionStart = _richTxtBoxLogs.Text.Length;
+                _richTxtBoxLogs.SelectionLength = 0;
+                _richTxtBoxLogs.SelectionColor = Color.Red;
+                _richTxtBoxLogs.AppendText(" ERROR: ");
+                _richTxtBoxLogs.SelectionColor = _richTxtBoxLogs.ForeColor;
+                _richTxtBoxLogs.AppendText(text + "\n");
+            }));
         }
 
         private void LogToTextBox(string logText)
         {
-            _richTxtBoxLogs.AppendText(logText);
+            _richTxtBoxLogs.Invoke((MethodInvoker)(() => _richTxtBoxLogs.AppendText(logText)));
         }
 
         private void LogToFile(string logText)

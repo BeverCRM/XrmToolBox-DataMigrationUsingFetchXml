@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -38,6 +39,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>Bever.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="McTools.Xrm.Connection, Version=1.2022.10.54, Culture=neutral, PublicKeyToken=96037217801d9658, processorArchitecture=MSIL">
@@ -400,18 +404,20 @@
   <ItemGroup>
     <None Include="Resources\clearLogs.jpg" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\stopMigration.jpg" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>IF $(ConfigurationName) == Debug (
    IF NOT EXIST Plugins mkdir Plugins
-   ilmerge DataMigrationUsingFetchXml.dll Unity.Container.dll Unity.Abstractions.dll System.Runtime.CompilerServices.Unsafe.dll Microsoft.WindowsAPICodePack.Shell.dll Microsoft.WindowsAPICodePack.dll /out:DataMigrationUsingFetchXml.dll
-   xcopy "$(TargetDir)$(TargetFileName)" "$(TargetDir)Plugins\" /Y
-   xcopy "$(TargetDir)$(TargetName).pdb" "$(TargetDir)Plugins\" /Y
+   ilmerge /out:MDataMigrationUsingFetchXml.dll DataMigrationUsingFetchXml.dll Unity.Container.dll Unity.Abstractions.dll System.Runtime.CompilerServices.Unsafe.dll Microsoft.WindowsAPICodePack.Shell.dll Microsoft.WindowsAPICodePack.dll
+   move /Y MDataMigrationUsingFetchXml.dll Plugins
+   move /Y MDataMigrationUsingFetchXml.pdb Plugins
 )
-		</PostBuildEvent>
+IF $(ConfigurationName) == Release (
+   IF NOT EXIST Plugins mkdir Plugins
+   ilmerge /ndebug /out:MDataMigrationUsingFetchXml.dll DataMigrationUsingFetchXml.dll Unity.Container.dll Unity.Abstractions.dll System.Runtime.CompilerServices.Unsafe.dll Microsoft.WindowsAPICodePack.Shell.dll Microsoft.WindowsAPICodePack.dll 
+   move /Y MDataMigrationUsingFetchXml.dll Plugins
+)
+</PostBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

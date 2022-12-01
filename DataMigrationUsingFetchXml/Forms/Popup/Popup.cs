@@ -11,7 +11,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         public bool IsEdit { get; set; }
         public int EditIndex { get; set; }
         public List<string> FetchXmls { get; private set; }
-        public TextBox TextBoxFetch { get; private set; }
 
         private string _currentFetchXml;
 
@@ -19,7 +18,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         {
             InitializeComponent();
             FetchXmls = new List<string>();
-            TextBoxFetch = textBoxFetch;
             MinimumSize = new Size(350, 250);
         }
 
@@ -142,5 +140,9 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             }
             Close();
         }
+
+        public void SetTextBoxText(string text) => textBoxFetch.Text = text;
+
+        public string GetTextBoxText() => textBoxFetch.Text;
     }
 }

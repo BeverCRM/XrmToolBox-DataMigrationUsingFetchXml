@@ -1,11 +1,10 @@
 ﻿using System;
 using Microsoft.Xrm.Sdk;
 using System.ServiceModel;
-using System.Windows.Forms;
+using System.ComponentModel;
 using System.Collections.Generic;
 using DataMigrationUsingFetchXml.Model;
 using DataMigrationUsingFetchXml.Services.Interfaces;
-using System.ComponentModel;
 
 namespace DataMigrationUsingFetchXml.Services.Implementations
 {
@@ -20,9 +19,9 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private readonly ILogger _logger;
 
-        private const int DUPPLICATE_RECORDS_FOUND_ERROR_CODE = -2147220685;
-
         private IDataverseService _dataverseService;
+
+        private const int DUPPLICATE_RECORDS_FOUND_ERROR_CODE = -2_147_220_685;
 
         public TransferOperation(ILogger logger)
         {
@@ -44,7 +43,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 ConfigReader.SetPaginationAttributes(fetchXml);
                 _resultItem = new ResultItem();
-                
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
 
                 _logger.LogInfo("Getting data of '" + DisplayNames[tableIndexesForTransfer[index]] + "' from source instance");
@@ -56,6 +54,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     _resultItem.SchemaName = records.EntityName;
                     _resultItem.SourceRecordCount += records.Entities.Count;
                     _resultItem.SourceRecordCountWithSign = _resultItem.SourceRecordCount.ToString();
+
                     if (records.MoreRecords)
                     {
                         _resultItem.SourceRecordCountWithSign += '+';
@@ -88,7 +87,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                         ResultItems.Add(_resultItem);
                     }
                 }
-
                 index++;
             }
         }
@@ -98,10 +96,11 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             string primaryAttr = _dataverseService.GetEntityPrimaryField(record.LogicalName);
             string recordName = record.GetAttributeValue<string>(primaryAttr);
             string recordId = record.Id.ToString();
-            _logger.LogInfo("Record with id '" + recordId + "' and with name '" + recordName + "' is creating in target...");
 
+            _logger.LogInfo("Record with id '" + recordId + "' and with name '" + recordName + "' is creating in target...");
             Entity newRecord = new Entity(record.LogicalName);
             newRecord.Attributes.AddRange(record.Attributes);
+
             if (!idExists)
             {
                 newRecord.Attributes.Remove(newRecord.LogicalName + "id");
