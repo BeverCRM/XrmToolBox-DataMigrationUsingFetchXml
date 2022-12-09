@@ -68,12 +68,12 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                             if (worker.CancellationPending)
                             {
                                 ResultItems.Add(_resultItem);
-
                                 args.Cancel = true;
+
                                 return;
                             }
 
-                            TransferData(record, searchAttrs, idExists);
+                            TransferData(record, searchAttrs, idExists, index);
                             worker.ReportProgress(-1, _resultItem);
                         }
                     }
@@ -91,7 +91,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
         }
 
-        private void TransferData(Entity record, List<string> searchAttrs, bool idExists)
+        private void TransferData(Entity record, List<string> searchAttrs, bool idExists, int index)
         {
             string primaryAttr = _dataverseService.GetEntityPrimaryField(record.LogicalName);
             string recordName = record.GetAttributeValue<string>(primaryAttr);
@@ -108,9 +108,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             try
             {
                 _dataverseService.MapSearchAttributes(newRecord, searchAttrs);
-                Guid createdRecordId = _dataverseService.CreateRecord(newRecord, false);
+                _dataverseService.CreateRecord(newRecord, index);
                 ++_resultItem.SuccessfullyGeneratedRecordCount;
-                _logger.LogInfo($"Record is created with id {{{createdRecordId}}}");
             }
             catch (FaultException<OrganizationServiceFault> ex)
             {

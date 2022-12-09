@@ -1,4 +1,6 @@
 ﻿
+using DataMigrationUsingFetchXml.Model;
+
 namespace DataMigrationUsingFetchXml
 {
     partial class DataMigrationUsingFetchXmlControl
@@ -45,11 +47,6 @@ namespace DataMigrationUsingFetchXml
             this.LogsLabel = new System.Windows.Forms.Label();
             this.LblAddFetchXml = new System.Windows.Forms.Label();
             this.FetchDataGridView = new System.Windows.Forms.DataGridView();
-            this.CheckBox = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.displayNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.schemaNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Edit = new System.Windows.Forms.DataGridViewImageColumn();
-            this.Remove = new System.Windows.Forms.DataGridViewImageColumn();
             this.fetchXmlDataBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.richTextBoxLogs = new System.Windows.Forms.RichTextBox();
             this.LblInfo = new System.Windows.Forms.Label();
@@ -60,6 +57,13 @@ namespace DataMigrationUsingFetchXml
             this.LblLoading = new System.Windows.Forms.Label();
             this.pictureBoxRecBin = new System.Windows.Forms.PictureBox();
             this.pictureBoxAdd = new System.Windows.Forms.PictureBox();
+            this.CheckBox = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.displayNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.schemaNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MatchingCriteria = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.ActionIfMatched = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.Edit = new System.Windows.Forms.DataGridViewImageColumn();
+            this.Remove = new System.Windows.Forms.DataGridViewImageColumn();
             ((System.ComponentModel.ISupportInitialize)(this.FetchDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fetchXmlDataBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRecBin)).BeginInit();
@@ -221,6 +225,8 @@ namespace DataMigrationUsingFetchXml
             this.CheckBox,
             this.displayNameDataGridViewTextBoxColumn,
             this.schemaNameDataGridViewTextBoxColumn,
+            this.MatchingCriteria,
+            this.ActionIfMatched,
             this.Edit,
             this.Remove});
             this.FetchDataGridView.DataSource = this.fetchXmlDataBindingSource;
@@ -230,48 +236,9 @@ namespace DataMigrationUsingFetchXml
             this.FetchDataGridView.TabIndex = 30;
             this.FetchDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.FetchDataGridView_CellContentClick);
             // 
-            // CheckBox
-            // 
-            this.CheckBox.Frozen = true;
-            this.CheckBox.HeaderText = "";
-            this.CheckBox.Name = "CheckBox";
-            this.CheckBox.Width = 25;
-            // 
-            // displayNameDataGridViewTextBoxColumn
-            // 
-            this.displayNameDataGridViewTextBoxColumn.DataPropertyName = "DisplayName";
-            this.displayNameDataGridViewTextBoxColumn.HeaderText = "DisplayName";
-            this.displayNameDataGridViewTextBoxColumn.Name = "displayNameDataGridViewTextBoxColumn";
-            this.displayNameDataGridViewTextBoxColumn.ReadOnly = true;
-            this.displayNameDataGridViewTextBoxColumn.Width = 200;
-            // 
-            // schemaNameDataGridViewTextBoxColumn
-            // 
-            this.schemaNameDataGridViewTextBoxColumn.DataPropertyName = "SchemaName";
-            this.schemaNameDataGridViewTextBoxColumn.HeaderText = "SchemaName";
-            this.schemaNameDataGridViewTextBoxColumn.Name = "schemaNameDataGridViewTextBoxColumn";
-            this.schemaNameDataGridViewTextBoxColumn.ReadOnly = true;
-            this.schemaNameDataGridViewTextBoxColumn.Width = 200;
-            // 
-            // Edit
-            // 
-            this.Edit.HeaderText = "";
-            this.Edit.Image = global::DataMigrationUsingFetchXml.Properties.Resources.Edit;
-            this.Edit.Name = "Edit";
-            this.Edit.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.Edit.Width = 25;
-            // 
-            // Remove
-            // 
-            this.Remove.HeaderText = "";
-            this.Remove.Image = global::DataMigrationUsingFetchXml.Properties.Resources.Remove;
-            this.Remove.Name = "Remove";
-            this.Remove.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.Remove.Width = 25;
-            // 
             // fetchXmlDataBindingSource
             // 
-            this.fetchXmlDataBindingSource.DataSource = typeof(global::DataMigrationUsingFetchXml.Model.FetchXmlData);
+            this.fetchXmlDataBindingSource.DataSource = typeof(FetchXmlData);
             // 
             // richTextBoxLogs
             // 
@@ -377,6 +344,54 @@ namespace DataMigrationUsingFetchXml
             this.pictureBoxAdd.TabStop = false;
             this.pictureBoxAdd.Click += new System.EventHandler(this.PictureBoxAdd_Click);
             // 
+            // CheckBox
+            // 
+            this.CheckBox.Frozen = true;
+            this.CheckBox.HeaderText = "";
+            this.CheckBox.Name = "CheckBox";
+            this.CheckBox.Width = 25;
+            // 
+            // displayNameDataGridViewTextBoxColumn
+            // 
+            this.displayNameDataGridViewTextBoxColumn.DataPropertyName = "DisplayName";
+            this.displayNameDataGridViewTextBoxColumn.HeaderText = "DisplayName";
+            this.displayNameDataGridViewTextBoxColumn.Name = "displayNameDataGridViewTextBoxColumn";
+            this.displayNameDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // schemaNameDataGridViewTextBoxColumn
+            // 
+            this.schemaNameDataGridViewTextBoxColumn.DataPropertyName = "SchemaName";
+            this.schemaNameDataGridViewTextBoxColumn.HeaderText = "SchemaName";
+            this.schemaNameDataGridViewTextBoxColumn.Name = "schemaNameDataGridViewTextBoxColumn";
+            this.schemaNameDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // MatchingCriteria
+            // 
+            this.MatchingCriteria.HeaderText = "Matching Criteria";
+            this.MatchingCriteria.Name = "MatchingCriteria";
+            // 
+            // ActionIfMatched
+            // 
+            this.ActionIfMatched.HeaderText = "Action If Matched";
+            this.ActionIfMatched.Name = "ActionIfMatched";
+            this.ActionIfMatched.Text = "";
+            // 
+            // Edit
+            // 
+            this.Edit.HeaderText = "";
+            this.Edit.Image = global::DataMigrationUsingFetchXml.Properties.Resources.Edit;
+            this.Edit.Name = "Edit";
+            this.Edit.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.Edit.Width = 25;
+            // 
+            // Remove
+            // 
+            this.Remove.HeaderText = "";
+            this.Remove.Image = global::DataMigrationUsingFetchXml.Properties.Resources.Remove;
+            this.Remove.Name = "Remove";
+            this.Remove.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.Remove.Width = 25;
+            // 
             // DataMigrationUsingFetchXmlControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -444,6 +459,8 @@ namespace DataMigrationUsingFetchXml
         private System.Windows.Forms.DataGridViewCheckBoxColumn CheckBox;
         private System.Windows.Forms.DataGridViewTextBoxColumn displayNameDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn schemaNameDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewButtonColumn MatchingCriteria;
+        private System.Windows.Forms.DataGridViewButtonColumn ActionIfMatched;
         private System.Windows.Forms.DataGridViewImageColumn Edit;
         private System.Windows.Forms.DataGridViewImageColumn Remove;
     }

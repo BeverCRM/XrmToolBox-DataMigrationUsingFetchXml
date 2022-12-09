@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace DataMigrationUsingFetchXml.Forms.Popup
 {
-    internal partial class Popup : Form
+    internal partial class FetchXmlPopup : Form
     {
         public bool IsEdit { get; set; }
         public int EditIndex { get; set; }
@@ -14,7 +14,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 
         private string _currentFetchXml;
 
-        public Popup()
+        public FetchXmlPopup()
         {
             InitializeComponent();
             FetchXmls = new List<string>();

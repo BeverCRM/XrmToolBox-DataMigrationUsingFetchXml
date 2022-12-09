@@ -6,6 +6,7 @@ using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
 using System.Collections.Generic;
 using DataMigrationUsingFetchXml.Model;
+using DataMigrationUsingFetchXml.Forms.Popup;
 using DataMigrationUsingFetchXml.Services.Interfaces;
 
 namespace DataMigrationUsingFetchXml.Services.Implementations
@@ -46,16 +47,46 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             } while (returnCollection.MoreRecords);
         }
 
-        public Guid CreateRecord(Entity record, bool duplicateDetection = true)
+        public void CreateRecord(Entity record, int index)
         {
-            CreateRequest createRequest = new CreateRequest
+            Guid recordId = new Guid();
+            foreach (var item in record.Attributes.Values)
             {
-                Target = record
-            };
-            //createRequest.Parameters.Add("SuppressDuplicateDetection", duplicateDetection);
-            CreateResponse response = (CreateResponse)_targetService.Execute(createRequest);
+                if (Guid.TryParse(item.ToString(), out recordId))
+                {
+                    break;
+                }
+            }
 
-            return response.id;
+            if (MatchedAction.CheckedRadioButtonNumbers[index] == 1)
+            {
+                _targetService.Delete(record.LogicalName, recordId);
+                _logger.LogInfo($"Record is deleted with id {{{recordId}}}");
+                _targetService.Create(record);
+                _logger.LogInfo($"Record is created with id {{{recordId}}}");
+            }
+            else if (MatchedAction.CheckedRadioButtonNumbers[index] == 2)
+            {
+                UpdateRequest updateRequest = new UpdateRequest
+                {
+                    Target = record
+                };
+                _targetService.Execute(updateRequest);
+                _logger.LogInfo($"Record is updated with id {{{recordId}}}");
+            }
+            else
+            {
+                CreateRequest createRequest = new CreateRequest
+                {
+                    Target = record
+                };
+                if (MatchedAction.CheckedRadioButtonNumbers[index] == 3)
+                {
+                    createRequest.Parameters.Add("SuppressDuplicateDetection", false);
+                }
+                CreateResponse response = (CreateResponse)_targetService.Execute(createRequest);
+                _logger.LogInfo($"Record is created with id {{{response.id}}}");
+            }
         }
 
         public void MapSearchAttributes(Entity record, List<string> searchAttrs)

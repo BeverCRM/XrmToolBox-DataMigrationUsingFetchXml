@@ -22,7 +22,9 @@ namespace DataMigrationUsingFetchXml
 
         private Settings _mySettings;
 
-        private readonly Popup _popup;
+        private readonly FetchXmlPopup _fetchXmlpopup;
+        private readonly MatchingCriteria _matchingCriteria;
+        private readonly MatchedAction _matchedAction;
 
         private readonly ILogger _logger;
 
@@ -37,7 +39,9 @@ namespace DataMigrationUsingFetchXml
             InitializeComponent();
             _logger = logger;
             _transferOperation = transferOperation;
-            _popup = new Popup();
+            _fetchXmlpopup = new FetchXmlPopup();
+            _matchingCriteria = new MatchingCriteria();
+            _matchedAction = new MatchedAction();
             _displayNames = new List<string>();
         }
 
@@ -56,6 +60,8 @@ namespace DataMigrationUsingFetchXml
             TxtLogsPath.Text = _defaultPath;
             _logsPath = _defaultPath;
             richTextBoxLogs.HideSelection = false;
+
+            //CheckForIllegalCrossThreadCalls = false;
         }
 
         /// <summary>
@@ -249,7 +255,7 @@ namespace DataMigrationUsingFetchXml
             {
                 if (row.Cells[0].Value != null && row.Cells[0].Value.ToString() == "True")
                 {
-                    fetchXmls.Add(_popup.FetchXmls[row.Index]);
+                    fetchXmls.Add(_fetchXmlpopup.FetchXmls[row.Index]);
                     tableIndexesForTransfer.Add(row.Index);
                 }
             }
@@ -355,13 +361,13 @@ namespace DataMigrationUsingFetchXml
         private void PictureBoxAdd_Click(object sender, EventArgs e)
         {
             InitializeLog();
-            _popup.SetTextBoxText(string.Empty);
-            PopupDialog();
+            _fetchXmlpopup.SetTextBoxText(string.Empty);
+            FetchXmlPopupDialog();
         }
 
-        private void PopupDialog(int rowIndex = -1)
+        private void FetchXmlPopupDialog(int rowIndex = -1)
         {
-            if (_popup.ShowDialog() == DialogResult.OK)
+            if (_fetchXmlpopup.ShowDialog() == DialogResult.OK)
             {
                 IDataverseService dataverseService = new DataverseService(Service);
                 ChangeToolsState(false);
@@ -373,9 +379,9 @@ namespace DataMigrationUsingFetchXml
                     {
                         try
                         {
-                            string fetch = _popup.GetTextBoxText();
+                            string fetch = _fetchXmlpopup.GetTextBoxText();
 
-                            if (rowIndex != -1 && fetch == _popup.FetchXmls[rowIndex])
+                            if (rowIndex != -1 && fetch == _fetchXmlpopup.FetchXmls[rowIndex])
                             {
                                 return;
                             }
@@ -385,7 +391,7 @@ namespace DataMigrationUsingFetchXml
                             {
                                 if (rowIndex != -1)
                                 {
-                                    _popup.FetchXmls[rowIndex] = fetch;
+                                    _fetchXmlpopup.FetchXmls[rowIndex] = fetch;
                                     fetchXmlDataBindingSource[rowIndex] = new FetchXmlData()
                                     {
                                         DisplayName = displayName,
@@ -402,6 +408,8 @@ namespace DataMigrationUsingFetchXml
                                         SchemaName = logicalName
                                     });
                                     FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[0].Value = true;
+                                    FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[4].Value = 4;
+                                    MatchedAction.CheckedRadioButtonNumbers.Add(4);
                                 }
                             }));
                         }
@@ -409,7 +417,7 @@ namespace DataMigrationUsingFetchXml
                         {
                             if (rowIndex == -1)
                             {
-                                _popup.FetchXmls.RemoveAt(_popup.FetchXmls.Count - 1);
+                                _fetchXmlpopup.FetchXmls.RemoveAt(_fetchXmlpopup.FetchXmls.Count - 1);
                             }
                             MessageBox.Show($"{ex.Message}.", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
@@ -429,17 +437,31 @@ namespace DataMigrationUsingFetchXml
                 if (MessageBox.Show("Are you sure you want to delete this item?", "Delete Item", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     fetchXmlDataBindingSource.RemoveAt(e.RowIndex);
-                    _popup.FetchXmls.RemoveAt(e.RowIndex);
+                    _fetchXmlpopup.FetchXmls.RemoveAt(e.RowIndex);
                     _displayNames.RemoveAt(e.RowIndex);
+                    MatchedAction.CheckedRadioButtonNumbers.RemoveAt(e.RowIndex);
                 }
             }
             if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Edit")
             {
-                _popup.IsEdit = true;
-                _popup.EditIndex = e.RowIndex;
-                _popup.SetTextBoxText(_popup.FetchXmls[e.RowIndex]);
-                PopupDialog(e.RowIndex);
-                _popup.IsEdit = false;
+                _fetchXmlpopup.IsEdit = true;
+                _fetchXmlpopup.EditIndex = e.RowIndex;
+                _fetchXmlpopup.SetTextBoxText(_fetchXmlpopup.FetchXmls[e.RowIndex]);
+                FetchXmlPopupDialog(e.RowIndex);
+                _fetchXmlpopup.IsEdit = false;
+            }
+            if (FetchDataGridView.Columns[e.ColumnIndex].Name == "MatchingCriteria")
+            {
+                _matchingCriteria.ShowDialog();
+            }
+            if (FetchDataGridView.Columns[e.ColumnIndex].Name == "ActionIfMatched")
+            {
+                _matchedAction.CheckRadioButton(e.RowIndex);
+                _matchedAction.RowIndex = e.RowIndex;
+                if (_matchedAction.ShowDialog() == DialogResult.OK)
+                {
+                    FetchDataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = MatchedAction.CheckedRadioButtonNumbers[e.RowIndex];
+                }
             }
         }
 
