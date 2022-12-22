@@ -23,8 +23,8 @@ namespace DataMigrationUsingFetchXml
         private Settings _mySettings;
 
         private readonly FetchXmlPopup _fetchXmlpopup;
-        private readonly MatchingCriteria _matchingCriteria;
         private readonly MatchedAction _matchedAction;
+        private readonly MatchingCriteria _matchingCriteria;
 
         private readonly ILogger _logger;
 
@@ -386,6 +386,7 @@ namespace DataMigrationUsingFetchXml
                                 return;
                             }
                             (string logicalName, string displayName) = dataverseService.GetEntityName(fetch);
+                            _matchingCriteria.AddMatchingCriteriaDataBindingSource(fetch, rowIndex);
 
                             FetchDataGridView.Invoke(new MethodInvoker(delegate
                             {
@@ -440,6 +441,7 @@ namespace DataMigrationUsingFetchXml
                     _fetchXmlpopup.FetchXmls.RemoveAt(e.RowIndex);
                     _displayNames.RemoveAt(e.RowIndex);
                     MatchedAction.CheckedRadioButtonNumbers.RemoveAt(e.RowIndex);
+                    _matchingCriteria.RemoveMatchingCriteriaDataBindingSource(e.RowIndex);
                 }
             }
             if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Edit")
@@ -452,7 +454,11 @@ namespace DataMigrationUsingFetchXml
             }
             if (FetchDataGridView.Columns[e.ColumnIndex].Name == "MatchingCriteria")
             {
-                _matchingCriteria.ShowDialog();
+                Invoke((MethodInvoker)delegate
+                {
+                    _matchingCriteria.SetDataGridViewData(e.RowIndex);
+                    _matchingCriteria.ShowDialog();
+                });
             }
             if (FetchDataGridView.Columns[e.ColumnIndex].Name == "ActionIfMatched")
             {

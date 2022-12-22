@@ -80,7 +80,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             // 
             // BtnApply
             // 
-            this.BtnApply.Location = new System.Drawing.Point(367, 158);
+            this.BtnApply.Location = new System.Drawing.Point(286, 158);
             this.BtnApply.Name = "BtnApply";
             this.BtnApply.Size = new System.Drawing.Size(75, 23);
             this.BtnApply.TabIndex = 1;
@@ -90,7 +90,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             // 
             // BtnCancel
             // 
-            this.BtnCancel.Location = new System.Drawing.Point(286, 158);
+            this.BtnCancel.Location = new System.Drawing.Point(367, 158);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
             this.BtnCancel.TabIndex = 1;

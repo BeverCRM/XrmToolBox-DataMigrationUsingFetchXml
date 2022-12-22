@@ -51,12 +51,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         {
             Guid recordId = new Guid();
             foreach (var item in record.Attributes.Values)
-            {
                 if (Guid.TryParse(item.ToString(), out recordId))
-                {
                     break;
-                }
-            }
 
             if (MatchedAction.CheckedRadioButtonNumbers[index] == 1)
             {

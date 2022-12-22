@@ -33,6 +33,7 @@ namespace DataMigrationUsingFetchXml
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DataMigrationUsingFetchXmlControl));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.TxtLogsPath = new System.Windows.Forms.TextBox();
             this.BtnBrowseLogs = new System.Windows.Forms.Button();
             this.LblLogsPath = new System.Windows.Forms.Label();
@@ -232,6 +233,7 @@ namespace DataMigrationUsingFetchXml
             this.FetchDataGridView.DataSource = this.fetchXmlDataBindingSource;
             this.FetchDataGridView.Location = new System.Drawing.Point(23, 129);
             this.FetchDataGridView.Name = "FetchDataGridView";
+            this.FetchDataGridView.RowHeadersVisible = false;
             this.FetchDataGridView.Size = new System.Drawing.Size(518, 178);
             this.FetchDataGridView.TabIndex = 30;
             this.FetchDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.FetchDataGridView_CellContentClick);
@@ -357,6 +359,7 @@ namespace DataMigrationUsingFetchXml
             this.displayNameDataGridViewTextBoxColumn.HeaderText = "DisplayName";
             this.displayNameDataGridViewTextBoxColumn.Name = "displayNameDataGridViewTextBoxColumn";
             this.displayNameDataGridViewTextBoxColumn.ReadOnly = true;
+            this.displayNameDataGridViewTextBoxColumn.Width = 120;
             // 
             // schemaNameDataGridViewTextBoxColumn
             // 
@@ -364,11 +367,17 @@ namespace DataMigrationUsingFetchXml
             this.schemaNameDataGridViewTextBoxColumn.HeaderText = "SchemaName";
             this.schemaNameDataGridViewTextBoxColumn.Name = "schemaNameDataGridViewTextBoxColumn";
             this.schemaNameDataGridViewTextBoxColumn.ReadOnly = true;
+            this.schemaNameDataGridViewTextBoxColumn.Width = 120;
             // 
             // MatchingCriteria
             // 
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.NullValue = "Edit";
+            this.MatchingCriteria.DefaultCellStyle = dataGridViewCellStyle1;
             this.MatchingCriteria.HeaderText = "Matching Criteria";
             this.MatchingCriteria.Name = "MatchingCriteria";
+            this.MatchingCriteria.Text = "";
+            this.MatchingCriteria.ToolTipText = "Select";
             // 
             // ActionIfMatched
             // 

@@ -30,72 +30,75 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.fieldDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.criteriaDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.matchingCriteriaDataBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.matchingCriteriaDataBindingSource)).BeginInit();
+            this.BtnAdd = new System.Windows.Forms.Button();
+            this.BtnRemoveLast = new System.Windows.Forms.Button();
+            this.BtnCancel = new System.Windows.Forms.Button();
+            this.BtnApply = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // dataGridView1
+            // BtnAdd
             // 
-            this.dataGridView1.AutoGenerateColumns = false;
-            this.dataGridView1.BackgroundColor = System.Drawing.SystemColors.Control;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.fieldDataGridViewTextBoxColumn,
-            this.criteriaDataGridViewTextBoxColumn});
-            this.dataGridView1.DataSource = this.matchingCriteriaDataBindingSource;
-            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridView1.Location = new System.Drawing.Point(0, 0);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(443, 277);
-            this.dataGridView1.TabIndex = 0;
+            this.BtnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnAdd.Location = new System.Drawing.Point(327, 4);
+            this.BtnAdd.Name = "BtnAdd";
+            this.BtnAdd.Size = new System.Drawing.Size(97, 23);
+            this.BtnAdd.TabIndex = 2;
+            this.BtnAdd.Text = "Add New Row";
+            this.BtnAdd.UseVisualStyleBackColor = true;
+            this.BtnAdd.Click += new System.EventHandler(this.BtnAdd_Click);
             // 
-            // fieldDataGridViewTextBoxColumn
+            // BtnRemoveLast
             // 
-            this.fieldDataGridViewTextBoxColumn.DataPropertyName = "Field";
-            this.fieldDataGridViewTextBoxColumn.HeaderText = "Field";
-            this.fieldDataGridViewTextBoxColumn.Name = "fieldDataGridViewTextBoxColumn";
-            this.fieldDataGridViewTextBoxColumn.ReadOnly = true;
-            this.fieldDataGridViewTextBoxColumn.Width = 200;
+            this.BtnRemoveLast.Enabled = false;
+            this.BtnRemoveLast.Location = new System.Drawing.Point(327, 34);
+            this.BtnRemoveLast.Name = "BtnRemoveLast";
+            this.BtnRemoveLast.Size = new System.Drawing.Size(97, 23);
+            this.BtnRemoveLast.TabIndex = 3;
+            this.BtnRemoveLast.Text = "Remove Last";
+            this.BtnRemoveLast.UseVisualStyleBackColor = true;
+            this.BtnRemoveLast.Click += new System.EventHandler(this.BtnRemoveLast_Click);
             // 
-            // criteriaDataGridViewTextBoxColumn
+            // BtnCancel
             // 
-            this.criteriaDataGridViewTextBoxColumn.DataPropertyName = "Criteria";
-            this.criteriaDataGridViewTextBoxColumn.HeaderText = "Criteria";
-            this.criteriaDataGridViewTextBoxColumn.Name = "criteriaDataGridViewTextBoxColumn";
-            this.criteriaDataGridViewTextBoxColumn.ReadOnly = true;
-            this.criteriaDataGridViewTextBoxColumn.Width = 200;
+            this.BtnCancel.Location = new System.Drawing.Point(349, 242);
+            this.BtnCancel.Name = "BtnCancel";
+            this.BtnCancel.Size = new System.Drawing.Size(75, 23);
+            this.BtnCancel.TabIndex = 4;
+            this.BtnCancel.Text = "Cancel";
+            this.BtnCancel.UseVisualStyleBackColor = true;
+            this.BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
-            // matchingCriteriaDataBindingSource
+            // BtnApply
             // 
-            this.matchingCriteriaDataBindingSource.DataSource = typeof(MatchingCriteriaData);
+            this.BtnApply.Location = new System.Drawing.Point(268, 242);
+            this.BtnApply.Name = "BtnApply";
+            this.BtnApply.Size = new System.Drawing.Size(75, 23);
+            this.BtnApply.TabIndex = 4;
+            this.BtnApply.Text = "Apply";
+            this.BtnApply.UseVisualStyleBackColor = true;
+            this.BtnApply.Click += new System.EventHandler(this.BtnApply_Click);
             // 
             // MatchingCriteria
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(443, 277);
-            this.Controls.Add(this.dataGridView1);
+            this.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.ClientSize = new System.Drawing.Size(436, 277);
+            this.Controls.Add(this.BtnApply);
+            this.Controls.Add(this.BtnCancel);
+            this.Controls.Add(this.BtnRemoveLast);
+            this.Controls.Add(this.BtnAdd);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "MatchingCriteria";
             this.Text = "MatchingCriteria";
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.matchingCriteriaDataBindingSource)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn displayNameDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn schemaNameDataGridViewTextBoxColumn;
-        private System.Windows.Forms.BindingSource matchingCriteriaDataBindingSource;
-        private System.Windows.Forms.DataGridViewTextBoxColumn fieldDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn criteriaDataGridViewTextBoxColumn;
+        private System.Windows.Forms.Button BtnAdd;
+        private System.Windows.Forms.Button BtnRemoveLast;
+        private System.Windows.Forms.Button BtnCancel;
+        private System.Windows.Forms.Button BtnApply;
     }
 }

@@ -80,5 +80,54 @@ namespace DataMigrationUsingFetchXml.Services
 
             return doc.OuterXml;
         }
+
+        public static List<string> GetAttributesNames(string fetchXml)
+        {
+            List<string> attributeNames = new List<string>();
+            XmlNodeList nodes = GetFetchNodes(fetchXml);
+
+            foreach (XmlNode node in nodes)
+            {
+                if (node.Attributes["name"] != null)
+                {
+                    attributeNames.Add(node.Attributes["name"].Value);
+                }
+            }
+
+            return attributeNames;
+        }
+
+        private static XmlNodeList GetFetchNodes(string fetch)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(fetch);
+            return xmlDoc.DocumentElement.SelectNodes("/fetch/entity/attribute");
+        }
+
+        private static string GetEntityName(string fetch)
+        {
+            fetch = fetch.Replace(" ", string.Empty);
+            int index1 = fetch.IndexOf("<entityname=");
+            int index2 = fetch.IndexOf(">", index1);
+            int length = index2 - 3 - (index1 + 11);
+
+            return fetch.Substring(index1 + 13, length);
+        }
+
+        public static string GetFetchXmlPrimaryKey(string fetchXml)
+        {
+            XmlNodeList nodes = GetFetchNodes(fetchXml);
+            string entityName = GetEntityName(fetchXml);
+
+            foreach (XmlNode node in nodes)
+            {
+                if (node.Attributes["name"] != null && node.Attributes["name"].Value == entityName + "id")
+                {
+                    return node.Attributes["name"].Value;
+                }
+            }
+
+            return null;
+        }
     }
 }
