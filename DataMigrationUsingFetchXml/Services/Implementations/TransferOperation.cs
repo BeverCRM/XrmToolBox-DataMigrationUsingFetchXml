@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using DataMigrationUsingFetchXml.Model;
 using DataMigrationUsingFetchXml.Services.Interfaces;
+using DataMigrationUsingFetchXml.Forms.Popup;
 
 namespace DataMigrationUsingFetchXml.Services.Implementations
 {
@@ -41,50 +42,58 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
             foreach (string fetchXml in fetchXmls)
             {
-                ConfigReader.SetPaginationAttributes(fetchXml);
-                _resultItem = new ResultItem();
-                List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
-
-                _logger.LogInfo("Getting data of '" + DisplayNames[tableIndexesForTransfer[index]] + "' from source instance");
-                _logger.LogInfo("Transfering data to: " + _organizationServiceUrl);
-
-                foreach (EntityCollection records in _dataverseService.GetAllRecords(fetchXml))
+                string primaryKeyName = ConfigReader.GetFetchXmlPrimaryKey(fetchXml);
+                if (primaryKeyName == null && MatchedAction.CheckedRadioButtonNumbers[index] == 1 || MatchedAction.CheckedRadioButtonNumbers[index] == 2)
                 {
-                    _resultItem.DisplayName = DisplayNames[tableIndexesForTransfer[index]];
-                    _resultItem.SchemaName = records.EntityName;
-                    _resultItem.SourceRecordCount += records.Entities.Count;
-                    _resultItem.SourceRecordCountWithSign = _resultItem.SourceRecordCount.ToString();
+                    _logger.LogError("FetchXML must have primary key for deleting or updating.");
+                }
+                else
+                {
+                    ConfigReader.SetPaginationAttributes(fetchXml);
+                    _resultItem = new ResultItem();
+                    List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
 
-                    if (records.MoreRecords)
-                    {
-                        _resultItem.SourceRecordCountWithSign += '+';
-                    }
-                    _logger.LogInfo("Records count is: " + _resultItem.SourceRecordCountWithSign);
+                    _logger.LogInfo("Getting data of '" + DisplayNames[tableIndexesForTransfer[index]] + "' from source instance");
+                    _logger.LogInfo("Transfering data to: " + _organizationServiceUrl);
 
-                    if (records.Entities.Count > 0)
+                    foreach (EntityCollection records in _dataverseService.GetAllRecords(fetchXml))
                     {
-                        foreach (Entity record in records.Entities)
+                        _resultItem.DisplayName = DisplayNames[tableIndexesForTransfer[index]];
+                        _resultItem.SchemaName = records.EntityName;
+                        _resultItem.SourceRecordCount += records.Entities.Count;
+                        _resultItem.SourceRecordCountWithSign = _resultItem.SourceRecordCount.ToString();
+
+                        if (records.MoreRecords)
                         {
-                            if (worker.CancellationPending)
-                            {
-                                ResultItems.Add(_resultItem);
-                                args.Cancel = true;
-
-                                return;
-                            }
-
-                            TransferData(record, searchAttrs, idExists, index);
-                            worker.ReportProgress(-1, _resultItem);
+                            _resultItem.SourceRecordCountWithSign += '+';
                         }
-                    }
-                    else
-                    {
-                        _logger.LogError("Records count is zero or not found");
-                    }
+                        _logger.LogInfo("Records count is: " + _resultItem.SourceRecordCountWithSign);
 
-                    if (!records.MoreRecords)
-                    {
-                        ResultItems.Add(_resultItem);
+                        if (records.Entities.Count > 0)
+                        {
+                            foreach (Entity record in records.Entities)
+                            {
+                                if (worker.CancellationPending)
+                                {
+                                    ResultItems.Add(_resultItem);
+                                    args.Cancel = true;
+
+                                    return;
+                                }
+
+                                TransferData(record, searchAttrs, idExists, index);
+                                worker.ReportProgress(-1, _resultItem);
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogError("Records count is zero or not found");
+                        }
+
+                        if (!records.MoreRecords)
+                        {
+                            ResultItems.Add(_resultItem);
+                        }
                     }
                 }
                 index++;

@@ -32,8 +32,9 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         {
             this.BtnAdd = new System.Windows.Forms.Button();
             this.BtnRemoveLast = new System.Windows.Forms.Button();
-            this.BtnCancel = new System.Windows.Forms.Button();
+            this.BtnClearSelection = new System.Windows.Forms.Button();
             this.BtnApply = new System.Windows.Forms.Button();
+            this.BtnCancel = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // BtnAdd
@@ -58,15 +59,15 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.BtnRemoveLast.UseVisualStyleBackColor = true;
             this.BtnRemoveLast.Click += new System.EventHandler(this.BtnRemoveLast_Click);
             // 
-            // BtnCancel
+            // BtnClearSelection
             // 
-            this.BtnCancel.Location = new System.Drawing.Point(349, 242);
-            this.BtnCancel.Name = "BtnCancel";
-            this.BtnCancel.Size = new System.Drawing.Size(75, 23);
-            this.BtnCancel.TabIndex = 4;
-            this.BtnCancel.Text = "Cancel";
-            this.BtnCancel.UseVisualStyleBackColor = true;
-            this.BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
+            this.BtnClearSelection.Location = new System.Drawing.Point(327, 63);
+            this.BtnClearSelection.Name = "BtnClearSelection";
+            this.BtnClearSelection.Size = new System.Drawing.Size(97, 23);
+            this.BtnClearSelection.TabIndex = 4;
+            this.BtnClearSelection.Text = "Clear Selection";
+            this.BtnClearSelection.UseVisualStyleBackColor = true;
+            this.BtnClearSelection.Click += new System.EventHandler(this.BtnClearSelection_Click);
             // 
             // BtnApply
             // 
@@ -78,14 +79,25 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.BtnApply.UseVisualStyleBackColor = true;
             this.BtnApply.Click += new System.EventHandler(this.BtnApply_Click);
             // 
+            // BtnCancel
+            // 
+            this.BtnCancel.Location = new System.Drawing.Point(349, 242);
+            this.BtnCancel.Name = "BtnCancel";
+            this.BtnCancel.Size = new System.Drawing.Size(75, 23);
+            this.BtnCancel.TabIndex = 4;
+            this.BtnCancel.Text = "Cancel";
+            this.BtnCancel.UseVisualStyleBackColor = true;
+            this.BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
+            // 
             // MatchingCriteria
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.ClientSize = new System.Drawing.Size(436, 277);
-            this.Controls.Add(this.BtnApply);
             this.Controls.Add(this.BtnCancel);
+            this.Controls.Add(this.BtnApply);
+            this.Controls.Add(this.BtnClearSelection);
             this.Controls.Add(this.BtnRemoveLast);
             this.Controls.Add(this.BtnAdd);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
@@ -98,7 +110,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         #endregion
         private System.Windows.Forms.Button BtnAdd;
         private System.Windows.Forms.Button BtnRemoveLast;
-        private System.Windows.Forms.Button BtnCancel;
+        private System.Windows.Forms.Button BtnClearSelection;
         private System.Windows.Forms.Button BtnApply;
+        private System.Windows.Forms.Button BtnCancel;
     }
 }

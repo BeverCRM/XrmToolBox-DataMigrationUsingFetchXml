@@ -45,7 +45,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.radioButton1.Name = "radioButton1";
             this.radioButton1.Size = new System.Drawing.Size(430, 28);
             this.radioButton1.TabIndex = 1;
-            this.radioButton1.Text = "(1)Delete matched target record and create source record";
+            this.radioButton1.Text = "1.Delete matched target record and create source record";
             this.radioButton1.UseVisualStyleBackColor = true;
             // 
             // radioButton4
@@ -56,7 +56,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.radioButton4.Size = new System.Drawing.Size(430, 28);
             this.radioButton4.TabIndex = 4;
             this.radioButton4.TabStop = true;
-            this.radioButton4.Text = "(4)Don\'t create a source record";
+            this.radioButton4.Text = "4.Don\'t create a source record";
             this.radioButton4.UseVisualStyleBackColor = true;
             // 
             // radioButton2
@@ -65,7 +65,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.radioButton2.Name = "radioButton2";
             this.radioButton2.Size = new System.Drawing.Size(430, 28);
             this.radioButton2.TabIndex = 2;
-            this.radioButton2.Text = "(2)Update matched target record with source record data";
+            this.radioButton2.Text = "2.Update matched target record with source record data";
             this.radioButton2.UseVisualStyleBackColor = true;
             // 
             // radioButton3
@@ -74,8 +74,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.radioButton3.Name = "radioButton3";
             this.radioButton3.Size = new System.Drawing.Size(430, 38);
             this.radioButton3.TabIndex = 3;
-            this.radioButton3.Text = "(3)Don\'t delete matched target record and create a source record\r\n(Will error in " +
-    "case of primary key matching)";
+            this.radioButton3.Text = "3.Don\'t delete matched target record and create a source record\r\n(Will error in c" +
+    "ase of primary key matching)";
             this.radioButton3.UseVisualStyleBackColor = true;
             // 
             // BtnApply

@@ -272,6 +272,10 @@ namespace DataMigrationUsingFetchXml
                     LblError.Text = $"{lastResultItem.ErroredRecordCount} of {lastResultItem.SourceRecordCountWithSign} {lastResultItem.DisplayName} is errored";
                 }
             }
+            else
+            {
+                LblInfo.Text = string.Empty;
+            }
         }
 
         private bool CheckArgsResult(RunWorkerCompletedEventArgs args)
@@ -386,7 +390,7 @@ namespace DataMigrationUsingFetchXml
                                 return;
                             }
                             (string logicalName, string displayName) = dataverseService.GetEntityName(fetch);
-                            _matchingCriteria.AddMatchingCriteriaDataBindingSource(fetch, rowIndex);
+                            _matchingCriteria.CreateLayoutPanels(fetch, rowIndex);
 
                             FetchDataGridView.Invoke(new MethodInvoker(delegate
                             {
@@ -433,40 +437,43 @@ namespace DataMigrationUsingFetchXml
 
         private void FetchDataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Remove")
+            if (e.RowIndex != -1)
             {
-                if (MessageBox.Show("Are you sure you want to delete this item?", "Delete Item", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Remove")
                 {
-                    fetchXmlDataBindingSource.RemoveAt(e.RowIndex);
-                    _fetchXmlpopup.FetchXmls.RemoveAt(e.RowIndex);
-                    _displayNames.RemoveAt(e.RowIndex);
-                    MatchedAction.CheckedRadioButtonNumbers.RemoveAt(e.RowIndex);
-                    _matchingCriteria.RemoveMatchingCriteriaDataBindingSource(e.RowIndex);
+                    if (MessageBox.Show("Are you sure you want to delete this item?", "Delete Item", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        fetchXmlDataBindingSource.RemoveAt(e.RowIndex);
+                        _fetchXmlpopup.FetchXmls.RemoveAt(e.RowIndex);
+                        _displayNames.RemoveAt(e.RowIndex);
+                        MatchedAction.CheckedRadioButtonNumbers.RemoveAt(e.RowIndex);
+                        _matchingCriteria.RemoveLayoutPanelData(e.RowIndex);
+                    }
                 }
-            }
-            if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Edit")
-            {
-                _fetchXmlpopup.IsEdit = true;
-                _fetchXmlpopup.EditIndex = e.RowIndex;
-                _fetchXmlpopup.SetTextBoxText(_fetchXmlpopup.FetchXmls[e.RowIndex]);
-                FetchXmlPopupDialog(e.RowIndex);
-                _fetchXmlpopup.IsEdit = false;
-            }
-            if (FetchDataGridView.Columns[e.ColumnIndex].Name == "MatchingCriteria")
-            {
-                Invoke((MethodInvoker)delegate
+                if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Edit")
                 {
-                    _matchingCriteria.SetDataGridViewData(e.RowIndex);
-                    _matchingCriteria.ShowDialog();
-                });
-            }
-            if (FetchDataGridView.Columns[e.ColumnIndex].Name == "ActionIfMatched")
-            {
-                _matchedAction.CheckRadioButton(e.RowIndex);
-                _matchedAction.RowIndex = e.RowIndex;
-                if (_matchedAction.ShowDialog() == DialogResult.OK)
+                    _fetchXmlpopup.IsEdit = true;
+                    _fetchXmlpopup.EditIndex = e.RowIndex;
+                    _fetchXmlpopup.SetTextBoxText(_fetchXmlpopup.FetchXmls[e.RowIndex]);
+                    FetchXmlPopupDialog(e.RowIndex);
+                    _fetchXmlpopup.IsEdit = false;
+                }
+                if (FetchDataGridView.Columns[e.ColumnIndex].Name == "MatchingCriteria")
                 {
-                    FetchDataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = MatchedAction.CheckedRadioButtonNumbers[e.RowIndex];
+                    Invoke((MethodInvoker)delegate
+                    {
+                        _matchingCriteria.SetLayoutPanelData(e.RowIndex);
+                        _matchingCriteria.ShowDialog();
+                    });
+                }
+                if (FetchDataGridView.Columns[e.ColumnIndex].Name == "ActionIfMatched")
+                {
+                    _matchedAction.CheckRadioButton(e.RowIndex);
+                    _matchedAction.RowIndex = e.RowIndex;
+                    if (_matchedAction.ShowDialog() == DialogResult.OK)
+                    {
+                        FetchDataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = MatchedAction.CheckedRadioButtonNumbers[e.RowIndex];
+                    }
                 }
             }
         }
