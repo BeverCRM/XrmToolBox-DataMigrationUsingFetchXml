@@ -47,35 +47,42 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             } while (returnCollection.MoreRecords);
         }
 
-        public void CreateRecord(Entity record, int index)
+        public void CreateRecord(Entity record, Entity matchedTargetRecord, int index)
         {
             Guid recordId = new Guid();
             foreach (var item in record.Attributes.Values)
                 if (Guid.TryParse(item.ToString(), out recordId))
                     break;
 
-            if (MatchedAction.CheckedRadioButtonNumbers[index] == 1)
+            if (matchedTargetRecord == null)
             {
-                _targetService.Delete(record.LogicalName, recordId);
-                _logger.LogInfo($"Record is deleted with id {{{recordId}}}");
+                CreateRequest createRequest = new CreateRequest { Target = record };
+                CreateResponse response = (CreateResponse)_targetService.Execute(createRequest);
+                _logger.LogInfo($"Record is created with id {{{response.id}}}");
+            }
+            else if (MatchedAction.CheckedRadioButtonNumbers[index] == 1)
+            {
+                _targetService.Delete(matchedTargetRecord.LogicalName, matchedTargetRecord.Id);
+                _logger.LogInfo($"Record is deleted with id {{{matchedTargetRecord.Id}}}");
                 _targetService.Create(record);
                 _logger.LogInfo($"Record is created with id {{{recordId}}}");
             }
             else if (MatchedAction.CheckedRadioButtonNumbers[index] == 2)
             {
-                UpdateRequest updateRequest = new UpdateRequest
-                {
-                    Target = record
-                };
-                _targetService.Execute(updateRequest);
+                Entity newRecord = new Entity(record.LogicalName);
+                newRecord.Attributes.AddRange(record.Attributes);
+                newRecord[record.LogicalName + "id"] = matchedTargetRecord[record.LogicalName + "id"];
+                _targetService.Update(newRecord);
+                //UpdateRequest updateRequest = new UpdateRequest
+                //{
+                //    Target = newRecord
+                //};
+                //_targetService.Execute(updateRequest);
                 _logger.LogInfo($"Record is updated with id {{{recordId}}}");
             }
             else
             {
-                CreateRequest createRequest = new CreateRequest
-                {
-                    Target = record
-                };
+                CreateRequest createRequest = new CreateRequest { Target = record };
                 if (MatchedAction.CheckedRadioButtonNumbers[index] == 3)
                 {
                     createRequest.Parameters.Add("SuppressDuplicateDetection", false);
@@ -102,7 +109,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     }
                     else
                     {
-                        _logger.LogError("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name);
+                        //_logger.LogError("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name);
                         _logger.LogInfo($"Creating a new record of '{refValue.LogicalName}' with name '{refValue.Name}'...");
                     }
                 }
@@ -121,12 +128,12 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             return retrieveEntityResponse.EntityMetadata.PrimaryNameAttribute;
         }
 
-        private Entity GetRecord(string entitySchemaName, string attributeSchemaName, string attributeValue)
+        public Entity GetRecord(string entitySchemaName, string attributeSchemaName, string attributeValue)
         {
             QueryExpression query = new QueryExpression
             {
                 EntityName = entitySchemaName,
-                ColumnSet = new ColumnSet(null),
+                ColumnSet = new ColumnSet(attributeSchemaName),
                 Criteria =
                 {
                     FilterOperator = LogicalOperator.And,
