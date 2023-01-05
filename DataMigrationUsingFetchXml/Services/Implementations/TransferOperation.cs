@@ -22,8 +22,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private IDataverseService _dataverseService;
 
-        private const int DUPPLICATE_RECORDS_FOUND_ERROR_CODE = -2_147_220_685;
-
         private Entity _matchedTargetRecord;
 
         public TransferOperation(ILogger logger)
@@ -75,7 +73,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
                                 return;
                             }
-                            TransferData(record, searchAttrs, idExists, index);
+                            TransferData(record, searchAttrs, idExists, tableIndexesForTransfer[index]);
                             worker.ReportProgress(-1, _resultItem);
                         }
                     }
@@ -93,10 +91,10 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
         }
 
-        private bool CheckMatchingRecords(Entity record, int index, bool idExists, List<string> searchAttrs)
+        private bool CheckMatchingRecords(Entity record, int rowIndex, bool idExists, List<string> searchAttrs)
         {
-            List<string> attributeNames = MatchingCriteria.finalAttributeNamesResult[index];
-            List<string> logicalOperatorNames = MatchingCriteria.finalLogicalOperatorsResult[index];
+            List<string> attributeNames = MatchingCriteria.FinalAttributeNamesResult[rowIndex];
+            List<string> logicalOperatorNames = MatchingCriteria.FinalLogicalOperatorsResult[rowIndex];
 
             if (attributeNames.Count == 0 && !idExists)
             {
@@ -214,26 +212,42 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 {
                     if (record.Attributes.Contains(attributeName))
                     {
-                        int value = ((OptionSetValue)record[attributeName]).Value;
-                        _matchedTargetRecord = _dataverseService.GetRecord(record.LogicalName, attributeName, value.ToString());
-                        return _matchedTargetRecord != null;
+                        try
+                        {
+                            int value = ((OptionSetValue)record[attributeName]).Value;
+                            _matchedTargetRecord = _dataverseService.GetRecord(record.LogicalName, attributeName, value.ToString());
+                            return _matchedTargetRecord != null;
+                        }
+                        catch (Exception)//for multiselect optionSet
+                        {
+                            OptionSetValueCollection op = (OptionSetValueCollection)record[attributeName];
+                            foreach (var options in op)
+                            {
+                                _matchedTargetRecord = _dataverseService.GetRecord(record.LogicalName, attributeName, options.Value.ToString());
+                                if (_matchedTargetRecord == null)
+                                {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
                     }
                     return false;
                 }
             }
         }
 
-        private void TransferData(Entity record, List<string> searchAttrs, bool idExists, int index)
+        private void TransferData(Entity record, List<string> searchAttrs, bool idExists, int rowIndex)
         {
             string primaryAttr = _dataverseService.GetEntityPrimaryField(record.LogicalName);
             string recordName = record.GetAttributeValue<string>(primaryAttr);
-            bool checkMatchingRecords = CheckMatchingRecords(record, index, idExists, searchAttrs);
+            bool checkMatchingRecords = CheckMatchingRecords(record, rowIndex, idExists, searchAttrs);
 
             if (!checkMatchingRecords)
             {
                 _matchedTargetRecord = null;
             }
-            if (checkMatchingRecords && MatchedAction.CheckedRadioButtonNumbers[index] == 4)
+            if (checkMatchingRecords && MatchedAction.CheckedRadioButtonNumbers[rowIndex] == 3)
             {
                 ++_resultItem.ErroredRecordCount;
                 _logger.LogError("Can't create matched record.");
@@ -244,38 +258,22 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 Entity newRecord = new Entity(record.LogicalName);
                 newRecord.Attributes.AddRange(record.Attributes);
 
-                //if (!idExists)
-                //{
-                //    newRecord.Attributes.Remove(newRecord.LogicalName + "id");
-                //}
                 try
                 {
                     _dataverseService.MapSearchAttributes(newRecord, searchAttrs);
-                    _dataverseService.CreateRecord(newRecord, _matchedTargetRecord, index);
+                    _dataverseService.CreateRecord(newRecord, _matchedTargetRecord, rowIndex);
                     ++_resultItem.SuccessfullyGeneratedRecordCount;
                 }
                 catch (FaultException<OrganizationServiceFault> ex)
                 {
                     ++_resultItem.ErroredRecordCount;
-                    if (ex.Detail.ErrorCode == DUPPLICATE_RECORDS_FOUND_ERROR_CODE)
-                    {
-                        _logger.LogError("The record was not created because a duplicate of the current record already exists.");
-                    }
-                    else
-                    {
-                        _logger.LogError(ex.Message);
-                    }
+                    _logger.LogError(ex.Message);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.Message);
                 }
             }
-            //else//recordy match chi exel
-            //{
-            //    ++_resultItem.ErroredRecordCount;
-            //    _logger.LogError("This record has not been matched.");
-            //}
         }
     }
 }

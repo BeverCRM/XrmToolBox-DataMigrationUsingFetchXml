@@ -30,13 +30,13 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         private void InitializeComponent()
         {
             this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.radioButton4 = new System.Windows.Forms.RadioButton();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton3 = new System.Windows.Forms.RadioButton();
+            this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.radioButton4 = new System.Windows.Forms.RadioButton();
             this.BtnApply = new System.Windows.Forms.Button();
             this.BtnCancel = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.panel1.SuspendLayout();
+            this.MatchedActionPanel = new System.Windows.Forms.Panel();
+            this.MatchedActionPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // radioButton1
@@ -48,16 +48,14 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.radioButton1.Text = "1.Delete matched target record and create source record";
             this.radioButton1.UseVisualStyleBackColor = true;
             // 
-            // radioButton4
+            // radioButton3
             // 
-            this.radioButton4.Checked = true;
-            this.radioButton4.Location = new System.Drawing.Point(11, 115);
-            this.radioButton4.Name = "radioButton4";
-            this.radioButton4.Size = new System.Drawing.Size(430, 28);
-            this.radioButton4.TabIndex = 4;
-            this.radioButton4.TabStop = true;
-            this.radioButton4.Text = "4.Don\'t create a source record";
-            this.radioButton4.UseVisualStyleBackColor = true;
+            this.radioButton3.Location = new System.Drawing.Point(11, 71);
+            this.radioButton3.Name = "radioButton3";
+            this.radioButton3.Size = new System.Drawing.Size(430, 28);
+            this.radioButton3.TabIndex = 3;
+            this.radioButton3.Text = "3.Don\'t create a source record";
+            this.radioButton3.UseVisualStyleBackColor = true;
             // 
             // radioButton2
             // 
@@ -68,15 +66,17 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.radioButton2.Text = "2.Update matched target record with source record data";
             this.radioButton2.UseVisualStyleBackColor = true;
             // 
-            // radioButton3
+            // radioButton4
             // 
-            this.radioButton3.Location = new System.Drawing.Point(11, 71);
-            this.radioButton3.Name = "radioButton3";
-            this.radioButton3.Size = new System.Drawing.Size(430, 38);
-            this.radioButton3.TabIndex = 3;
-            this.radioButton3.Text = "3.Don\'t delete matched target record and create a source record\r\n(Will error in c" +
+            this.radioButton4.Checked = true;
+            this.radioButton4.Location = new System.Drawing.Point(11, 105);
+            this.radioButton4.Name = "radioButton4";
+            this.radioButton4.Size = new System.Drawing.Size(430, 38);
+            this.radioButton4.TabIndex = 4;
+            this.radioButton4.TabStop = true;
+            this.radioButton4.Text = "4.Don\'t delete matched target record and create a source record\r\n(Will error in c" +
     "ase of primary key matching)";
-            this.radioButton3.UseVisualStyleBackColor = true;
+            this.radioButton4.UseVisualStyleBackColor = true;
             // 
             // BtnApply
             // 
@@ -98,29 +98,29 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.BtnCancel.UseVisualStyleBackColor = true;
             this.BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
-            // panel1
+            // MatchedActionPanel
             // 
-            this.panel1.Controls.Add(this.radioButton1);
-            this.panel1.Controls.Add(this.radioButton2);
-            this.panel1.Controls.Add(this.radioButton4);
-            this.panel1.Controls.Add(this.radioButton3);
-            this.panel1.Location = new System.Drawing.Point(1, 1);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(451, 151);
-            this.panel1.TabIndex = 5;
+            this.MatchedActionPanel.Controls.Add(this.radioButton1);
+            this.MatchedActionPanel.Controls.Add(this.radioButton2);
+            this.MatchedActionPanel.Controls.Add(this.radioButton3);
+            this.MatchedActionPanel.Controls.Add(this.radioButton4);
+            this.MatchedActionPanel.Location = new System.Drawing.Point(1, 1);
+            this.MatchedActionPanel.Name = "MatchedActionPanel";
+            this.MatchedActionPanel.Size = new System.Drawing.Size(451, 151);
+            this.MatchedActionPanel.TabIndex = 5;
             // 
             // MatchedAction
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(454, 193);
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.MatchedActionPanel);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnApply);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "MatchedAction";
             this.Text = "MatchedAction";
-            this.panel1.ResumeLayout(false);
+            this.MatchedActionPanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -128,11 +128,11 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         #endregion
 
         private System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.RadioButton radioButton4;
-        private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.RadioButton radioButton3;
+        private System.Windows.Forms.RadioButton radioButton2;
+        private System.Windows.Forms.RadioButton radioButton4;
         private System.Windows.Forms.Button BtnApply;
         private System.Windows.Forms.Button BtnCancel;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel MatchedActionPanel;
     }
 }

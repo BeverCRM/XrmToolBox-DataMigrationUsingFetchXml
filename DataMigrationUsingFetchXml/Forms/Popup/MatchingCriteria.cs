@@ -6,8 +6,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 {
     public partial class MatchingCriteria : Form
     {
-        public static readonly List<List<string>> finalAttributeNamesResult = new List<List<string>>();
-        public static readonly List<List<string>> finalLogicalOperatorsResult = new List<List<string>>();
+        public static List<List<string>> FinalAttributeNamesResult { get; }
+        public static List<List<string>> FinalLogicalOperatorsResult { get; }
         private readonly List<List<string>> fetchXmlAttributesNames = new List<List<string>>();
         private readonly List<TableLayoutPanel> logicalOperatorsPanels = new List<TableLayoutPanel>();
         private readonly List<TableLayoutPanel> attributeNamesPanels = new List<TableLayoutPanel>();
@@ -18,6 +18,12 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         public MatchingCriteria()
         {
             InitializeComponent();
+        }
+
+        static MatchingCriteria()
+        {
+            FinalAttributeNamesResult = new List<List<string>>();
+            FinalLogicalOperatorsResult = new List<List<string>>();
         }
 
         private void CreateAttributeNamesPanel(int index)
@@ -98,24 +104,25 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             if (rowIndex != -1)
             {
                 primaryKeyNames.Insert(rowIndex, ConfigReader.GetFetchXmlPrimaryKey(fetchXml));
-                finalAttributeNamesResult[rowIndex].Clear();
-                finalLogicalOperatorsResult[rowIndex].Clear();
+                FinalAttributeNamesResult[rowIndex].Clear();
+                FinalLogicalOperatorsResult[rowIndex].Clear();
                 RemoveLayoutPanelData(rowIndex, true);
                 fetchXmlAttributesNames.Insert(rowIndex, ConfigReader.GetAttributesNames(fetchXml));
             }
             else
             {
                 primaryKeyNames.Add(ConfigReader.GetFetchXmlPrimaryKey(fetchXml));
-                finalAttributeNamesResult.Add(new List<string>());
-                finalLogicalOperatorsResult.Add(new List<string>());
+                FinalAttributeNamesResult.Add(new List<string>());
+                FinalLogicalOperatorsResult.Add(new List<string>());
                 fetchXmlAttributesNames.Add(ConfigReader.GetAttributesNames(fetchXml));
                 index = fetchXmlAttributesNames.Count - 1;
             }
             CreateAttributeNamesPanel(rowIndex);
             CreateDropDownTable(rowIndex);
+
             ComboBox attributeNamesBox = new ComboBox();
-            ComboBox dropDownBox = new ComboBox();
             attributeNamesBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            ComboBox dropDownBox = new ComboBox();
             dropDownBox.Size = new System.Drawing.Size(50, 50);
             dropDownBox.DropDownStyle = ComboBoxStyle.DropDownList;
             dropDownBox.Items.Add("And");
@@ -127,7 +134,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 attributeNamesBox.Items.Add(primaryKeyNames[index]);
                 attributeNamesBox.SelectedItem = primaryKeyNames[index];
                 fetchXmlAttributesNames[index].Remove(primaryKeyNames[index]);
-
                 dropDownBox.Enabled = false;
                 dropDownBox.SelectedItem = "OR";
             }
@@ -157,13 +163,13 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             fetchXmlAttributesNames.RemoveAt(rowIndex);
             if (isEdit)
             {
-                finalAttributeNamesResult[rowIndex].Clear();
-                finalLogicalOperatorsResult[rowIndex].Clear();
+                FinalAttributeNamesResult[rowIndex].Clear();
+                FinalLogicalOperatorsResult[rowIndex].Clear();
             }
             else
             {
-                finalAttributeNamesResult.RemoveAt(rowIndex);
-                finalLogicalOperatorsResult.RemoveAt(rowIndex);
+                FinalAttributeNamesResult.RemoveAt(rowIndex);
+                FinalLogicalOperatorsResult.RemoveAt(rowIndex);
             }
         }
 
@@ -371,8 +377,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         private void BtnClearSelection_Click(object sender, System.EventArgs e)
         {
             int count = attributeNamesPanels[rowIndex].RowCount - 2;
-            finalAttributeNamesResult[rowIndex].Clear();
-            finalLogicalOperatorsResult[rowIndex].Clear();
+            FinalAttributeNamesResult[rowIndex].Clear();
+            FinalLogicalOperatorsResult[rowIndex].Clear();
             Close();
             Visible = false;
 
@@ -436,8 +442,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             }
             else
             {
-                finalAttributeNamesResult[rowIndex] = attrNames;
-                finalLogicalOperatorsResult[rowIndex] = logicalOperators;
+                FinalAttributeNamesResult[rowIndex] = attrNames;
+                FinalLogicalOperatorsResult[rowIndex] = logicalOperators;
                 Close();
             }
         }
@@ -452,7 +458,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             {
                 isPrimaryKey = true;
             }
-            foreach (var item in finalAttributeNamesResult[rowIndex])
+            foreach (var item in FinalAttributeNamesResult[rowIndex])
             {
                 if (item != primaryKeyNames[rowIndex])
                 {
@@ -460,7 +466,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                     fetchXmlAttributesNames[rowIndex].Remove(item);
                 }
             }
-            foreach (var item in finalLogicalOperatorsResult[rowIndex])
+            foreach (var item in FinalLogicalOperatorsResult[rowIndex])
             {
                 if (!isPrimaryKey)
                 {

@@ -30,7 +30,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             {
                 CheckedRadioButtonNumbers[RowIndex] = 2;
             }
-            else if (radioButton3.Checked)
+            else if (radioButton4.Checked)
             {
                 CheckedRadioButtonNumbers[RowIndex] = 3;
             }
@@ -43,7 +43,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 
         public void CheckRadioButton(int index)
         {
-            foreach (RadioButton item in panel1.Controls)
+            foreach (RadioButton item in MatchedActionPanel.Controls)
             {
                 if (item.TabIndex == CheckedRadioButtonNumbers[index])
                 {

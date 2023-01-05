@@ -73,20 +73,12 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 newRecord.Attributes.AddRange(record.Attributes);
                 newRecord[record.LogicalName + "id"] = matchedTargetRecord[record.LogicalName + "id"];
                 _targetService.Update(newRecord);
-                //UpdateRequest updateRequest = new UpdateRequest
-                //{
-                //    Target = newRecord
-                //};
-                //_targetService.Execute(updateRequest);
                 _logger.LogInfo($"Record is updated with id {{{recordId}}}");
             }
             else
             {
                 CreateRequest createRequest = new CreateRequest { Target = record };
-                if (MatchedAction.CheckedRadioButtonNumbers[index] == 3)
-                {
-                    createRequest.Parameters.Add("SuppressDuplicateDetection", false);
-                }
+                createRequest.Parameters.Add("SuppressDuplicateDetection", false);
                 CreateResponse response = (CreateResponse)_targetService.Execute(createRequest);
                 _logger.LogInfo($"Record is created with id {{{response.id}}}");
             }
@@ -130,6 +122,11 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public Entity GetRecord(string entitySchemaName, string attributeSchemaName, string attributeValue)
         {
+            if (DateTime.TryParse(attributeValue, out DateTime date))
+            {
+                attributeValue = date.ToLocalTime().ToString();
+            }
+
             QueryExpression query = new QueryExpression
             {
                 EntityName = entitySchemaName,
