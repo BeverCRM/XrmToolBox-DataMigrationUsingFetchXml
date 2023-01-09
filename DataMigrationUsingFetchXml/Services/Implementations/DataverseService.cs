@@ -49,18 +49,21 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public void CreateRecord(Entity record, Entity matchedTargetRecord, int index)
         {
-            Guid recordId = new Guid();
-            foreach (var item in record.Attributes.Values)
-                if (Guid.TryParse(item.ToString(), out recordId))
-                    break;
-
             if (matchedTargetRecord == null)
             {
                 CreateRequest createRequest = new CreateRequest { Target = record };
                 CreateResponse response = (CreateResponse)_targetService.Execute(createRequest);
                 _logger.LogInfo($"Record is created with id {{{response.id}}}");
+
+                return;
             }
-            else if (MatchedAction.CheckedRadioButtonNumbers[index] == 1)
+            else
+            {
+                record[record.LogicalName + "id"] = matchedTargetRecord[matchedTargetRecord.LogicalName + "id"];
+            }
+            string recordId = record[record.LogicalName + "id"].ToString();
+
+            if (MatchedAction.CheckedRadioButtonNumbers[index] == 1)
             {
                 _targetService.Delete(matchedTargetRecord.LogicalName, matchedTargetRecord.Id);
                 _logger.LogInfo($"Record is deleted with id {{{matchedTargetRecord.Id}}}");
@@ -93,7 +96,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 if (refValue != null)
                 {
                     string primaryField = GetEntityPrimaryField(refValue.LogicalName);
-                    Entity refEntity = GetRecord(refValue.LogicalName, primaryField, refValue.Name);
+                    Entity refEntity = GetRecords(refValue.LogicalName, primaryField, refValue.Name).Entities.FirstOrDefault();
 
                     if (refEntity != null)
                     {
@@ -120,9 +123,9 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             return retrieveEntityResponse.EntityMetadata.PrimaryNameAttribute;
         }
 
-        public Entity GetRecord(string entitySchemaName, string attributeSchemaName, string attributeValue)
+        public EntityCollection GetRecords(string entitySchemaName, string attributeSchemaName, string attributeValue, int conditionOperatorNumber = 0)
         {
-            if (DateTime.TryParse(attributeValue, out DateTime date))
+            if (DateTime.TryParse(attributeValue.ToString(), out DateTime date))
             {
                 attributeValue = date.ToLocalTime().ToString();
             }
@@ -136,13 +139,40 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     FilterOperator = LogicalOperator.And,
                     Conditions =
                     {
-                        new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, attributeValue)
+                        new ConditionExpression(attributeSchemaName, (ConditionOperator)conditionOperatorNumber, attributeValue)
                     }
                 }
             };
             EntityCollection records = _targetService.RetrieveMultiple(query);
 
-            return records.Entities.FirstOrDefault();
+            return records;
+        }
+
+        public EntityCollection GetRecordsForMultiSelectOptionSet(string entitySchemaName, string attributeSchemaName, OptionSetValueCollection optionSets)
+        {
+            int[] arrVal = new int[] { };
+
+            foreach (var options in optionSets)
+            {
+                arrVal = arrVal.Concat(new int[] { options.Value }).ToArray();
+            }
+
+            QueryExpression query = new QueryExpression
+            {
+                EntityName = entitySchemaName,
+                ColumnSet = new ColumnSet(attributeSchemaName),
+                Criteria =
+                {
+                    FilterOperator = LogicalOperator.And,
+                    Conditions =
+                    {
+                        new ConditionExpression(attributeSchemaName, ConditionOperator.In, arrVal)
+                    }
+                }
+            };
+            EntityCollection records = _targetService.RetrieveMultiple(query);
+
+            return records;
         }
 
         public (string logicalName, string displayName) GetEntityName(string fetchXml)

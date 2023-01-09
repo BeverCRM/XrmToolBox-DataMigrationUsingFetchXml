@@ -30,7 +30,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             {
                 CheckedRadioButtonNumbers[RowIndex] = 2;
             }
-            else if (radioButton4.Checked)
+            else if (radioButton3.Checked)
             {
                 CheckedRadioButtonNumbers[RowIndex] = 3;
             }

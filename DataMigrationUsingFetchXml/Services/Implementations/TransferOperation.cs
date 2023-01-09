@@ -22,7 +22,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private IDataverseService _dataverseService;
 
-        private Entity _matchedTargetRecord;
+        private EntityCollection _matchedTargetRecords;
 
         public TransferOperation(ILogger logger)
         {
@@ -102,8 +102,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
             if ((attributeNames.Count == 0 || attributeNames.Count == 1) && idExists)
             {
-                _matchedTargetRecord = _dataverseService.GetRecord(record.LogicalName, record.LogicalName + "id", record.Id.ToString());
-                return _matchedTargetRecord != null;
+                _matchedTargetRecords = _dataverseService.GetRecords(record.LogicalName, record.LogicalName + "id", record.Id.ToString());
+                return _matchedTargetRecords != null;
             }
             else if (attributeNames.Count > 0)
             {
@@ -189,8 +189,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         {
             try
             {
-                _matchedTargetRecord = _dataverseService.GetRecord(record.LogicalName, attributeName, record[attributeName].ToString());
-                return _matchedTargetRecord != null;
+                _matchedTargetRecords = _dataverseService.GetRecords(record.LogicalName, attributeName, record[attributeName].ToString());
+                return _matchedTargetRecords != null;
             }
             catch (Exception)
             {
@@ -205,8 +205,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     {
                         return false;
                     }
-                    _matchedTargetRecord = _dataverseService.GetRecord(record.LogicalName, attributeName, refValue.Id.ToString());
-                    return _matchedTargetRecord != null;
+                    _matchedTargetRecords = _dataverseService.GetRecords(record.LogicalName, attributeName, refValue.Id.ToString());
+                    return _matchedTargetRecords != null;
                 }
                 catch (Exception)//for optionSet
                 {
@@ -215,21 +215,18 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                         try
                         {
                             int value = ((OptionSetValue)record[attributeName]).Value;
-                            _matchedTargetRecord = _dataverseService.GetRecord(record.LogicalName, attributeName, value.ToString());
-                            return _matchedTargetRecord != null;
+                            _matchedTargetRecords = _dataverseService.GetRecords(record.LogicalName, attributeName, value.ToString());
+                            return _matchedTargetRecords != null;
                         }
                         catch (Exception)//for multiselect optionSet
                         {
                             OptionSetValueCollection op = (OptionSetValueCollection)record[attributeName];
-                            foreach (var options in op)
+
+                            _matchedTargetRecords = _dataverseService.GetRecordsForMultiSelectOptionSet(record.LogicalName, attributeName, op);
+                            if (_matchedTargetRecords != null)
                             {
-                                _matchedTargetRecord = _dataverseService.GetRecord(record.LogicalName, attributeName, options.Value.ToString());
-                                if (_matchedTargetRecord == null)
-                                {
-                                    return false;
-                                }
+                                return true;
                             }
-                            return true;
                         }
                     }
                     return false;
@@ -245,7 +242,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
             if (!checkMatchingRecords)
             {
-                _matchedTargetRecord = null;
+                _matchedTargetRecords = null;
             }
             if (checkMatchingRecords && MatchedAction.CheckedRadioButtonNumbers[rowIndex] == 3)
             {
@@ -261,7 +258,17 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 try
                 {
                     _dataverseService.MapSearchAttributes(newRecord, searchAttrs);
-                    _dataverseService.CreateRecord(newRecord, _matchedTargetRecord, rowIndex);
+                    if (_matchedTargetRecords != null)
+                    {
+                        foreach (var _matchedTargetRecord in _matchedTargetRecords.Entities)
+                        {
+                            _dataverseService.CreateRecord(newRecord, _matchedTargetRecord, rowIndex);
+                        }
+                    }
+                    else
+                    {
+                        _dataverseService.CreateRecord(newRecord, null, rowIndex);
+                    }
                     ++_resultItem.SuccessfullyGeneratedRecordCount;
                 }
                 catch (FaultException<OrganizationServiceFault> ex)
