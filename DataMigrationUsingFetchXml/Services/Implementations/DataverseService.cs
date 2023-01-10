@@ -104,8 +104,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     }
                     else
                     {
-                        //_logger.LogError("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name);
-                        _logger.LogInfo($"Creating a new record of '{refValue.LogicalName}' with name '{refValue.Name}'...");
+                        _logger.LogError("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name);
+                        //_logger.LogInfo($"Creating a new record of '{refValue.LogicalName}' with name '{refValue.Name}'...");
                     }
                 }
             }
@@ -123,7 +123,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             return retrieveEntityResponse.EntityMetadata.PrimaryNameAttribute;
         }
 
-        public EntityCollection GetRecords(string entitySchemaName, string attributeSchemaName, string attributeValue, int conditionOperatorNumber = 0)
+        public EntityCollection GetRecords(string entitySchemaName, string attributeSchemaName, string attributeValue)
         {
             if (DateTime.TryParse(attributeValue.ToString(), out DateTime date))
             {
@@ -139,7 +139,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     FilterOperator = LogicalOperator.And,
                     Conditions =
                     {
-                        new ConditionExpression(attributeSchemaName, (ConditionOperator)conditionOperatorNumber, attributeValue)
+                        new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, attributeValue)
                     }
                 }
             };
@@ -150,11 +150,11 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public EntityCollection GetRecordsForMultiSelectOptionSet(string entitySchemaName, string attributeSchemaName, OptionSetValueCollection optionSets)
         {
-            int[] arrVal = new int[] { };
+            int[] osValues = new int[] { };
 
-            foreach (var options in optionSets)
+            foreach (var optionSet in optionSets)
             {
-                arrVal = arrVal.Concat(new int[] { options.Value }).ToArray();
+                osValues = osValues.Concat(new int[] { optionSet.Value }).ToArray();
             }
 
             QueryExpression query = new QueryExpression
@@ -166,7 +166,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     FilterOperator = LogicalOperator.And,
                     Conditions =
                     {
-                        new ConditionExpression(attributeSchemaName, ConditionOperator.In, arrVal)
+                        new ConditionExpression(attributeSchemaName, ConditionOperator.In, osValues)
                     }
                 }
             };

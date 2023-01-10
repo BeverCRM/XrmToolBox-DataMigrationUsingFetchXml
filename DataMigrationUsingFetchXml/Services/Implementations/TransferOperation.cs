@@ -240,7 +240,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             string recordName = record.GetAttributeValue<string>(primaryAttr);
             bool checkMatchingRecords = CheckMatchingRecords(record, rowIndex, idExists, searchAttrs);
 
-            if (!checkMatchingRecords)
+            if (!checkMatchingRecords || _matchedTargetRecords.Entities.Count == 0)
             {
                 _matchedTargetRecords = null;
             }

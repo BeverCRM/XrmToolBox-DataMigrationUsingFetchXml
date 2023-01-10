@@ -8,6 +8,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
     {
         public static List<List<string>> FinalAttributeNamesResult { get; }
         public static List<List<string>> FinalLogicalOperatorsResult { get; }
+
         private readonly List<List<string>> fetchXmlAttributesNames = new List<List<string>>();
         private readonly List<TableLayoutPanel> logicalOperatorsPanels = new List<TableLayoutPanel>();
         private readonly List<TableLayoutPanel> attributeNamesPanels = new List<TableLayoutPanel>();
@@ -36,7 +37,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 }
             }
 
-            TableLayoutPanel layoutPanel = new TableLayoutPanel
+            TableLayoutPanel attributeNamesPanel = new TableLayoutPanel
             {
                 AutoSize = true,
                 Location = new System.Drawing.Point(58, 2),
@@ -46,25 +47,25 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 RowCount = 2,
                 ColumnCount = 2
             };
-            layoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
-            layoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
-            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 25));
-            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 25));
-            layoutPanel.Controls.Add(new Label() { Text = "Field" }, 0, 0);
-            layoutPanel.Controls.Add(new Label() { Text = "Criteria" }, 1, 0);
+            attributeNamesPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
+            attributeNamesPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
+            attributeNamesPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 25));
+            attributeNamesPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 25));
+            attributeNamesPanel.Controls.Add(new Label() { Text = "Field" }, 0, 0);
+            attributeNamesPanel.Controls.Add(new Label() { Text = "Criteria" }, 1, 0);
 
-            Controls.Add(layoutPanel);
+            Controls.Add(attributeNamesPanel);
             if (index != -1)
             {
-                attributeNamesPanels.Insert(index, layoutPanel);
+                attributeNamesPanels.Insert(index, attributeNamesPanel);
             }
             else
             {
-                attributeNamesPanels.Add(layoutPanel);
+                attributeNamesPanels.Add(attributeNamesPanel);
             }
         }
 
-        private void CreateDropDownTable(int index)
+        private void CreateLogicalOperatorsPanel(int index)
         {
             foreach (var item in logicalOperatorsPanels)
             {
@@ -74,7 +75,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 }
             }
 
-            TableLayoutPanel dropDownPanel = new TableLayoutPanel
+            TableLayoutPanel logicalOperatorPanel = new TableLayoutPanel
             {
                 CellBorderStyle = TableLayoutPanelCellBorderStyle.Single,
                 AutoSize = true,
@@ -84,16 +85,16 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 RowCount = 1,
                 ColumnCount = 1
             };
-            dropDownPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
-            dropDownPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 25));
-            Controls.Add(dropDownPanel);
+            logicalOperatorPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
+            logicalOperatorPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 25));
+            Controls.Add(logicalOperatorPanel);
             if (index != -1)
             {
-                logicalOperatorsPanels.Insert(index, dropDownPanel);
+                logicalOperatorsPanels.Insert(index, logicalOperatorPanel);
             }
             else
             {
-                logicalOperatorsPanels.Add(dropDownPanel);
+                logicalOperatorsPanels.Add(logicalOperatorPanel);
             }
         }
 
@@ -118,15 +119,16 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 index = fetchXmlAttributesNames.Count - 1;
             }
             CreateAttributeNamesPanel(rowIndex);
-            CreateDropDownTable(rowIndex);
+            CreateLogicalOperatorsPanel(rowIndex);
 
             ComboBox attributeNamesBox = new ComboBox();
             attributeNamesBox.DropDownStyle = ComboBoxStyle.DropDownList;
-            ComboBox dropDownBox = new ComboBox();
-            dropDownBox.Size = new System.Drawing.Size(50, 50);
-            dropDownBox.DropDownStyle = ComboBoxStyle.DropDownList;
-            dropDownBox.Items.Add("And");
-            dropDownBox.Items.Add("OR");
+
+            ComboBox logicalOperatorBox = new ComboBox();
+            logicalOperatorBox.Size = new System.Drawing.Size(50, 50);
+            logicalOperatorBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            logicalOperatorBox.Items.Add("And");
+            logicalOperatorBox.Items.Add("OR");
 
             if (primaryKeyNames[index] != null)
             {
@@ -134,8 +136,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 attributeNamesBox.Items.Add(primaryKeyNames[index]);
                 attributeNamesBox.SelectedItem = primaryKeyNames[index];
                 fetchXmlAttributesNames[index].Remove(primaryKeyNames[index]);
-                dropDownBox.Enabled = false;
-                dropDownBox.SelectedItem = "OR";
+                logicalOperatorBox.Enabled = false;
+                logicalOperatorBox.SelectedItem = "OR";
             }
             else
             {
@@ -146,7 +148,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 attributeNamesBox.SelectedValueChanged += ComboBox_SelectedValueChanged;
                 attributeNamesBox.DropDown += ComboBox_DropDown;
             }
-            logicalOperatorsPanels[index].Controls.Add(dropDownBox, 0, 0);
+            logicalOperatorsPanels[index].Controls.Add(logicalOperatorBox, 0, 0);
             attributeNamesPanels[index].Controls.Add(attributeNamesBox, 0, 1);
             attributeNamesPanels[index].Controls.Add(new Label() { Text = "Exact Match" }, 1, 1);
         }
@@ -157,10 +159,10 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             int deleteIndex = Controls.Count - 2;
             Controls.RemoveAt(deleteIndex);
             Controls.RemoveAt(deleteIndex);
-
             attributeNamesPanels.RemoveAt(rowIndex);
             logicalOperatorsPanels.RemoveAt(rowIndex);
             fetchXmlAttributesNames.RemoveAt(rowIndex);
+
             if (isEdit)
             {
                 FinalAttributeNamesResult[rowIndex].Clear();
@@ -207,31 +209,31 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         {
             if (selectionName == null || (attributeNamesPanels[rowIndex].Controls[2] as ComboBox).SelectedItem != null)
             {
-                ComboBox comboBox = new ComboBox();
-                comboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+                ComboBox attributeNamesBox = new ComboBox();
+                attributeNamesBox.DropDownStyle = ComboBoxStyle.DropDownList;
 
                 foreach (var item in fetchXmlAttributesNames[rowIndex])
                 {
-                    comboBox.Items.Add(item);
+                    attributeNamesBox.Items.Add(item);
                 }
                 attributeNamesPanels[rowIndex].RowCount++;
                 attributeNamesPanels[rowIndex].Height += 25;
                 attributeNamesPanels[rowIndex].RowStyles.Add(new RowStyle(SizeType.Percent, 25));
-                attributeNamesPanels[rowIndex].Controls.Add(comboBox, 0, attributeNamesPanels[rowIndex].RowCount - 1);
+                attributeNamesPanels[rowIndex].Controls.Add(attributeNamesBox, 0, attributeNamesPanels[rowIndex].RowCount - 1);
                 attributeNamesPanels[rowIndex].Controls.Add(new Label() { Text = "Exact Match" }, 1, attributeNamesPanels[rowIndex].RowCount - 1);
                 BtnRemoveLast.Enabled = true;
-                comboBox.SelectedValueChanged += ComboBox_SelectedValueChanged;
-                comboBox.DropDown += ComboBox_DropDown;
+                attributeNamesBox.SelectedValueChanged += ComboBox_SelectedValueChanged;
+                attributeNamesBox.DropDown += ComboBox_DropDown;
 
                 if (selectionName != null)
                 {
-                    comboBox.SelectedItem = selectionName;
+                    attributeNamesBox.SelectedItem = selectionName;
                 }
             }
             else
             {
-                ComboBox comboBox = attributeNamesPanels[rowIndex].Controls[2] as ComboBox;
-                comboBox.SelectedItem = selectionName;
+                ComboBox attributeNamesBox = attributeNamesPanels[rowIndex].Controls[2] as ComboBox;
+                attributeNamesBox.SelectedItem = selectionName;
             }
         }
 
@@ -239,35 +241,36 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         {
             if (selectionName == null || (logicalOperatorsPanels[rowIndex].Controls[0] as ComboBox).SelectedItem != null)
             {
-                ComboBox dropDownBox = new ComboBox
+                ComboBox logicalOperatorBox = new ComboBox
                 {
                     Size = new System.Drawing.Size(50, 50),
                     DropDownStyle = ComboBoxStyle.DropDownList
                 };
-                dropDownBox.Items.Add("And");
-                dropDownBox.Items.Add("OR");
+                logicalOperatorBox.Items.Add("And");
+                logicalOperatorBox.Items.Add("OR");
+
                 if (selectionName != null)
                 {
-                    dropDownBox.SelectedItem = selectionName;
+                    logicalOperatorBox.SelectedItem = selectionName;
                 }
-
                 logicalOperatorsPanels[rowIndex].RowCount++;
                 logicalOperatorsPanels[rowIndex].Height += 25;
                 logicalOperatorsPanels[rowIndex].RowStyles.Add(new RowStyle(SizeType.Percent, 25));
-                logicalOperatorsPanels[rowIndex].Controls.Add(dropDownBox, 0, logicalOperatorsPanels[rowIndex].RowCount - 1);
+                logicalOperatorsPanels[rowIndex].Controls.Add(logicalOperatorBox, 0, logicalOperatorsPanels[rowIndex].RowCount - 1);
             }
             else
             {
-                ComboBox comboBox = logicalOperatorsPanels[rowIndex].Controls[0] as ComboBox;
-                comboBox.SelectedItem = selectionName;
+                ComboBox logicalOperatorBox = logicalOperatorsPanels[rowIndex].Controls[0] as ComboBox;
+                logicalOperatorBox.SelectedItem = selectionName;
             }
         }
 
         private void BtnAdd_Click(object sender, System.EventArgs e)
         {
-            ComboBox lastAttributeNames = (ComboBox)attributeNamesPanels[rowIndex].Controls[attributeNamesPanels[rowIndex].Controls.Count - 2];
-            ComboBox lastLogicalOperator = (ComboBox)logicalOperatorsPanels[rowIndex].Controls[logicalOperatorsPanels[rowIndex].Controls.Count - 1];
-            if (lastAttributeNames.SelectedItem != null && lastLogicalOperator.SelectedItem != null)
+            ComboBox lastAttributeNamesBox = (ComboBox)attributeNamesPanels[rowIndex].Controls[attributeNamesPanels[rowIndex].Controls.Count - 2];
+            ComboBox lastLogicalOperatorsBox = (ComboBox)logicalOperatorsPanels[rowIndex].Controls[logicalOperatorsPanels[rowIndex].Controls.Count - 1];
+
+            if (lastAttributeNamesBox.SelectedItem != null && lastLogicalOperatorsBox.SelectedItem != null)
             {
                 AddRowToAttributeNamesPanel();
 
@@ -310,11 +313,11 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                         fetchXmlAttributesNames[rowIndex].Add(deletedItem.SelectedItem.ToString());
                         foreach (var item in attributeNamesPanels[rowIndex].Controls)
                         {
-                            if (item is ComboBox fieldBox)
+                            if (item is ComboBox attributeNamesBox)
                             {
-                                if (!fieldBox.Items.Contains(deletedItem.SelectedItem))
+                                if (!attributeNamesBox.Items.Contains(deletedItem.SelectedItem))
                                 {
-                                    fieldBox.Items.Add(deletedItem.SelectedItem.ToString());
+                                    attributeNamesBox.Items.Add(deletedItem.SelectedItem.ToString());
                                 }
                             }
                         }
@@ -343,30 +346,31 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 
         private void ComboBox_SelectedValueChanged(object sender, System.EventArgs e)
         {
-            ComboBox comboBox = (ComboBox)sender;
-            string selectedItem = comboBox.SelectedItem.ToString();
-            int selectedIndex = attributeNamesPanels[rowIndex].Controls.IndexOf(comboBox);
+            ComboBox currentAttributeNamesBox = (ComboBox)sender;
+            string selectedItem = currentAttributeNamesBox.SelectedItem.ToString();
+            int selectedIndex = attributeNamesPanels[rowIndex].Controls.IndexOf(currentAttributeNamesBox);
             int index = 0;
 
             foreach (var item in attributeNamesPanels[rowIndex].Controls)
             {
-                if (item is ComboBox fieldBox)
+                if (item is ComboBox attributeNamesBox)
                 {
                     if (index != selectedIndex)
                     {
-                        if (fieldBox.Items.Contains(selectedItem))
+                        if (attributeNamesBox.Items.Contains(selectedItem))
                         {
-                            fieldBox.Items.Remove(selectedItem);
+                            attributeNamesBox.Items.Remove(selectedItem);
                         }
                         if (currentItem != null)
                         {
-                            fieldBox.Items.Add(currentItem);
+                            attributeNamesBox.Items.Add(currentItem);
                         }
                     }
                 }
                 index++;
             }
             fetchXmlAttributesNames[rowIndex].Remove(selectedItem);
+
             if (currentItem != null)
             {
                 fetchXmlAttributesNames[rowIndex].Add(currentItem);
@@ -386,23 +390,24 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             {
                 BtnRemoveLast_Click(sender, e);
             }
-            ComboBox fieldComboBox = (ComboBox)attributeNamesPanels[rowIndex].Controls[2];
-            ComboBox dropDownComboBox = (ComboBox)logicalOperatorsPanels[rowIndex].Controls[0];
-            if (fieldComboBox.Enabled)
+            ComboBox attributeNamesBox = (ComboBox)attributeNamesPanels[rowIndex].Controls[2];
+            ComboBox logicalOperatorBox = (ComboBox)logicalOperatorsPanels[rowIndex].Controls[0];
+
+            if (attributeNamesBox.Enabled)
             {
-                foreach (var item in fieldComboBox.Items)
+                foreach (var item in attributeNamesBox.Items)
                 {
                     if (!fetchXmlAttributesNames[rowIndex].Contains(item.ToString()))
                     {
                         fetchXmlAttributesNames[rowIndex].Add(item.ToString());
                     }
                 }
-                fieldComboBox.Items.Add(" ");
-                fieldComboBox.SelectedItem = " ";
-                fieldComboBox.Items.Remove(" ");
-                dropDownComboBox.Items.Add(" ");
-                dropDownComboBox.SelectedItem = " ";
-                dropDownComboBox.Items.Remove(" ");
+                attributeNamesBox.Items.Add(" ");
+                attributeNamesBox.SelectedItem = " ";
+                attributeNamesBox.Items.Remove(" ");
+                logicalOperatorBox.Items.Add(" ");
+                logicalOperatorBox.SelectedItem = " ";
+                logicalOperatorBox.Items.Remove(" ");
             }
         }
 
@@ -413,26 +418,28 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             List<string> logicalOperators = new List<string>();
             foreach (var item in attributeNamesPanels[rowIndex].Controls)
             {
-                if (item is ComboBox fieldBox)
+                if (item is ComboBox attributeNamesBox)
                 {
-                    attrNames.Add(fieldBox.Text);
-                    if (string.IsNullOrEmpty(fieldBox.Text))
+                    if (string.IsNullOrEmpty(attributeNamesBox.Text))
                     {
                         checkBeforeApplying = true;
+                        break;
                     }
+                    attrNames.Add(attributeNamesBox.Text);
                 }
             }
-            if (!checkBeforeApplying)
+            if (!checkBeforeApplying && attrNames.Count != 1)
             {
                 foreach (var item in logicalOperatorsPanels[rowIndex].Controls)
                 {
                     if (item is ComboBox logicalOperatorBox)
                     {
-                        logicalOperators.Add(logicalOperatorBox.Text);
                         if (string.IsNullOrEmpty(logicalOperatorBox.Text))
                         {
                             checkBeforeApplying = true;
+                            break;
                         }
+                        logicalOperators.Add(logicalOperatorBox.Text);
                     }
                 }
             }
@@ -454,6 +461,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             Visible = false;
             BtnClearSelection_Click(sender, e);
             bool isPrimaryKey = false;
+
             if (!logicalOperatorsPanels[rowIndex].Controls[0].Enabled)
             {
                 isPrimaryKey = true;

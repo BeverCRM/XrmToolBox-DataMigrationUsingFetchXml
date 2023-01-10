@@ -10,7 +10,7 @@ namespace DataMigrationUsingFetchXml.Services.Interfaces
         string GetEntityPrimaryField(string entitySchemaName);
         (string logicalName, string displayName) GetEntityName(string fetchXml);
         IEnumerable<EntityCollection> GetAllRecords(string fetchQuery);
-        EntityCollection GetRecords(string entitySchemaName, string attributeSchemaName, string attributeValue, int conditionOperatorNumber = 0);
+        EntityCollection GetRecords(string entitySchemaName, string attributeSchemaName, string attributeValue);
         EntityCollection GetRecordsForMultiSelectOptionSet(string entitySchemaName, string attributeSchemaName, OptionSetValueCollection optionSets);
     }
 }
