@@ -53,8 +53,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             attributeNamesPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 25));
             attributeNamesPanel.Controls.Add(new Label() { Text = "Field" }, 0, 0);
             attributeNamesPanel.Controls.Add(new Label() { Text = "Criteria" }, 1, 0);
-
             Controls.Add(attributeNamesPanel);
+
             if (index != -1)
             {
                 attributeNamesPanels.Insert(index, attributeNamesPanel);
@@ -156,9 +156,12 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         public void RemoveLayoutPanelData(int rowIndex, bool isEdit = false)
         {
             this.rowIndex = rowIndex;
-            int deleteIndex = Controls.Count - 2;
-            Controls.RemoveAt(deleteIndex);
-            Controls.RemoveAt(deleteIndex);
+            if (Controls.Count > 5)
+            {
+                int deleteIndex = Controls.Count - 2;
+                Controls.RemoveAt(deleteIndex);
+                Controls.RemoveAt(deleteIndex);
+            }
             attributeNamesPanels.RemoveAt(rowIndex);
             logicalOperatorsPanels.RemoveAt(rowIndex);
             fetchXmlAttributesNames.RemoveAt(rowIndex);

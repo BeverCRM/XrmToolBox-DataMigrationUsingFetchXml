@@ -47,8 +47,34 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             } while (returnCollection.MoreRecords);
         }
 
+        private void SetRecordTransactionCurrency(Entity record, string name)
+        {
+            QueryExpression query = new QueryExpression
+            {
+                EntityName = "transactioncurrency",
+                ColumnSet = new ColumnSet(true)
+            };
+            EntityCollection transactioncurrencies = _targetService.RetrieveMultiple(query);
+
+            foreach (var item in transactioncurrencies.Entities)
+            {
+                if ((item.Attributes["currencyname"] as string) == name)
+                {
+                    (record["transactioncurrencyid"] as EntityReference).Id = item.Id;
+                    return;
+                }
+            }
+            record["transactioncurrencyid"] = transactioncurrencies.Entities.FirstOrDefault().ToEntityReference();
+        }
+
         public void CreateRecord(Entity record, Entity matchedTargetRecord, int index)
         {
+            if (record.Attributes.ContainsKey("transactioncurrencyid"))
+            {
+                string currencyName = (record["transactioncurrencyid"] as EntityReference).Name;
+                SetRecordTransactionCurrency(record, currencyName);
+            }
+
             if (matchedTargetRecord == null)
             {
                 CreateRequest createRequest = new CreateRequest { Target = record };
@@ -65,7 +91,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
             if (MatchedAction.CheckedRadioButtonNumbers[index] == 1)
             {
-                _targetService.Delete(matchedTargetRecord.LogicalName, matchedTargetRecord.Id);
+                _targetService.Delete(matchedTargetRecord.LogicalName, matchedTargetRecord.Id); //??? jnjuma nor stexcuma bayc ete stexcelu vaxt errora tal recordy jnjvuma.
                 _logger.LogInfo($"Record is deleted with id {{{matchedTargetRecord.Id}}}");
                 _targetService.Create(record);
                 _logger.LogInfo($"Record is created with id {{{recordId}}}");
@@ -96,7 +122,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 if (refValue != null)
                 {
                     string primaryField = GetEntityPrimaryField(refValue.LogicalName);
-                    Entity refEntity = GetRecords(refValue.LogicalName, primaryField, refValue.Name).Entities.FirstOrDefault();
+                    Entity refEntity = GetRecord(refValue.LogicalName, primaryField, refValue.Name);
 
                     if (refEntity != null)
                     {
@@ -105,7 +131,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     else
                     {
                         _logger.LogError("Can't find the '" + refValue.LogicalName + "' entity record with name '" + refValue.Name);
-                        //_logger.LogInfo($"Creating a new record of '{refValue.LogicalName}' with name '{refValue.Name}'...");
                     }
                 }
             }
@@ -123,13 +148,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             return retrieveEntityResponse.EntityMetadata.PrimaryNameAttribute;
         }
 
-        public EntityCollection GetRecords(string entitySchemaName, string attributeSchemaName, string attributeValue)
+        public Entity GetRecord(string entitySchemaName, string attributeSchemaName, string attributeValue)
         {
-            if (DateTime.TryParse(attributeValue.ToString(), out DateTime date))
-            {
-                attributeValue = date.ToLocalTime().ToString();
-            }
-
             QueryExpression query = new QueryExpression
             {
                 EntityName = entitySchemaName,
@@ -143,33 +163,64 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     }
                 }
             };
-            EntityCollection records = _targetService.RetrieveMultiple(query);
 
-            return records;
+            return _targetService.RetrieveMultiple(query)?.Entities.FirstOrDefault();
         }
 
-        public EntityCollection GetRecordsForMultiSelectOptionSet(string entitySchemaName, string attributeSchemaName, OptionSetValueCollection optionSets)
+        public EntityCollection GetTargetMatchedRecords(Entity sourceRecord, string attributeSchemaName, string attributeType)
         {
-            int[] osValues = new int[] { };
+            FilterExpression filterExpression = new FilterExpression();
 
-            foreach (var optionSet in optionSets)
+            if (attributeType == "Double" || attributeType == "Integer" || attributeType == "String" || attributeType == "BigInt"
+                || attributeType == "Boolean" || attributeType == "EntityName" || attributeType == "Decimal" || attributeType == "Uniqueidentifier")
             {
-                osValues = osValues.Concat(new int[] { optionSet.Value }).ToArray();
+                filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, sourceRecord[attributeSchemaName].ToString()));
+            }
+            else if (attributeType == "DateTime" && DateTime.TryParse(sourceRecord[attributeSchemaName].ToString(), out DateTime date))
+            {
+                filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, date.ToLocalTime().ToString()));
+            }
+            else if (attributeType == "Lookup" || attributeType == "Customer" || attributeType == "Owner")
+            {
+                EntityReference refValue = sourceRecord.GetAttributeValue<EntityReference>(attributeSchemaName);
+                if (refValue == null)
+                {
+                    return null;
+                }
+                filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, refValue.Id.ToString()));
+            }
+            else if (attributeType == "Virtual")
+            {
+                OptionSetValueCollection optionSets = (OptionSetValueCollection)sourceRecord[attributeSchemaName];
+                int[] osValues = new int[] { };
+
+                foreach (var optionSet in optionSets)
+                {
+                    osValues = osValues.Concat(new int[] { optionSet.Value }).ToArray();
+                }
+                filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.In, osValues));
+            }
+            else if (attributeType == "Money")
+            {
+                Money money = (Money)sourceRecord[attributeSchemaName];
+
+                filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, money.Value.ToString()));
+            }
+            else if (attributeType == "Picklist" || attributeType == "Status" || attributeType == "State")
+            {
+                int value = ((OptionSetValue)sourceRecord[attributeSchemaName]).Value;
+                filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, value));
+            }
+            else
+            {
+                return null;
             }
 
-            QueryExpression query = new QueryExpression
-            {
-                EntityName = entitySchemaName,
-                ColumnSet = new ColumnSet(attributeSchemaName),
-                Criteria =
-                {
-                    FilterOperator = LogicalOperator.And,
-                    Conditions =
-                    {
-                        new ConditionExpression(attributeSchemaName, ConditionOperator.In, osValues)
-                    }
-                }
-            };
+            QueryExpression query = new QueryExpression();
+            query.EntityName = sourceRecord.LogicalName;
+            query.ColumnSet = new ColumnSet(attributeSchemaName);
+            query.Criteria.AddFilter(filterExpression);
+
             EntityCollection records = _targetService.RetrieveMultiple(query);
 
             return records;
@@ -191,6 +242,28 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             EntityMetadata AccountEntity = retrieveAccountEntityResponse.EntityMetadata;
 
             return (AccountEntity.LogicalName, AccountEntity.DisplayName.UserLocalizedLabel.Label);
+        }
+
+        public string GetAttributeType(string logicalName, string entityLogicalName)
+        {
+            try
+            {
+                var attributeRequest = new RetrieveAttributeRequest
+                {
+                    EntityLogicalName = entityLogicalName,
+                    LogicalName = logicalName,
+                    RetrieveAsIfPublished = true
+                };
+
+                var attributeResponse = (RetrieveAttributeResponse)_sourceService.Execute(attributeRequest);
+                string attributeType = attributeResponse.AttributeMetadata.AttributeType.ToString();
+
+                return attributeType;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

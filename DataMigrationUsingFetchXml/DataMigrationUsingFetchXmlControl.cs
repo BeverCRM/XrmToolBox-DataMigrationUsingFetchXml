@@ -367,6 +367,11 @@ namespace DataMigrationUsingFetchXml
             InitializeLog();
             _fetchXmlpopup.SetTextBoxText(string.Empty);
             FetchXmlPopupDialog();
+
+            if (fetchXmlDataBindingSource.Count >= 7 && FetchDataGridView.Width == 518)
+            {
+                FetchDataGridView.Width += 18;
+            }
         }
 
         private void FetchXmlPopupDialog(int rowIndex = -1)
@@ -448,6 +453,11 @@ namespace DataMigrationUsingFetchXml
                         _displayNames.RemoveAt(e.RowIndex);
                         MatchedAction.CheckedRadioButtonNumbers.RemoveAt(e.RowIndex);
                         _matchingCriteria.RemoveLayoutPanelData(e.RowIndex);
+
+                        if (fetchXmlDataBindingSource.Count < 8 && FetchDataGridView.Width > 518)
+                        {
+                            FetchDataGridView.Width -= 18;
+                        }
                     }
                 }
                 if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Edit")

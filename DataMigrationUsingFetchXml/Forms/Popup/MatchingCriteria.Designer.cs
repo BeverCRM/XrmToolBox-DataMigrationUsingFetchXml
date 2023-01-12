@@ -39,7 +39,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             // 
             // BtnAdd
             // 
-            this.BtnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnAdd.Location = new System.Drawing.Point(327, 4);
             this.BtnAdd.Name = "BtnAdd";
             this.BtnAdd.Size = new System.Drawing.Size(97, 23);
@@ -101,6 +100,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.Controls.Add(this.BtnRemoveLast);
             this.Controls.Add(this.BtnAdd);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.MaximizeBox = false;
             this.Name = "MatchingCriteria";
             this.Text = "MatchingCriteria";
             this.ResumeLayout(false);

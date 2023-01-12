@@ -118,6 +118,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnApply);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.MaximizeBox = false;
             this.Name = "MatchedAction";
             this.Text = "MatchedAction";
             this.MatchedActionPanel.ResumeLayout(false);

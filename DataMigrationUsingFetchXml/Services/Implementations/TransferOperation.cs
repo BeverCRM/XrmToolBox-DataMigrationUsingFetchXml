@@ -102,8 +102,11 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
             if ((attributeNames.Count == 0 || attributeNames.Count == 1) && idExists)
             {
-                _matchedTargetRecords = _dataverseService.GetRecords(record.LogicalName, record.LogicalName + "id", record.Id.ToString());
-                return _matchedTargetRecords != null;
+                if (!CheckRecordInTargetByAttributeType(record, record.LogicalName + "id"))
+                {
+                    return false;
+                }
+                return true;
             }
             else if (attributeNames.Count > 0)
             {
@@ -111,7 +114,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 {
                     for (int i = 0; i < attributeNames.Count; i++)
                     {
-                        if (!CheckRecordInTarget(record, attributeNames[i], searchAttrs))
+                        if (!CheckRecordInTargetByAttributeType(record, attributeNames[i]))
                         {
                             return false;
                         }
@@ -122,7 +125,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 {
                     for (int i = 0; i < attributeNames.Count; i++)
                     {
-                        if (CheckRecordInTarget(record, attributeNames[i], searchAttrs))
+                        if (CheckRecordInTargetByAttributeType(record, attributeNames[i]))
                         {
                             return true;
                         }
@@ -138,7 +141,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                         {
                             if (logicalOperatorNames[j] == "And" && checkAnd)
                             {
-                                checkAnd = CheckRecordInTarget(record, attributeNames[i], searchAttrs);
+                                checkAnd = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
                             }
                             else if (logicalOperatorNames[j] == "OR")
                             {
@@ -148,7 +151,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                                 }
                                 else
                                 {
-                                    checkAnd = CheckRecordInTarget(record, attributeNames[i], searchAttrs);
+                                    checkAnd = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
                                 }
                             }
                         }
@@ -161,7 +164,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                         {
                             if (logicalOperatorNames[j] == "OR" && !checkOr)
                             {
-                                checkOr = CheckRecordInTarget(record, attributeNames[i], searchAttrs);
+                                checkOr = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
                             }
                             else if (logicalOperatorNames[j] == "And")
                             {
@@ -171,7 +174,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                                 }
                                 else
                                 {
-                                    checkOr = CheckRecordInTarget(record, attributeNames[i], searchAttrs);
+                                    checkOr = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
                                 }
                             }
                         }
@@ -185,53 +188,18 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
         }
 
-        private bool CheckRecordInTarget(Entity record, string attributeName, List<string> searchAttrs)
+        private bool CheckRecordInTargetByAttributeType(Entity record, string attributeName)
         {
-            try
-            {
-                _matchedTargetRecords = _dataverseService.GetRecords(record.LogicalName, attributeName, record[attributeName].ToString());
-                return _matchedTargetRecords != null;
-            }
-            catch (Exception)
-            {
-                try//for lookup
-                {
-                    if (!searchAttrs.Contains(attributeName))
-                    {
-                        throw new Exception();
-                    }
-                    EntityReference refValue = record.GetAttributeValue<EntityReference>(attributeName);
-                    if (refValue == null)
-                    {
-                        return false;
-                    }
-                    _matchedTargetRecords = _dataverseService.GetRecords(record.LogicalName, attributeName, refValue.Id.ToString());
-                    return _matchedTargetRecords != null;
-                }
-                catch (Exception)//for optionSet
-                {
-                    if (record.Attributes.Contains(attributeName))
-                    {
-                        try
-                        {
-                            int value = ((OptionSetValue)record[attributeName]).Value;
-                            _matchedTargetRecords = _dataverseService.GetRecords(record.LogicalName, attributeName, value.ToString());
-                            return _matchedTargetRecords != null;
-                        }
-                        catch (Exception)//for multiselect optionSet
-                        {
-                            OptionSetValueCollection op = (OptionSetValueCollection)record[attributeName];
+            string attributeType = _dataverseService.GetAttributeType(attributeName, record.LogicalName);
+            _matchedTargetRecords = _dataverseService.GetTargetMatchedRecords(record, attributeName, attributeType);
 
-                            _matchedTargetRecords = _dataverseService.GetRecordsForMultiSelectOptionSet(record.LogicalName, attributeName, op);
-                            if (_matchedTargetRecords != null)
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
-                }
+            if (_matchedTargetRecords == null || _matchedTargetRecords.Entities.Count == 0)
+            {
+                _matchedTargetRecords = null;
+                return false;
             }
+
+            return true;
         }
 
         private void TransferData(Entity record, List<string> searchAttrs, bool idExists, int rowIndex)
@@ -240,10 +208,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             string recordName = record.GetAttributeValue<string>(primaryAttr);
             bool checkMatchingRecords = CheckMatchingRecords(record, rowIndex, idExists, searchAttrs);
 
-            if (!checkMatchingRecords || _matchedTargetRecords.Entities.Count == 0)
-            {
-                _matchedTargetRecords = null;
-            }
             if (checkMatchingRecords && MatchedAction.CheckedRadioButtonNumbers[rowIndex] == 3)
             {
                 ++_resultItem.ErroredRecordCount;
