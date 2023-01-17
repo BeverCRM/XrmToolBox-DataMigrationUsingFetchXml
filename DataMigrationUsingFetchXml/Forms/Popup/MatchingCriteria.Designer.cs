@@ -103,6 +103,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.MaximizeBox = false;
             this.Name = "MatchingCriteria";
             this.Text = "MatchingCriteria";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MatchingCriteria_FormClosing);
             this.ResumeLayout(false);
 
         }

@@ -83,15 +83,11 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
                 return;
             }
-            else
-            {
-                record[record.LogicalName + "id"] = matchedTargetRecord[matchedTargetRecord.LogicalName + "id"];
-            }
             string recordId = record[record.LogicalName + "id"].ToString();
 
             if (MatchedAction.CheckedRadioButtonNumbers[index] == 1)
             {
-                _targetService.Delete(matchedTargetRecord.LogicalName, matchedTargetRecord.Id); //??? jnjuma nor stexcuma bayc ete stexcelu vaxt errora tal recordy jnjvuma.
+                _targetService.Delete(matchedTargetRecord.LogicalName, matchedTargetRecord.Id);
                 _logger.LogInfo($"Record is deleted with id {{{matchedTargetRecord.Id}}}");
                 _targetService.Create(record);
                 _logger.LogInfo($"Record is created with id {{{recordId}}}");
@@ -215,10 +211,9 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 return null;
             }
-
             QueryExpression query = new QueryExpression();
             query.EntityName = sourceRecord.LogicalName;
-            query.ColumnSet = new ColumnSet(attributeSchemaName);
+            query.ColumnSet = new ColumnSet(true);
             query.Criteria.AddFilter(filterExpression);
 
             EntityCollection records = _targetService.RetrieveMultiple(query);

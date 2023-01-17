@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Xrm.Sdk;
 using System.ServiceModel;
 using System.ComponentModel;
@@ -91,95 +92,132 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
         }
 
-        private bool CheckMatchingRecords(Entity record, int rowIndex, bool idExists, List<string> searchAttrs)
+        private bool CheckMatchingRecords(Entity record, int rowIndex, bool idExists)
         {
             List<string> attributeNames = MatchingCriteria.FinalAttributeNamesResult[rowIndex];
             List<string> logicalOperatorNames = MatchingCriteria.FinalLogicalOperatorsResult[rowIndex];
+            EntityCollection finalMatchcdRecords = new EntityCollection();
+            EntityCollection matchcdRecords = new EntityCollection();
 
             if (attributeNames.Count == 0 && !idExists)
             {
                 return false;
             }
+
             if ((attributeNames.Count == 0 || attributeNames.Count == 1) && idExists)
             {
-                if (!CheckRecordInTargetByAttributeType(record, record.LogicalName + "id"))
-                {
-                    return false;
-                }
-                return true;
+                return CheckRecordInTargetByAttributeType(record, record.LogicalName + "id");
+            }
+            else if (attributeNames.Count == 1)
+            {
+                return CheckRecordInTargetByAttributeType(record, attributeNames[0]);
             }
             else if (attributeNames.Count > 0)
             {
-                if (!logicalOperatorNames.Contains("OR"))
+                if (logicalOperatorNames[0] == "And")
                 {
-                    for (int i = 0; i < attributeNames.Count; i++)
+                    bool checkAnd = true;
+                    for (int i = 0, j = 0; i < attributeNames.Count; i++, j = i - 1)
                     {
-                        if (!CheckRecordInTargetByAttributeType(record, attributeNames[i]))
+                        if (logicalOperatorNames[j] == "And" && checkAnd)
                         {
-                            return false;
+                            if (_matchedTargetRecords != null)
+                            {
+                                foreach (var item in _matchedTargetRecords.Entities)
+                                {
+                                    matchcdRecords.Entities.Add(item);
+                                }
+                            }
+                            checkAnd = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
+
+                            if (checkAnd && matchcdRecords.Entities.Count > 0)
+                            {
+                                foreach (var item in _matchedTargetRecords.Entities)
+                                {
+                                    Entity entity = matchcdRecords.Entities.Where(x => x.Id == item.Id).FirstOrDefault();
+                                    if (entity != null)
+                                    {
+                                        finalMatchcdRecords.Entities.Add(entity);
+                                    }
+                                }
+                                _matchedTargetRecords.Entities.Clear();
+
+                                foreach (var item in finalMatchcdRecords.Entities)
+                                {
+                                    _matchedTargetRecords.Entities.Add(item);
+                                }
+                                finalMatchcdRecords.Entities.Clear();
+                                matchcdRecords.Entities.Clear();
+                            }
                         }
-                    }
-                    return true;
-                }
-                else if (!logicalOperatorNames.Contains("And"))
-                {
-                    for (int i = 0; i < attributeNames.Count; i++)
-                    {
-                        if (CheckRecordInTargetByAttributeType(record, attributeNames[i]))
+                        else if (logicalOperatorNames[j] == "OR")
                         {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-                else
-                {
-                    if (logicalOperatorNames[0] == "And")
-                    {
-                        bool checkAnd = true;
-                        for (int i = 0, j = 0; i < attributeNames.Count; i++, j = i - 1)
-                        {
-                            if (logicalOperatorNames[j] == "And" && checkAnd)
+                            if (checkAnd)
+                            {
+                                return true;
+                            }
+                            else
                             {
                                 checkAnd = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
                             }
-                            else if (logicalOperatorNames[j] == "OR")
-                            {
-                                if (checkAnd)
-                                {
-                                    return true;
-                                }
-                                else
-                                {
-                                    checkAnd = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
-                                }
-                            }
                         }
-                        return checkAnd;
                     }
-                    else
+                    return checkAnd;
+                }
+                else
+                {
+                    bool checkOr = false;
+                    for (int i = 0, j = 0; i < attributeNames.Count; i++, j = i - 1)
                     {
-                        bool checkOr = false;
-                        for (int i = 0, j = 0; i < attributeNames.Count; i++, j = i - 1)
+                        if (logicalOperatorNames[j] == "OR" && checkOr)
                         {
-                            if (logicalOperatorNames[j] == "OR" && !checkOr)
+                            return true;
+                        }
+                        if (logicalOperatorNames[j] == "OR" && !checkOr)
+                        {
+                            checkOr = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
+
+                            if (j == logicalOperatorNames.Count - 1)
                             {
-                                checkOr = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
+                                j--;
                             }
-                            else if (logicalOperatorNames[j] == "And")
+                            if (checkOr && (logicalOperatorNames[j + 1] != "And" || i == 0))
                             {
-                                if (!checkOr)
+                                return true;
+                            }
+                        }
+                        else if (logicalOperatorNames[j] == "And")
+                        {
+                            if (checkOr)
+                            {
+                                foreach (var item in _matchedTargetRecords.Entities)
                                 {
-                                    return false;
+                                    matchcdRecords.Entities.Add(item);
                                 }
-                                else
+
+                                checkOr = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
+                                if (checkOr)
                                 {
-                                    checkOr = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
+                                    foreach (var item in _matchedTargetRecords.Entities)
+                                    {
+                                        Entity entity = matchcdRecords.Entities.Where(x => x.Id == item.Id).FirstOrDefault();
+                                        if (entity != null)
+                                        {
+                                            finalMatchcdRecords.Entities.Add(entity);
+                                        }
+                                    }
+                                    _matchedTargetRecords.Entities.Clear();
+                                    foreach (var item in finalMatchcdRecords.Entities)
+                                    {
+                                        _matchedTargetRecords.Entities.Add(item);
+                                    }
+                                    finalMatchcdRecords.Entities.Clear();
+                                    matchcdRecords.Entities.Clear();
                                 }
                             }
                         }
-                        return checkOr;
                     }
+                    return checkOr;
                 }
             }
             else
@@ -190,10 +228,18 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private bool CheckRecordInTargetByAttributeType(Entity record, string attributeName)
         {
-            string attributeType = _dataverseService.GetAttributeType(attributeName, record.LogicalName);
-            _matchedTargetRecords = _dataverseService.GetTargetMatchedRecords(record, attributeName, attributeType);
+            if (record.Attributes.Contains(attributeName))
+            {
+                string attributeType = _dataverseService.GetAttributeType(attributeName, record.LogicalName);
+                _matchedTargetRecords = _dataverseService.GetTargetMatchedRecords(record, attributeName, attributeType);
 
-            if (_matchedTargetRecords == null || _matchedTargetRecords.Entities.Count == 0)
+                if (_matchedTargetRecords.Entities.Count == 0)
+                {
+                    _matchedTargetRecords = null;
+                    return false;
+                }
+            }
+            else
             {
                 _matchedTargetRecords = null;
                 return false;
@@ -206,7 +252,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         {
             string primaryAttr = _dataverseService.GetEntityPrimaryField(record.LogicalName);
             string recordName = record.GetAttributeValue<string>(primaryAttr);
-            bool checkMatchingRecords = CheckMatchingRecords(record, rowIndex, idExists, searchAttrs);
+            bool checkMatchingRecords = CheckMatchingRecords(record, rowIndex, idExists);
 
             if (checkMatchingRecords && MatchedAction.CheckedRadioButtonNumbers[rowIndex] == 3)
             {
@@ -245,6 +291,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     _logger.LogError(ex.Message);
                 }
             }
+            _matchedTargetRecords = null;
         }
     }
 }
