@@ -55,28 +55,25 @@ namespace DataMigrationUsingFetchXml.Services
             }
         }
 
-        public static string CreateXml(string xml, string cookie)
+        public static string CreatePaginationAttributes(string xml, string cookie)
         {
-            // Load document
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(xml);
-
-            XmlAttributeCollection attrs = doc.DocumentElement.Attributes;
+            XmlAttributeCollection attributeCollection = doc.DocumentElement.Attributes;
 
             if (cookie != null)
             {
                 XmlAttribute pagingAttr = doc.CreateAttribute("paging-cookie");
                 pagingAttr.Value = cookie;
-                attrs.Append(pagingAttr);
+                attributeCollection.Append(pagingAttr);
             }
-
             XmlAttribute pageAttr = doc.CreateAttribute("page");
             pageAttr.Value = System.Convert.ToString(PaginationDetails.PageNumber);
-            attrs.Append(pageAttr);
+            attributeCollection.Append(pageAttr);
 
             XmlAttribute countAttr = doc.CreateAttribute("count");
             countAttr.Value = System.Convert.ToString(PaginationDetails.PageCount);
-            attrs.Append(countAttr);
+            attributeCollection.Append(countAttr);
 
             return doc.OuterXml;
         }
@@ -101,17 +98,17 @@ namespace DataMigrationUsingFetchXml.Services
         {
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(fetch);
+
             return xmlDoc.DocumentElement.SelectNodes("/fetch/entity/attribute");
         }
 
         private static string GetEntityName(string fetch)
         {
-            fetch = fetch.Replace(" ", string.Empty);
-            int index1 = fetch.IndexOf("<entityname=");
-            int index2 = fetch.IndexOf(">", index1);
-            int length = index2 - 3 - (index1 + 11);
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(fetch);
+            XmlNode entityTag = xmlDoc.DocumentElement.SelectSingleNode("/fetch/entity");
 
-            return fetch.Substring(index1 + 13, length);
+            return entityTag.Attributes["name"].Value;
         }
 
         public static string GetFetchXmlPrimaryKey(string fetchXml)

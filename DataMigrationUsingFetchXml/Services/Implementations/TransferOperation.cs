@@ -114,111 +114,63 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
             else if (attributeNames.Count > 0)
             {
+                bool isThereMatchingRecordInTarget = false;
                 if (logicalOperatorNames[0] == "And")
                 {
-                    bool checkAnd = true;
-                    for (int i = 0, j = 0; i < attributeNames.Count; i++, j = i - 1)
+                    isThereMatchingRecordInTarget = true;
+                }
+
+                for (int i = 0, j = 0; i < attributeNames.Count; i++, j = i - 1)
+                {
+                    if (logicalOperatorNames[j] == "And" && isThereMatchingRecordInTarget)
                     {
-                        if (logicalOperatorNames[j] == "And" && checkAnd)
+                        if (_matchedTargetRecords != null)
                         {
-                            if (_matchedTargetRecords != null)
+                            foreach (var item in _matchedTargetRecords.Entities)
                             {
-                                foreach (var item in _matchedTargetRecords.Entities)
-                                {
-                                    matchcdRecords.Entities.Add(item);
-                                }
-                            }
-                            checkAnd = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
-
-                            if (checkAnd && matchcdRecords.Entities.Count > 0)
-                            {
-                                foreach (var item in _matchedTargetRecords.Entities)
-                                {
-                                    Entity entity = matchcdRecords.Entities.Where(x => x.Id == item.Id).FirstOrDefault();
-                                    if (entity != null)
-                                    {
-                                        finalMatchcdRecords.Entities.Add(entity);
-                                    }
-                                }
-                                _matchedTargetRecords.Entities.Clear();
-
-                                foreach (var item in finalMatchcdRecords.Entities)
-                                {
-                                    _matchedTargetRecords.Entities.Add(item);
-                                }
-                                finalMatchcdRecords.Entities.Clear();
-                                matchcdRecords.Entities.Clear();
+                                matchcdRecords.Entities.Add(item);
                             }
                         }
-                        else if (logicalOperatorNames[j] == "OR")
+                        isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
+
+                        if (isThereMatchingRecordInTarget && matchcdRecords.Entities.Count > 0)
                         {
-                            if (checkAnd)
+                            foreach (var item in _matchedTargetRecords.Entities)
                             {
-                                return true;
+                                Entity entity = matchcdRecords.Entities.Where(x => x.Id == item.Id).FirstOrDefault();
+                                if (entity != null)
+                                {
+                                    finalMatchcdRecords.Entities.Add(entity);
+                                }
                             }
-                            else
+                            _matchedTargetRecords.Entities.Clear();
+
+                            foreach (var item in finalMatchcdRecords.Entities)
                             {
-                                checkAnd = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
+                                _matchedTargetRecords.Entities.Add(item);
                             }
+                            if (_matchedTargetRecords.Entities.Count == 0)
+                            {
+                                _matchedTargetRecords = null;
+                                isThereMatchingRecordInTarget = false;
+                            }
+                            finalMatchcdRecords.Entities.Clear();
+                            matchcdRecords.Entities.Clear();
                         }
                     }
-                    return checkAnd;
-                }
-                else
-                {
-                    bool checkOr = false;
-                    for (int i = 0, j = 0; i < attributeNames.Count; i++, j = i - 1)
+                    else if (logicalOperatorNames[j] == "OR")
                     {
-                        if (logicalOperatorNames[j] == "OR" && checkOr)
+                        if (isThereMatchingRecordInTarget)
                         {
                             return true;
                         }
-                        if (logicalOperatorNames[j] == "OR" && !checkOr)
+                        else
                         {
-                            checkOr = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
-
-                            if (j == logicalOperatorNames.Count - 1)
-                            {
-                                j--;
-                            }
-                            if (checkOr && (logicalOperatorNames[j + 1] != "And" || i == 0))
-                            {
-                                return true;
-                            }
-                        }
-                        else if (logicalOperatorNames[j] == "And")
-                        {
-                            if (checkOr)
-                            {
-                                foreach (var item in _matchedTargetRecords.Entities)
-                                {
-                                    matchcdRecords.Entities.Add(item);
-                                }
-
-                                checkOr = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
-                                if (checkOr)
-                                {
-                                    foreach (var item in _matchedTargetRecords.Entities)
-                                    {
-                                        Entity entity = matchcdRecords.Entities.Where(x => x.Id == item.Id).FirstOrDefault();
-                                        if (entity != null)
-                                        {
-                                            finalMatchcdRecords.Entities.Add(entity);
-                                        }
-                                    }
-                                    _matchedTargetRecords.Entities.Clear();
-                                    foreach (var item in finalMatchcdRecords.Entities)
-                                    {
-                                        _matchedTargetRecords.Entities.Add(item);
-                                    }
-                                    finalMatchcdRecords.Entities.Clear();
-                                    matchcdRecords.Entities.Clear();
-                                }
-                            }
+                            isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
                         }
                     }
-                    return checkOr;
                 }
+                return isThereMatchingRecordInTarget;
             }
             else
             {
@@ -233,19 +185,16 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 string attributeType = _dataverseService.GetAttributeType(attributeName, record.LogicalName);
                 _matchedTargetRecords = _dataverseService.GetTargetMatchedRecords(record, attributeName, attributeType);
 
-                if (_matchedTargetRecords.Entities.Count == 0)
+                if (_matchedTargetRecords.Entities.Count == 0 || _matchedTargetRecords == null)
                 {
                     _matchedTargetRecords = null;
                     return false;
                 }
-            }
-            else
-            {
-                _matchedTargetRecords = null;
-                return false;
+
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         private void TransferData(Entity record, List<string> searchAttrs, bool idExists, int rowIndex)
@@ -272,12 +221,12 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     {
                         foreach (var _matchedTargetRecord in _matchedTargetRecords.Entities)
                         {
-                            _dataverseService.CreateRecord(newRecord, _matchedTargetRecord, rowIndex);
+                            _dataverseService.CreateMatchedRecordInTarget(newRecord, _matchedTargetRecord, rowIndex);
                         }
                     }
                     else
                     {
-                        _dataverseService.CreateRecord(newRecord, null, rowIndex);
+                        _dataverseService.CreateMatchedRecordInTarget(newRecord, null, rowIndex);
                     }
                     ++_resultItem.SuccessfullyGeneratedRecordCount;
                 }

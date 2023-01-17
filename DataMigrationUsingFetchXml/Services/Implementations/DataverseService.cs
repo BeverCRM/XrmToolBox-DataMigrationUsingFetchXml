@@ -36,7 +36,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 string xml = PaginationDetails.ContainsTopAttribute
                     ? fetchQuery
-                    : ConfigReader.CreateXml(fetchQuery, PaginationDetails.PagingCookie);
+                    : ConfigReader.CreatePaginationAttributes(fetchQuery, PaginationDetails.PagingCookie);
 
                 returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
 
@@ -47,33 +47,35 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             } while (returnCollection.MoreRecords);
         }
 
-        private void SetRecordTransactionCurrency(Entity record, string name)
-        {
-            QueryExpression query = new QueryExpression
-            {
-                EntityName = "transactioncurrency",
-                ColumnSet = new ColumnSet(true)
-            };
-            EntityCollection transactioncurrencies = _targetService.RetrieveMultiple(query);
-
-            foreach (var item in transactioncurrencies.Entities)
-            {
-                if ((item.Attributes["currencyname"] as string) == name)
-                {
-                    (record["transactioncurrencyid"] as EntityReference).Id = item.Id;
-                    return;
-                }
-            }
-            record["transactioncurrencyid"] = transactioncurrencies.Entities.FirstOrDefault().ToEntityReference();
-        }
-
-        public void CreateRecord(Entity record, Entity matchedTargetRecord, int index)
+        private void SetRecordTransactionCurrency(Entity record)
         {
             if (record.Attributes.ContainsKey("transactioncurrencyid"))
             {
                 string currencyName = (record["transactioncurrencyid"] as EntityReference).Name;
-                SetRecordTransactionCurrency(record, currencyName);
+
+                QueryExpression query = new QueryExpression
+                {
+                    EntityName = "transactioncurrency",
+                    ColumnSet = new ColumnSet(true)
+                };
+                EntityCollection transactioncurrencies = _targetService.RetrieveMultiple(query);
+
+                foreach (var item in transactioncurrencies.Entities)
+                {
+                    if ((item.Attributes["currencyname"] as string) == currencyName)
+                    {
+                        (record["transactioncurrencyid"] as EntityReference).Id = item.Id;
+                        return;
+                    }
+                }
+                record["transactioncurrencyid"] = transactioncurrencies.Entities.FirstOrDefault().ToEntityReference();
             }
+        }
+
+        public void CreateMatchedRecordInTarget(Entity record, Entity matchedTargetRecord, int index)
+        {
+            SetRecordTransactionCurrency(record);
+            string recordId = record[record.LogicalName + "id"].ToString();
 
             if (matchedTargetRecord == null)
             {
@@ -83,7 +85,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
                 return;
             }
-            string recordId = record[record.LogicalName + "id"].ToString();
 
             if (MatchedAction.CheckedRadioButtonNumbers[index] == 1)
             {
@@ -216,9 +217,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             query.ColumnSet = new ColumnSet(true);
             query.Criteria.AddFilter(filterExpression);
 
-            EntityCollection records = _targetService.RetrieveMultiple(query);
-
-            return records;
+            return _targetService.RetrieveMultiple(query);
         }
 
         public (string logicalName, string displayName) GetEntityName(string fetchXml)
@@ -249,11 +248,9 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     LogicalName = logicalName,
                     RetrieveAsIfPublished = true
                 };
-
                 var attributeResponse = (RetrieveAttributeResponse)_sourceService.Execute(attributeRequest);
-                string attributeType = attributeResponse.AttributeMetadata.AttributeType.ToString();
 
-                return attributeType;
+                return attributeResponse.AttributeMetadata.AttributeType.ToString();
             }
             catch (Exception)
             {

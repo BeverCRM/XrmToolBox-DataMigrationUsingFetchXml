@@ -118,6 +118,9 @@ namespace DataMigrationUsingFetchXml
                     LblTarget.Visible = true;
                     LblTargetText.Visible = true;
                     break;
+
+                default:
+                    throw new ArgumentException("Invalid input parameter.", nameof(serviceType));
             }
         }
 

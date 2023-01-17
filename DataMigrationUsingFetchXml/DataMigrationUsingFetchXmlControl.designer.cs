@@ -76,11 +76,11 @@ namespace DataMigrationUsingFetchXml
             this.TxtLogsPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtLogsPath.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.TxtLogsPath.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TxtLogsPath.Location = new System.Drawing.Point(1108, 130);
+            this.TxtLogsPath.Location = new System.Drawing.Point(1108, 131);
             this.TxtLogsPath.MaxLength = 500;
             this.TxtLogsPath.Multiline = true;
             this.TxtLogsPath.Name = "TxtLogsPath";
-            this.TxtLogsPath.Size = new System.Drawing.Size(439, 25);
+            this.TxtLogsPath.Size = new System.Drawing.Size(439, 30);
             this.TxtLogsPath.TabIndex = 5;
             this.TxtLogsPath.Leave += new System.EventHandler(this.TxtLogsPathLeave);
             // 
@@ -89,9 +89,9 @@ namespace DataMigrationUsingFetchXml
             this.BtnBrowseLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnBrowseLogs.Cursor = System.Windows.Forms.Cursors.Hand;
             this.BtnBrowseLogs.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnBrowseLogs.Location = new System.Drawing.Point(1027, 130);
+            this.BtnBrowseLogs.Location = new System.Drawing.Point(1027, 131);
             this.BtnBrowseLogs.Name = "BtnBrowseLogs";
-            this.BtnBrowseLogs.Size = new System.Drawing.Size(75, 25);
+            this.BtnBrowseLogs.Size = new System.Drawing.Size(75, 30);
             this.BtnBrowseLogs.TabIndex = 6;
             this.BtnBrowseLogs.Text = "Browse";
             this.BtnBrowseLogs.UseVisualStyleBackColor = true;

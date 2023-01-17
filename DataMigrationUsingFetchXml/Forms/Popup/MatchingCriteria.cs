@@ -281,7 +281,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             layoutPanel.Controls.RemoveAt(layoutPanel.Controls.Count - 1);
             layoutPanel.RowStyles.RemoveAt(layoutPanel.RowStyles.Count - 1);
             layoutPanel.RowCount--;
-            layoutPanel.Height -= 26;
+            layoutPanel.Height -= 28;
         }
 
         private void BtnRemoveLast_Click(object sender, System.EventArgs e)
@@ -290,31 +290,13 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             {
                 RemoveLayoutPanelRow(logicalOperatorsPanels[rowIndex]);
             }
+
             if (attributeNamesPanels[rowIndex].RowCount > 2)
             {
-                BtnAdd.Enabled = true;
-                if (attributeNamesPanels[rowIndex].Controls[attributeNamesPanels[rowIndex].Controls.Count - 2] is ComboBox deletedItem)
-                {
-                    if (deletedItem.SelectedItem != null)
-                    {
-                        foreach (var item in attributeNamesPanels[rowIndex].Controls)
-                        {
-                            if (item is ComboBox attributeNamesBox)
-                            {
-                                if (!attributeNamesBox.Items.Contains(deletedItem.SelectedItem))
-                                {
-                                    attributeNamesBox.Items.Add(deletedItem.SelectedItem.ToString());
-                                }
-                            }
-                        }
-                    }
-                }
-                if (attributeNamesPanels[rowIndex].RowCount > 2)
-                {
-                    attributeNamesPanels[rowIndex].Controls.RemoveAt(attributeNamesPanels[rowIndex].Controls.Count - 1);
-                    RemoveLayoutPanelRow(attributeNamesPanels[rowIndex]);
-                }
+                attributeNamesPanels[rowIndex].Controls.RemoveAt(attributeNamesPanels[rowIndex].Controls.Count - 1);
+                RemoveLayoutPanelRow(attributeNamesPanels[rowIndex]);
             }
+
             if (attributeNamesPanels[rowIndex].RowCount == 2)
             {
                 BtnRemoveLast.Enabled = false;
@@ -348,6 +330,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             bool checkBeforeApplying = false;
             List<string> attrNames = new List<string>();
             List<string> logicalOperators = new List<string>();
+
             foreach (var item in attributeNamesPanels[rowIndex].Controls)
             {
                 if (item is ComboBox attributeNamesBox)
