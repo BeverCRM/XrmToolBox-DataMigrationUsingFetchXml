@@ -302,7 +302,9 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 
         private void BtnClearSelection_Click(object sender, System.EventArgs e)
         {
-            for (int i = 0; i < attributeNamesPanels[rowIndex].RowCount - 2; i++)
+            int count = attributeNamesPanels[rowIndex].RowCount - 2;
+
+            for (int i = 0; i < count; i++)
             {
                 BtnRemoveLast_Click(sender, e);
             }
