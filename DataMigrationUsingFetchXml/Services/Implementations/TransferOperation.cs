@@ -199,8 +199,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private void TransferData(Entity record, List<string> searchAttrs, bool idExists, int rowIndex)
         {
-            string primaryAttr = _dataverseService.GetEntityPrimaryField(record.LogicalName);
-            string recordName = record.GetAttributeValue<string>(primaryAttr);
             bool checkMatchingRecords = CheckMatchingRecords(record, rowIndex, idExists);
 
             if (checkMatchingRecords && MatchedAction.CheckedRadioButtonNumbers[rowIndex] == 3)
@@ -210,7 +208,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
             else
             {
-                _logger.LogInfo("Record with id '" + record.Id + "' and with name '" + recordName + "' is creating in target...");
                 Entity newRecord = new Entity(record.LogicalName);
                 newRecord.Attributes.AddRange(record.Attributes);
 

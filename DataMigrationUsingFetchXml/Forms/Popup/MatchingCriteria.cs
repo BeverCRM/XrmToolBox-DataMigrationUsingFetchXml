@@ -210,7 +210,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                     attributeNamesBox.Items.Add(item);
                 }
                 attributeNamesPanels[rowIndex].RowCount++;
-                attributeNamesPanels[rowIndex].Height += 25;
                 attributeNamesPanels[rowIndex].RowStyles.Add(new RowStyle(SizeType.Percent, 25));
                 attributeNamesPanels[rowIndex].Controls.Add(attributeNamesBox, 0, attributeNamesPanels[rowIndex].RowCount - 1);
                 attributeNamesPanels[rowIndex].Controls.Add(new Label() { Text = "Exact Match" }, 1, attributeNamesPanels[rowIndex].RowCount - 1);
@@ -245,7 +244,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                     logicalOperatorBox.SelectedItem = selectionName;
                 }
                 logicalOperatorsPanels[rowIndex].RowCount++;
-                logicalOperatorsPanels[rowIndex].Height += 25;
                 logicalOperatorsPanels[rowIndex].RowStyles.Add(new RowStyle(SizeType.Percent, 25));
                 logicalOperatorsPanels[rowIndex].Controls.Add(logicalOperatorBox, 0, logicalOperatorsPanels[rowIndex].RowCount - 1);
             }
@@ -281,7 +279,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             layoutPanel.Controls.RemoveAt(layoutPanel.Controls.Count - 1);
             layoutPanel.RowStyles.RemoveAt(layoutPanel.RowStyles.Count - 1);
             layoutPanel.RowCount--;
-            layoutPanel.Height -= 28;
         }
 
         private void BtnRemoveLast_Click(object sender, System.EventArgs e)
@@ -305,9 +302,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 
         private void BtnClearSelection_Click(object sender, System.EventArgs e)
         {
-            int count = attributeNamesPanels[rowIndex].RowCount - 2;
-
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < attributeNamesPanels[rowIndex].RowCount - 2; i++)
             {
                 BtnRemoveLast_Click(sender, e);
             }

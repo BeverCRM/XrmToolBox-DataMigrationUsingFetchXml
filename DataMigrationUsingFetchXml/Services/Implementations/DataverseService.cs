@@ -75,10 +75,21 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         public void CreateMatchedRecordInTarget(Entity record, Entity matchedTargetRecord, int index)
         {
             SetRecordTransactionCurrency(record);
+            string recordName;
             string recordId = record[record.LogicalName + "id"].ToString();
+
+            if (MatchedAction.CheckedRadioButtonNumbers[index] == 3 || matchedTargetRecord == null)
+            {
+                recordName = GetRecordName(record);
+            }
+            else
+            {
+                recordName = GetRecordName(matchedTargetRecord);
+            }
 
             if (matchedTargetRecord == null)
             {
+                _logger.LogInfo("Record with id '" + recordId + "' and with name '" + recordName + "' is creating in target...");
                 CreateRequest createRequest = new CreateRequest { Target = record };
                 CreateResponse response = (CreateResponse)_targetService.Execute(createRequest);
                 _logger.LogInfo($"Record is created with id {{{response.id}}}");
@@ -95,14 +106,16 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
             else if (MatchedAction.CheckedRadioButtonNumbers[index] == 2)
             {
+                _logger.LogInfo("Record with id '" + matchedTargetRecord.Id + "' and with name '" + recordName + "' is updating in target...");
                 Entity newRecord = new Entity(record.LogicalName);
                 newRecord.Attributes.AddRange(record.Attributes);
                 newRecord[record.LogicalName + "id"] = matchedTargetRecord[record.LogicalName + "id"];
                 _targetService.Update(newRecord);
-                _logger.LogInfo($"Record is updated with id {{{recordId}}}");
+                _logger.LogInfo($"Record is updated with id {{{matchedTargetRecord.Id}}}");
             }
             else
             {
+                _logger.LogInfo("Record with id '" + recordId + "' and with name '" + recordName + "' is creating in target...");
                 CreateRequest createRequest = new CreateRequest { Target = record };
                 createRequest.Parameters.Add("SuppressDuplicateDetection", false);
                 CreateResponse response = (CreateResponse)_targetService.Execute(createRequest);
@@ -133,7 +146,14 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
         }
 
-        public string GetEntityPrimaryField(string entitySchemaName)
+        private string GetRecordName(Entity record)
+        {
+            string primaryAttr = GetEntityPrimaryField(record.LogicalName);
+
+            return record.GetAttributeValue<string>(primaryAttr);
+        }
+
+        private string GetEntityPrimaryField(string entitySchemaName)
         {
             RetrieveEntityRequest retrieveEntityRequest = new RetrieveEntityRequest
             {

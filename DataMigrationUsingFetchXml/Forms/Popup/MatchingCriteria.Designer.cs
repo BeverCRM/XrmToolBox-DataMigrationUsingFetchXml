@@ -39,7 +39,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             // 
             // BtnAdd
             // 
-            this.BtnAdd.Location = new System.Drawing.Point(327, 4);
+            this.BtnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnAdd.Location = new System.Drawing.Point(375, 5);
             this.BtnAdd.Name = "BtnAdd";
             this.BtnAdd.Size = new System.Drawing.Size(97, 23);
             this.BtnAdd.TabIndex = 2;
@@ -49,8 +50,9 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             // 
             // BtnRemoveLast
             // 
+            this.BtnRemoveLast.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnRemoveLast.Enabled = false;
-            this.BtnRemoveLast.Location = new System.Drawing.Point(327, 34);
+            this.BtnRemoveLast.Location = new System.Drawing.Point(375, 34);
             this.BtnRemoveLast.Name = "BtnRemoveLast";
             this.BtnRemoveLast.Size = new System.Drawing.Size(97, 23);
             this.BtnRemoveLast.TabIndex = 3;
@@ -60,7 +62,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             // 
             // BtnClearSelection
             // 
-            this.BtnClearSelection.Location = new System.Drawing.Point(327, 63);
+            this.BtnClearSelection.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnClearSelection.Location = new System.Drawing.Point(375, 63);
             this.BtnClearSelection.Name = "BtnClearSelection";
             this.BtnClearSelection.Size = new System.Drawing.Size(97, 23);
             this.BtnClearSelection.TabIndex = 4;
@@ -70,7 +73,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             // 
             // BtnApply
             // 
-            this.BtnApply.Location = new System.Drawing.Point(268, 242);
+            this.BtnApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnApply.Location = new System.Drawing.Point(316, 326);
             this.BtnApply.Name = "BtnApply";
             this.BtnApply.Size = new System.Drawing.Size(75, 23);
             this.BtnApply.TabIndex = 4;
@@ -80,7 +84,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             // 
             // BtnCancel
             // 
-            this.BtnCancel.Location = new System.Drawing.Point(349, 242);
+            this.BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnCancel.Location = new System.Drawing.Point(397, 326);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
             this.BtnCancel.TabIndex = 4;
@@ -93,14 +98,15 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.ClientSize = new System.Drawing.Size(436, 277);
+            this.ClientSize = new System.Drawing.Size(484, 361);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnApply);
             this.Controls.Add(this.BtnClearSelection);
             this.Controls.Add(this.BtnRemoveLast);
             this.Controls.Add(this.BtnAdd);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.MaximizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(500, 200);
             this.Name = "MatchingCriteria";
             this.Text = "MatchingCriteria";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MatchingCriteria_FormClosing);

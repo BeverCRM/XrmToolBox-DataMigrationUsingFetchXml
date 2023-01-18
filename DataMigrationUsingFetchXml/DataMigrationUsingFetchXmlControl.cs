@@ -187,19 +187,16 @@ namespace DataMigrationUsingFetchXml
                 {
                     ResultItem lastResultItem = null;
                     BtnTransferData.Text = "Cancel";
-                    SetLoadingDetails(true);
-                    richTextBoxLogs.Text = string.Empty;
-                    InitializeTransferOperation();
 
-                    if (AdditionalConnectionDetails.Count < 1)
-                    {
-                        MessageBox.Show("Add an organization for data transfer! ");
-                        return;
-                    }
+                    SetLoadingDetails(true);
+                    InitializeTransferOperation();
+                    ChangeToolsState(false);
+
+                    richTextBoxLogs.Text = string.Empty;
+                    BtnTransferData.Enabled = true;
                     _logger.LogInfo("Transfer is started. ");
                     _logger.LogInfo($"Log folder path: {TxtLogsPath.Text}");
-                    ChangeToolsState(false);
-                    BtnTransferData.Enabled = true;
+
 
                     WorkAsync(new WorkAsyncInfo
                     {
