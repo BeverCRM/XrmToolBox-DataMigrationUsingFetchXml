@@ -81,9 +81,9 @@ namespace DataMigrationUsingFetchXml.Services
         public static List<string> GetAttributesNames(string fetchXml)
         {
             List<string> attributeNames = new List<string>();
-            XmlNodeList nodes = GetFetchNodes(fetchXml);
+            XmlNodeList attributeNodes = GetMainEntityAttributeNodesFromFetchXml(fetchXml);
 
-            foreach (XmlNode node in nodes)
+            foreach (XmlNode node in attributeNodes)
             {
                 if (node.Attributes["name"] != null)
                 {
@@ -94,7 +94,7 @@ namespace DataMigrationUsingFetchXml.Services
             return attributeNames;
         }
 
-        private static XmlNodeList GetFetchNodes(string fetch)
+        private static XmlNodeList GetMainEntityAttributeNodesFromFetchXml(string fetch)
         {
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(fetch);
@@ -113,10 +113,10 @@ namespace DataMigrationUsingFetchXml.Services
 
         public static string GetFetchXmlPrimaryKey(string fetchXml)
         {
-            XmlNodeList nodes = GetFetchNodes(fetchXml);
+            XmlNodeList attributeNodes = GetMainEntityAttributeNodesFromFetchXml(fetchXml);
             string entityName = GetEntityName(fetchXml);
 
-            foreach (XmlNode node in nodes)
+            foreach (XmlNode node in attributeNodes)
             {
                 if (node.Attributes["name"] != null && node.Attributes["name"].Value == entityName + "id")
                 {

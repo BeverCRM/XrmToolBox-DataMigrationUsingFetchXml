@@ -237,6 +237,7 @@ namespace DataMigrationUsingFetchXml
             this.FetchDataGridView.Size = new System.Drawing.Size(518, 178);
             this.FetchDataGridView.TabIndex = 30;
             this.FetchDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.FetchDataGridView_CellContentClick);
+            this.FetchDataGridView.RowHeightChanged += new System.Windows.Forms.DataGridViewRowEventHandler(this.FetchDataGridView_RowHeightChanged);
             // 
             // CheckBox
             // 
@@ -298,8 +299,8 @@ namespace DataMigrationUsingFetchXml
             // 
             // richTextBoxLogs
             // 
-            this.richTextBoxLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.richTextBoxLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBoxLogs.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.richTextBoxLogs.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;

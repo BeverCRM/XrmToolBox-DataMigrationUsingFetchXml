@@ -51,7 +51,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         {
             if (record.Attributes.ContainsKey("transactioncurrencyid"))
             {
-                string currencyName = (record["transactioncurrencyid"] as EntityReference).Name;
+                string currencyName = record.GetAttributeValue<EntityReference>("transactioncurrencyid").Name;
 
                 QueryExpression query = new QueryExpression
                 {
@@ -76,7 +76,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         {
             SetRecordTransactionCurrency(record);
             string recordName;
-            string recordId = record[record.LogicalName + "id"].ToString();
+            string recordId = record.GetAttributeValue<Guid>(record.LogicalName + "id").ToString();
 
             if (MatchedAction.CheckedRadioButtonNumbers[index] == 3 || matchedTargetRecord == null)
             {

@@ -94,8 +94,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private bool CheckMatchingRecords(Entity record, int rowIndex, bool idExists)
         {
-            List<string> attributeNames = MatchingCriteria.FinalAttributeNamesResult[rowIndex];
-            List<string> logicalOperatorNames = MatchingCriteria.FinalLogicalOperatorsResult[rowIndex];
+            List<string> attributeNames = MatchingCriteria.SelectedAttributeNames[rowIndex];
+            List<string> logicalOperatorNames = MatchingCriteria.SelectedLogicalOperators[rowIndex];
             EntityCollection finalMatchcdRecords = new EntityCollection();
             EntityCollection matchcdRecords = new EntityCollection();
 

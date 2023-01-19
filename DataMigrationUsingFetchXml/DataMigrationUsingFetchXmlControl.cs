@@ -197,7 +197,6 @@ namespace DataMigrationUsingFetchXml
                     _logger.LogInfo("Transfer is started. ");
                     _logger.LogInfo($"Log folder path: {TxtLogsPath.Text}");
 
-
                     WorkAsync(new WorkAsyncInfo
                     {
                         Message = "_",
@@ -230,7 +229,11 @@ namespace DataMigrationUsingFetchXml
                             fetchXmls.Clear();
                             SetLoadingDetails(false);
                             SetLastLabelTextByResultItem(lastResultItem);
-                            if (!CheckArgsResult(args)) return;
+
+                            if (!CheckArgsResult(args))
+                            {
+                                return;
+                            }
                             MessageBox.Show("Data Migration Completed.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                     });
@@ -368,10 +371,7 @@ namespace DataMigrationUsingFetchXml
             _fetchXmlpopup.SetTextBoxText(string.Empty);
             FetchXmlPopupDialog();
 
-            if (fetchXmlDataBindingSource.Count >= 7 && FetchDataGridView.Width == 518)
-            {
-                FetchDataGridView.Width += 18;
-            }
+            CustomiseFetchDataGridViewSizeBasedOnRowHeight(22);
         }
 
         private void FetchXmlPopupDialog(int rowIndex = -1)
@@ -454,10 +454,11 @@ namespace DataMigrationUsingFetchXml
                         MatchedAction.CheckedRadioButtonNumbers.RemoveAt(e.RowIndex);
                         _matchingCriteria.RemoveLayoutPanelData(e.RowIndex);
 
-                        if (fetchXmlDataBindingSource.Count < 8 && FetchDataGridView.Width > 518)
-                        {
-                            FetchDataGridView.Width -= 18;
-                        }
+                        CustomiseFetchDataGridViewSizeBasedOnRowHeight(0);
+                        //if (fetchXmlDataBindingSource.Count < 8 && FetchDataGridView.Width > 518)
+                        //{
+                        //    FetchDataGridView.Width -= 18;
+                        //}
                     }
                 }
                 if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Edit")
@@ -491,6 +492,28 @@ namespace DataMigrationUsingFetchXml
         private void RichTextBoxLogs_LinkClicked(object sender, LinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start(e.LinkText);
+        }
+
+        private void FetchDataGridView_RowHeightChanged(object sender, DataGridViewRowEventArgs e)
+        {
+            CustomiseFetchDataGridViewSizeBasedOnRowHeight(0);
+        }
+
+        private void CustomiseFetchDataGridViewSizeBasedOnRowHeight(int height)
+        {
+            foreach (DataGridViewRow row in FetchDataGridView.Rows)
+            {
+                height += row.Height;
+            }
+
+            if (height > FetchDataGridView.Height - 23 && FetchDataGridView.Width < 520)
+            {
+                FetchDataGridView.Width += 18;
+            }
+            else if (height < FetchDataGridView.Height - 23 && FetchDataGridView.Width > 518)
+            {
+                FetchDataGridView.Width -= 18;
+            }
         }
     }
 }
