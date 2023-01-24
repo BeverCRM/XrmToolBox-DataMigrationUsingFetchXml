@@ -43,9 +43,10 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
             foreach (string fetchXml in fetchXmls)
             {
-                ConfigReader.SetPaginationAttributes(fetchXml);
+                ConfigReader.CurrentFetchXml = fetchXml;
+                ConfigReader.SetPaginationAttributes();
                 _resultItem = new ResultItem();
-                List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
+                List<string> searchAttrs = ConfigReader.GetPrimaryFields(out bool idExists);
 
                 _logger.LogInfo("Getting data of '" + DisplayNames[tableIndexesForTransfer[index]] + "' from source instance");
                 _logger.LogInfo("Transfering data to: " + _organizationServiceUrl);
@@ -185,7 +186,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 string attributeType = _dataverseService.GetAttributeType(attributeName, record.LogicalName);
                 _matchedTargetRecords = _dataverseService.GetTargetMatchedRecords(record, attributeName, attributeType);
 
-                if (_matchedTargetRecords.Entities.Count == 0 || _matchedTargetRecords == null)
+                if (_matchedTargetRecords == null || _matchedTargetRecords.Entities.Count == 0)
                 {
                     _matchedTargetRecords = null;
                     return false;
@@ -199,12 +200,16 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private void TransferData(Entity record, List<string> searchAttrs, bool idExists, int rowIndex)
         {
-            bool checkMatchingRecords = CheckMatchingRecords(record, rowIndex, idExists);
-
-            if (checkMatchingRecords && MatchedAction.CheckedRadioButtonNumbers[rowIndex] == 3)
+            bool checkMatchingRecords = false;
+            if (MatchedAction.CheckedRadioButtonNumbers[rowIndex] != 1)
             {
-                ++_resultItem.ErroredRecordCount;
-                _logger.LogError("Can't create matched record.");
+                checkMatchingRecords = CheckMatchingRecords(record, rowIndex, idExists);
+            }
+
+            if (checkMatchingRecords && MatchedAction.CheckedRadioButtonNumbers[rowIndex] == 4)
+            {
+                ++_resultItem.WarningRecordCount;
+                _logger.LogWarning($"Skipped the record with Id {{{record.GetAttributeValue<Guid>(record.LogicalName + "id")}}} as it already exists in the target instance.");
             }
             else
             {
@@ -216,10 +221,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     _dataverseService.MapSearchAttributes(newRecord, searchAttrs);
                     if (_matchedTargetRecords != null)
                     {
-                        foreach (var _matchedTargetRecord in _matchedTargetRecords.Entities)
-                        {
-                            _dataverseService.CreateMatchedRecordInTarget(newRecord, _matchedTargetRecord, rowIndex);
-                        }
+                        _dataverseService.CreateMatchedRecordInTarget(newRecord, _matchedTargetRecords, rowIndex);
                     }
                     else
                     {
@@ -227,7 +229,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     }
                     ++_resultItem.SuccessfullyGeneratedRecordCount;
                 }
-                catch (FaultException<OrganizationServiceFault> ex)
+                catch (FaultException ex)
                 {
                     ++_resultItem.ErroredRecordCount;
                     _logger.LogError(ex.Message);

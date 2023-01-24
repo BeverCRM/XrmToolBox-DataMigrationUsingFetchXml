@@ -98,24 +98,70 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             }
         }
 
+        private void ChangeAttributeNamesBoxItems(List<string> attributeNames)
+        {
+            int index = 0;
+            foreach (var control in _attributeNamesPanels[_rowIndex].Controls)
+            {
+                if (control is ComboBox attributeNamesBox)
+                {
+                    attributeNamesBox.Items.Clear();
+                    if (!attributeNamesBox.Enabled)
+                    {
+                        attributeNamesBox.Items.Add(_primaryKeyNames[_rowIndex]);
+                    }
+                    foreach (var attributeName in attributeNames)
+                    {
+                        attributeNamesBox.Items.Add(attributeName);
+                    }
+                    attributeNamesBox.SelectedItem = SelectedAttributeNames[_rowIndex][index++];
+                }
+            }
+        }
+
         public void CreateLayoutPanels(string fetchXml, int rowIndex)
         {
             int index = rowIndex;
+            _rowIndex = rowIndex;
+            ConfigReader.CurrentFetchXml = fetchXml;
+            string primaryKeyName = ConfigReader.GetFetchXmlPrimaryKey();
+            List<string> attributeNames = ConfigReader.GetAttributesNames();
 
             if (rowIndex != -1)
             {
+                if (SelectedAttributeNames[rowIndex].Count > 0 && (SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) || (!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName == null)))
+                {
+                    bool clearSelectedAttributes = false;
+                    foreach (var item in SelectedAttributeNames[rowIndex])
+                    {
+                        if (!attributeNames.Contains(item))
+                        {
+                            clearSelectedAttributes = true;
+                            break;
+                        }
+                    }
+                    if (!clearSelectedAttributes)
+                    {
+                        attributeNames.Remove(primaryKeyName);
+                        _primaryKeyNames[rowIndex] = primaryKeyName;
+                        _fetchXmlAttributesNames[rowIndex] = attributeNames;
+                        ChangeAttributeNamesBoxItems(attributeNames);
+
+                        return;
+                    }
+                }
                 SelectedAttributeNames[rowIndex].Clear();
                 SelectedLogicalOperators[rowIndex].Clear();
                 RemoveLayoutPanelData(rowIndex, true);
-                _primaryKeyNames.Insert(rowIndex, ConfigReader.GetFetchXmlPrimaryKey(fetchXml));
-                _fetchXmlAttributesNames.Insert(rowIndex, ConfigReader.GetAttributesNames(fetchXml));
+                _primaryKeyNames.Insert(rowIndex, primaryKeyName);
+                _fetchXmlAttributesNames.Insert(rowIndex, attributeNames);
             }
             else
             {
-                _primaryKeyNames.Add(ConfigReader.GetFetchXmlPrimaryKey(fetchXml));
+                _primaryKeyNames.Add(primaryKeyName);
                 SelectedAttributeNames.Add(new List<string>());
                 SelectedLogicalOperators.Add(new List<string>());
-                _fetchXmlAttributesNames.Add(ConfigReader.GetAttributesNames(fetchXml));
+                _fetchXmlAttributesNames.Add(attributeNames);
                 index = _fetchXmlAttributesNames.Count - 1;
             }
             CreateAttributeNamesPanel(rowIndex);
@@ -271,7 +317,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             }
             else
             {
-                MessageBox.Show("Please select before adding.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Please fill all fields before adding.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

@@ -41,8 +41,9 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         {
             if (_logsPath != null)
             {
-                LogErrorToTextBox(text);
-                string logText = $"[{DateTime.Now:G}]" + " ERROR: " + text + "\n";
+                string word = " ERROR: ";
+                ColorTextBoxLogs(text, word, Color.Red);
+                string logText = $"[{DateTime.Now:G}]" + word + text + "\n";
                 LogToFile(logText);
             }
             else
@@ -51,15 +52,30 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
         }
 
-        private void LogErrorToTextBox(string text)
+        public void LogWarning(string text)
+        {
+            if (_logsPath != null)
+            {
+                string word = " WARNING: ";
+                ColorTextBoxLogs(text, word, Color.Gold);
+                string logText = $"[{DateTime.Now:G}]" + word + text + "\n";
+                LogToFile(logText);
+            }
+            else
+            {
+                throw new Exception("Log Path is Null!");
+            }
+        }
+
+        private void ColorTextBoxLogs(string text, string colorWord, Color color)
         {
             _richTxtBoxLogs.Invoke(new MethodInvoker(delegate
             {
                 _richTxtBoxLogs.AppendText($"[{DateTime.Now:G}]");
                 _richTxtBoxLogs.SelectionStart = _richTxtBoxLogs.Text.Length;
                 _richTxtBoxLogs.SelectionLength = 0;
-                _richTxtBoxLogs.SelectionColor = Color.Red;
-                _richTxtBoxLogs.AppendText(" ERROR: ");
+                _richTxtBoxLogs.SelectionColor = color;
+                _richTxtBoxLogs.AppendText($"{colorWord}");
                 _richTxtBoxLogs.SelectionColor = _richTxtBoxLogs.ForeColor;
                 _richTxtBoxLogs.AppendText(text + "\n");
             }));

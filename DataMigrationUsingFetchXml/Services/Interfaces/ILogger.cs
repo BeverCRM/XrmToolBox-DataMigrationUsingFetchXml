@@ -6,6 +6,7 @@ namespace DataMigrationUsingFetchXml.Services.Interfaces
     {
         void LogInfo(string text);
         void LogError(string text);
+        void LogWarning(string text);
         void SetTxtLogs(RichTextBox txtLogs);
         void SetLogsPath(string logsPath);
     }

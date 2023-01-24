@@ -32,8 +32,8 @@ namespace DataMigrationUsingFetchXml
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DataMigrationUsingFetchXmlControl));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.TxtLogsPath = new System.Windows.Forms.TextBox();
             this.BtnBrowseLogs = new System.Windows.Forms.Button();
             this.LblLogsPath = new System.Windows.Forms.Label();
@@ -48,13 +48,6 @@ namespace DataMigrationUsingFetchXml
             this.LogsLabel = new System.Windows.Forms.Label();
             this.LblAddFetchXml = new System.Windows.Forms.Label();
             this.FetchDataGridView = new System.Windows.Forms.DataGridView();
-            this.CheckBox = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.displayNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.schemaNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.MatchingCriteria = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.ActionIfMatched = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.Edit = new System.Windows.Forms.DataGridViewImageColumn();
-            this.Remove = new System.Windows.Forms.DataGridViewImageColumn();
             this.fetchXmlDataBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.richTextBoxLogs = new System.Windows.Forms.RichTextBox();
             this.LblInfo = new System.Windows.Forms.Label();
@@ -66,6 +59,14 @@ namespace DataMigrationUsingFetchXml
             this.pictureBoxRecBin = new System.Windows.Forms.PictureBox();
             this.pictureBoxAdd = new System.Windows.Forms.PictureBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.LblWarning = new System.Windows.Forms.Label();
+            this.CheckBox = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.displayNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.schemaNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ActionIfMatched = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.MatchingCriteria = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.Edit = new System.Windows.Forms.DataGridViewImageColumn();
+            this.Remove = new System.Windows.Forms.DataGridViewImageColumn();
             ((System.ComponentModel.ISupportInitialize)(this.FetchDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fetchXmlDataBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRecBin)).BeginInit();
@@ -226,8 +227,8 @@ namespace DataMigrationUsingFetchXml
             this.CheckBox,
             this.displayNameDataGridViewTextBoxColumn,
             this.schemaNameDataGridViewTextBoxColumn,
-            this.MatchingCriteria,
             this.ActionIfMatched,
+            this.MatchingCriteria,
             this.Edit,
             this.Remove});
             this.FetchDataGridView.DataSource = this.fetchXmlDataBindingSource;
@@ -239,63 +240,9 @@ namespace DataMigrationUsingFetchXml
             this.FetchDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.FetchDataGridView_CellContentClick);
             this.FetchDataGridView.RowHeightChanged += new System.Windows.Forms.DataGridViewRowEventHandler(this.FetchDataGridView_RowHeightChanged);
             // 
-            // CheckBox
-            // 
-            this.CheckBox.Frozen = true;
-            this.CheckBox.HeaderText = "";
-            this.CheckBox.Name = "CheckBox";
-            this.CheckBox.Width = 25;
-            // 
-            // displayNameDataGridViewTextBoxColumn
-            // 
-            this.displayNameDataGridViewTextBoxColumn.DataPropertyName = "DisplayName";
-            this.displayNameDataGridViewTextBoxColumn.HeaderText = "DisplayName";
-            this.displayNameDataGridViewTextBoxColumn.Name = "displayNameDataGridViewTextBoxColumn";
-            this.displayNameDataGridViewTextBoxColumn.ReadOnly = true;
-            this.displayNameDataGridViewTextBoxColumn.Width = 120;
-            // 
-            // schemaNameDataGridViewTextBoxColumn
-            // 
-            this.schemaNameDataGridViewTextBoxColumn.DataPropertyName = "SchemaName";
-            this.schemaNameDataGridViewTextBoxColumn.HeaderText = "SchemaName";
-            this.schemaNameDataGridViewTextBoxColumn.Name = "schemaNameDataGridViewTextBoxColumn";
-            this.schemaNameDataGridViewTextBoxColumn.ReadOnly = true;
-            this.schemaNameDataGridViewTextBoxColumn.Width = 120;
-            // 
-            // MatchingCriteria
-            // 
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle1.NullValue = "Edit";
-            this.MatchingCriteria.DefaultCellStyle = dataGridViewCellStyle1;
-            this.MatchingCriteria.HeaderText = "Matching Criteria";
-            this.MatchingCriteria.Name = "MatchingCriteria";
-            this.MatchingCriteria.Text = "";
-            // 
-            // ActionIfMatched
-            // 
-            this.ActionIfMatched.HeaderText = "Action If Matched";
-            this.ActionIfMatched.Name = "ActionIfMatched";
-            this.ActionIfMatched.Text = "";
-            // 
-            // Edit
-            // 
-            this.Edit.HeaderText = "";
-            this.Edit.Image = global::DataMigrationUsingFetchXml.Properties.Resources.Edit;
-            this.Edit.Name = "Edit";
-            this.Edit.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.Edit.Width = 25;
-            // 
-            // Remove
-            // 
-            this.Remove.HeaderText = "";
-            this.Remove.Image = global::DataMigrationUsingFetchXml.Properties.Resources.Remove;
-            this.Remove.Name = "Remove";
-            this.Remove.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.Remove.Width = 25;
-            // 
             // fetchXmlDataBindingSource
             // 
-            this.fetchXmlDataBindingSource.DataSource = typeof(FetchXmlData);
+            this.fetchXmlDataBindingSource.DataSource = typeof(FetchXmlDataBindingSourceData);
             // 
             // richTextBoxLogs
             // 
@@ -318,8 +265,8 @@ namespace DataMigrationUsingFetchXml
             // 
             this.LblInfo.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblInfo.BackColor = System.Drawing.SystemColors.Window;
-            this.LblInfo.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblInfo.Location = new System.Drawing.Point(671, 375);
+            this.LblInfo.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.LblInfo.Location = new System.Drawing.Point(671, 342);
             this.LblInfo.Name = "LblInfo";
             this.LblInfo.Size = new System.Drawing.Size(227, 30);
             this.LblInfo.TabIndex = 34;
@@ -331,7 +278,7 @@ namespace DataMigrationUsingFetchXml
             this.LblTitle.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblTitle.BackColor = System.Drawing.SystemColors.Window;
             this.LblTitle.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblTitle.Location = new System.Drawing.Point(647, 270);
+            this.LblTitle.Location = new System.Drawing.Point(647, 237);
             this.LblTitle.Name = "LblTitle";
             this.LblTitle.Size = new System.Drawing.Size(275, 53);
             this.LblTitle.TabIndex = 35;
@@ -341,9 +288,9 @@ namespace DataMigrationUsingFetchXml
             // LblError
             // 
             this.LblError.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.LblError.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.LblError.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LblError.ForeColor = System.Drawing.Color.Red;
-            this.LblError.Location = new System.Drawing.Point(671, 405);
+            this.LblError.Location = new System.Drawing.Point(671, 372);
             this.LblError.Name = "LblError";
             this.LblError.Size = new System.Drawing.Size(227, 30);
             this.LblError.TabIndex = 37;
@@ -372,7 +319,7 @@ namespace DataMigrationUsingFetchXml
             this.LblLoading.BackColor = System.Drawing.SystemColors.Window;
             this.LblLoading.Image = global::DataMigrationUsingFetchXml.Properties.Resources.loading;
             this.LblLoading.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.LblLoading.Location = new System.Drawing.Point(759, 323);
+            this.LblLoading.Location = new System.Drawing.Point(759, 290);
             this.LblLoading.Name = "LblLoading";
             this.LblLoading.Size = new System.Drawing.Size(50, 50);
             this.LblLoading.TabIndex = 33;
@@ -406,12 +353,82 @@ namespace DataMigrationUsingFetchXml
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
+            // LblWarning
+            // 
+            this.LblWarning.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.LblWarning.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.LblWarning.ForeColor = System.Drawing.Color.Gold;
+            this.LblWarning.Location = new System.Drawing.Point(671, 404);
+            this.LblWarning.Name = "LblWarning";
+            this.LblWarning.Size = new System.Drawing.Size(227, 30);
+            this.LblWarning.TabIndex = 37;
+            this.LblWarning.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.LblWarning.Visible = false;
+            // 
+            // CheckBox
+            // 
+            this.CheckBox.Frozen = true;
+            this.CheckBox.HeaderText = "";
+            this.CheckBox.Name = "CheckBox";
+            this.CheckBox.Width = 25;
+            // 
+            // displayNameDataGridViewTextBoxColumn
+            // 
+            this.displayNameDataGridViewTextBoxColumn.DataPropertyName = "DisplayName";
+            this.displayNameDataGridViewTextBoxColumn.Frozen = true;
+            this.displayNameDataGridViewTextBoxColumn.HeaderText = "DisplayName";
+            this.displayNameDataGridViewTextBoxColumn.Name = "displayNameDataGridViewTextBoxColumn";
+            this.displayNameDataGridViewTextBoxColumn.ReadOnly = true;
+            this.displayNameDataGridViewTextBoxColumn.Width = 120;
+            // 
+            // schemaNameDataGridViewTextBoxColumn
+            // 
+            this.schemaNameDataGridViewTextBoxColumn.DataPropertyName = "SchemaName";
+            this.schemaNameDataGridViewTextBoxColumn.Frozen = true;
+            this.schemaNameDataGridViewTextBoxColumn.HeaderText = "SchemaName";
+            this.schemaNameDataGridViewTextBoxColumn.Name = "schemaNameDataGridViewTextBoxColumn";
+            this.schemaNameDataGridViewTextBoxColumn.ReadOnly = true;
+            this.schemaNameDataGridViewTextBoxColumn.Width = 120;
+            // 
+            // ActionIfMatched
+            // 
+            this.ActionIfMatched.Frozen = true;
+            this.ActionIfMatched.HeaderText = "Action If Matched";
+            this.ActionIfMatched.Name = "ActionIfMatched";
+            this.ActionIfMatched.Text = "";
+            // 
+            // MatchingCriteria
+            // 
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.NullValue = "Edit";
+            this.MatchingCriteria.DefaultCellStyle = dataGridViewCellStyle1;
+            this.MatchingCriteria.HeaderText = "Matching Criteria";
+            this.MatchingCriteria.Name = "MatchingCriteria";
+            this.MatchingCriteria.Text = "";
+            // 
+            // Edit
+            // 
+            this.Edit.HeaderText = "";
+            this.Edit.Image = global::DataMigrationUsingFetchXml.Properties.Resources.Edit;
+            this.Edit.Name = "Edit";
+            this.Edit.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.Edit.Width = 25;
+            // 
+            // Remove
+            // 
+            this.Remove.HeaderText = "";
+            this.Remove.Image = global::DataMigrationUsingFetchXml.Properties.Resources.Remove;
+            this.Remove.Name = "Remove";
+            this.Remove.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.Remove.Width = 25;
+            // 
             // DataMigrationUsingFetchXmlControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.SystemColors.Window;
+            this.Controls.Add(this.LblWarning);
             this.Controls.Add(this.LblError);
             this.Controls.Add(this.LblTitle);
             this.Controls.Add(this.LblInfo);
@@ -470,13 +487,14 @@ namespace DataMigrationUsingFetchXml
         private System.Windows.Forms.DataGridViewImageColumn dataGridViewImageColumn2;
         private System.Windows.Forms.Label LblError;
         private System.Windows.Forms.PictureBox pictureBoxRecBin;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.Label LblWarning;
         private System.Windows.Forms.DataGridViewCheckBoxColumn CheckBox;
         private System.Windows.Forms.DataGridViewTextBoxColumn displayNameDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn schemaNameDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewButtonColumn MatchingCriteria;
         private System.Windows.Forms.DataGridViewButtonColumn ActionIfMatched;
+        private System.Windows.Forms.DataGridViewButtonColumn MatchingCriteria;
         private System.Windows.Forms.DataGridViewImageColumn Edit;
         private System.Windows.Forms.DataGridViewImageColumn Remove;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
     }
 }

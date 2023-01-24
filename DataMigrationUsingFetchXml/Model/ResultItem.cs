@@ -8,5 +8,6 @@
         public int ErroredRecordCount { get; set; } = 0;
         public int SuccessfullyGeneratedRecordCount { get; set; } = 0;
         public string SourceRecordCountWithSign { get; set; }
+        public int WarningRecordCount { get; set; } = 0;
     }
 }

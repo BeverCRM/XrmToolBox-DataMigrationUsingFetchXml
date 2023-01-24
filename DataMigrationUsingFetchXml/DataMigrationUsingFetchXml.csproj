@@ -348,14 +348,13 @@
     <Compile Include="Forms\Popup\MatchingCriteria.Designer.cs">
       <DependentUpon>MatchingCriteria.cs</DependentUpon>
     </Compile>
-    <Compile Include="Model\FetchXmlData.cs" />
+    <Compile Include="Model\FetchXmlDataBindingSourceData.cs" />
     <Compile Include="Forms\Popup\FetchXmlPopup.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Popup\FetchXmlPopup.Designer.cs">
       <DependentUpon>FetchXmlPopup.cs</DependentUpon>
     </Compile>
-    <Compile Include="Model\MatchingCriteriaData.cs" />
     <Compile Include="Model\PaginationDetails.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

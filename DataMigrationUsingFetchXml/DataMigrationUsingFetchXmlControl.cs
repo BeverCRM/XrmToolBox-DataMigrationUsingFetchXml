@@ -274,6 +274,10 @@ namespace DataMigrationUsingFetchXml
                 {
                     LblError.Text = $"{lastResultItem.ErroredRecordCount} of {lastResultItem.SourceRecordCountWithSign} {lastResultItem.DisplayName} is errored";
                 }
+                if (lastResultItem.WarningRecordCount > 0)
+                {
+                    LblWarning.Text = $"{lastResultItem.WarningRecordCount} of {lastResultItem.SourceRecordCountWithSign} {lastResultItem.DisplayName} is warning";
+                }
             }
             else
             {
@@ -305,7 +309,7 @@ namespace DataMigrationUsingFetchXml
                 foreach (ResultItem resultItem in _transferOperation.ResultItems)
                 {
                     _logger.LogInfo($"{resultItem.SchemaName}, {resultItem.SourceRecordCountWithSign} (Source Records)," +
-                        $" {resultItem.SuccessfullyGeneratedRecordCount} (Migrated Records), {resultItem.ErroredRecordCount} (Errօred Records)");
+                        $" {resultItem.SuccessfullyGeneratedRecordCount} (Migrated Records), {resultItem.ErroredRecordCount} (Errօred Records), {resultItem.WarningRecordCount} (Warning Records)");
                 }
             }
         }
@@ -318,6 +322,10 @@ namespace DataMigrationUsingFetchXml
             if (resultItem.ErroredRecordCount > 0)
             {
                 LblError.Text = $"{resultItem.ErroredRecordCount} of {resultItem.SourceRecordCountWithSign} is errored";
+            }
+            if (resultItem.WarningRecordCount > 0)
+            {
+                LblWarning.Text = $"{resultItem.WarningRecordCount} of {resultItem.SourceRecordCountWithSign} Warnings";
             }
         }
 
@@ -335,6 +343,8 @@ namespace DataMigrationUsingFetchXml
                 LblInfo.Text = "Loading...";
                 LblError.Visible = visible;
                 LblInfo.Visible = visible;
+                LblWarning.Visible = visible;
+                LblWarning.Text = string.Empty;
                 LblError.Text = string.Empty;
             }
             LblLoading.Visible = visible;
@@ -363,6 +373,7 @@ namespace DataMigrationUsingFetchXml
             richTextBoxLogs.Text = null;
             LblInfo.Text = string.Empty;
             LblError.Text = string.Empty;
+            LblWarning.Text = string.Empty;
         }
 
         private void PictureBoxAdd_Click(object sender, EventArgs e)
@@ -370,7 +381,6 @@ namespace DataMigrationUsingFetchXml
             InitializeLog();
             _fetchXmlpopup.SetTextBoxText(string.Empty);
             FetchXmlPopupDialog();
-
             CustomiseFetchDataGridViewSizeBasedOnRowHeight(22);
         }
 
@@ -402,7 +412,7 @@ namespace DataMigrationUsingFetchXml
                                 if (rowIndex != -1)
                                 {
                                     _fetchXmlpopup.FetchXmls[rowIndex] = fetch;
-                                    fetchXmlDataBindingSource[rowIndex] = new FetchXmlData()
+                                    fetchXmlDataBindingSource[rowIndex] = new FetchXmlDataBindingSourceData()
                                     {
                                         DisplayName = displayName,
                                         SchemaName = logicalName
@@ -412,14 +422,14 @@ namespace DataMigrationUsingFetchXml
                                 else
                                 {
                                     _displayNames.Add(displayName);
-                                    fetchXmlDataBindingSource.Add(new FetchXmlData()
+                                    fetchXmlDataBindingSource.Add(new FetchXmlDataBindingSourceData()
                                     {
                                         DisplayName = displayName,
                                         SchemaName = logicalName
                                     });
                                     FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[0].Value = true;
-                                    FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[4].Value = 4;
-                                    MatchedAction.CheckedRadioButtonNumbers.Add(4);
+                                    FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[3].Value = 1;
+                                    MatchedAction.CheckedRadioButtonNumbers.Add(1);
                                 }
                             }));
                         }
@@ -455,10 +465,6 @@ namespace DataMigrationUsingFetchXml
                         _matchingCriteria.RemoveLayoutPanelData(e.RowIndex);
 
                         CustomiseFetchDataGridViewSizeBasedOnRowHeight(0);
-                        //if (fetchXmlDataBindingSource.Count < 8 && FetchDataGridView.Width > 518)
-                        //{
-                        //    FetchDataGridView.Width -= 18;
-                        //}
                     }
                 }
                 if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Edit")
@@ -473,8 +479,15 @@ namespace DataMigrationUsingFetchXml
                 {
                     Invoke((MethodInvoker)delegate
                     {
-                        _matchingCriteria.SetLayoutPanelData(e.RowIndex);
-                        _matchingCriteria.ShowDialog();
+                        if (MatchedAction.CheckedRadioButtonNumbers[e.RowIndex] != 1)
+                        {
+                            _matchingCriteria.SetLayoutPanelData(e.RowIndex);
+                            _matchingCriteria.ShowDialog();
+                        }
+                        else
+                        {
+                            MessageBox.Show($"Change Matching Action to use Matching Criteria.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
                     });
                 }
                 if (FetchDataGridView.Columns[e.ColumnIndex].Name == "ActionIfMatched")

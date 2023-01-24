@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
+using System.ServiceModel;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
@@ -29,14 +30,14 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             _sourceService = service;
         }
 
-        public IEnumerable<EntityCollection> GetAllRecords(string fetchQuery)
+        public IEnumerable<EntityCollection> GetAllRecords(string fetchXml)
         {
             EntityCollection returnCollection;
             do
             {
                 string xml = PaginationDetails.ContainsTopAttribute
-                    ? fetchQuery
-                    : ConfigReader.CreatePaginationAttributes(fetchQuery, PaginationDetails.PagingCookie);
+                    ? fetchXml
+                    : ConfigReader.CreatePaginationAttributes(PaginationDetails.PagingCookie);
 
                 returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(xml));
 
@@ -47,79 +48,134 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             } while (returnCollection.MoreRecords);
         }
 
-        private void SetRecordTransactionCurrency(Entity record)
+        private EntityReference GetDefaultTransactionCurrency()
         {
-            if (record.Attributes.ContainsKey("transactioncurrencyid"))
-            {
-                string currencyName = record.GetAttributeValue<EntityReference>("transactioncurrencyid").Name;
-
-                QueryExpression query = new QueryExpression
+            var currentUserSettings = _targetService.RetrieveMultiple(
+                new QueryExpression("usersettings")
                 {
-                    EntityName = "transactioncurrency",
-                    ColumnSet = new ColumnSet(true)
-                };
-                EntityCollection transactioncurrencies = _targetService.RetrieveMultiple(query);
-
-                foreach (var item in transactioncurrencies.Entities)
-                {
-                    if ((item.Attributes["currencyname"] as string) == currencyName)
+                    ColumnSet = new ColumnSet("transactioncurrencyid"),
+                    Criteria = new FilterExpression
                     {
-                        (record["transactioncurrencyid"] as EntityReference).Id = item.Id;
-                        return;
+                        Conditions =
+                        {
+                            new ConditionExpression("systemuserid", ConditionOperator.EqualUserId)
+                        }
+                    }
+                }).Entities[0].ToEntity<Entity>();
+
+            if (currentUserSettings.Attributes.ContainsKey("transactioncurrencyid"))
+            {
+                return (currentUserSettings.Attributes["transactioncurrencyid"] as EntityReference);
+            }
+            return null;
+        }
+
+        private void SetRecordTransactionCurrency(Entity sourceRecord)
+        {
+            EntityReference defaultCurrency = GetDefaultTransactionCurrency();
+
+            if (sourceRecord.Attributes.ContainsKey("transactioncurrencyid") && ConfigReader.CurrentFetchXml.Contains("transactioncurrencyid"))
+            {
+                string sourceRecordCurrencyName = sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Name;
+                EntityReference transactionCurrency = null;
+
+                if (sourceRecordCurrencyName != null)
+                {
+                    QueryExpression query = new QueryExpression("transactioncurrency")
+                    {
+                        ColumnSet = new ColumnSet(true),
+                        Criteria = new FilterExpression
+                        {
+                            Conditions =
+                            {
+                                new ConditionExpression("currencyname", ConditionOperator.Equal, sourceRecordCurrencyName)
+                            }
+                        }
+                    };
+                    EntityCollection transactionCurrencyCollection = _targetService.RetrieveMultiple(query);
+
+                    if (transactionCurrencyCollection != null && transactionCurrencyCollection.Entities.Count > 0)
+                    {
+                        transactionCurrency = transactionCurrencyCollection.Entities.FirstOrDefault().ToEntityReference();
                     }
                 }
-                record["transactioncurrencyid"] = transactioncurrencies.Entities.FirstOrDefault().ToEntityReference();
+
+                if (transactionCurrency != null)
+                {
+                    (sourceRecord["transactioncurrencyid"] as EntityReference).Id = transactionCurrency.Id;
+                }
+                else
+                {
+                    sourceRecord["transactioncurrencyid"] = defaultCurrency ?? throw new FaultException("Can not find default transaction currency.");
+                }
+            }
+            else if (sourceRecord.Attributes.ContainsKey("transactioncurrencyid"))
+            {
+                sourceRecord["transactioncurrencyid"] = defaultCurrency ?? throw new FaultException("Can not find default transaction currency.");
             }
         }
 
-        public void CreateMatchedRecordInTarget(Entity record, Entity matchedTargetRecord, int index)
+        private void SetSourceRecordUnfilledFieldsDefaultValue(Entity sourceRecord, Entity matchedTargetRecord)
         {
-            SetRecordTransactionCurrency(record);
-            string recordName;
-            string recordId = record.GetAttributeValue<Guid>(record.LogicalName + "id").ToString();
+            List<string> fetchXmlAttributeNames = ConfigReader.GetAttributesNames();
 
-            if (MatchedAction.CheckedRadioButtonNumbers[index] == 3 || matchedTargetRecord == null)
+            foreach (var item in matchedTargetRecord.Attributes)
             {
-                recordName = GetRecordName(record);
+                if (fetchXmlAttributeNames.Contains(item.Key) && !sourceRecord.Attributes.ContainsKey(item.Key))
+                {
+                    sourceRecord.Attributes.Add(item.Key, null);
+                }
             }
-            else
-            {
-                recordName = GetRecordName(matchedTargetRecord);
-            }
+        }
 
-            if (matchedTargetRecord == null)
+        public void CreateMatchedRecordInTarget(Entity sourceRecord, EntityCollection matchedTargetRecords, int index)
+        {
+            SetRecordTransactionCurrency(sourceRecord);
+
+            string sourceRecordId = sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id").ToString();
+            if (ConfigReader.GetFetchXmlPrimaryKey() == null)
             {
-                _logger.LogInfo("Record with id '" + recordId + "' and with name '" + recordName + "' is creating in target...");
-                CreateRequest createRequest = new CreateRequest { Target = record };
-                CreateResponse response = (CreateResponse)_targetService.Execute(createRequest);
-                _logger.LogInfo($"Record is created with id {{{response.id}}}");
+                sourceRecord[sourceRecord.LogicalName + "id"] = Guid.NewGuid();
+            }
+            string sourceRecordIdInTarget = sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id").ToString();
+
+            if (matchedTargetRecords == null)
+            {
+                CreateRequest createRequest = new CreateRequest { Target = sourceRecord };
+                _targetService.Execute(createRequest);
+                _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecordIdInTarget}}}.");
 
                 return;
             }
 
-            if (MatchedAction.CheckedRadioButtonNumbers[index] == 1)
+            if (MatchedAction.CheckedRadioButtonNumbers[index] == 2)
             {
-                _targetService.Delete(matchedTargetRecord.LogicalName, matchedTargetRecord.Id);
-                _logger.LogInfo($"Record is deleted with id {{{matchedTargetRecord.Id}}}");
-                _targetService.Create(record);
-                _logger.LogInfo($"Record is created with id {{{recordId}}}");
+                foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
+                {
+                    _targetService.Delete(matchedTargetRecord.LogicalName, matchedTargetRecord.Id);
+                    _logger.LogInfo($"Deleted the record with Id {{{matchedTargetRecord.Id}}} from the target instance.");
+                }
+                _targetService.Create(sourceRecord);
+                _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecordIdInTarget}}}.");
             }
-            else if (MatchedAction.CheckedRadioButtonNumbers[index] == 2)
+            else if (MatchedAction.CheckedRadioButtonNumbers[index] == 3)
             {
-                _logger.LogInfo("Record with id '" + matchedTargetRecord.Id + "' and with name '" + recordName + "' is updating in target...");
-                Entity newRecord = new Entity(record.LogicalName);
-                newRecord.Attributes.AddRange(record.Attributes);
-                newRecord[record.LogicalName + "id"] = matchedTargetRecord[record.LogicalName + "id"];
-                _targetService.Update(newRecord);
-                _logger.LogInfo($"Record is updated with id {{{matchedTargetRecord.Id}}}");
+                foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
+                {
+                    SetSourceRecordUnfilledFieldsDefaultValue(sourceRecord, matchedTargetRecord);
+                    Entity newRecord = new Entity(sourceRecord.LogicalName);
+                    newRecord.Attributes.AddRange(sourceRecord.Attributes);
+                    newRecord[sourceRecord.LogicalName + "id"] = matchedTargetRecord[sourceRecord.LogicalName + "id"];
+                    _targetService.Update(newRecord);
+                    _logger.LogInfo($"Updated the record with Id {{{matchedTargetRecord.Id}}} in the target instance.");
+                }
             }
             else
             {
-                _logger.LogInfo("Record with id '" + recordId + "' and with name '" + recordName + "' is creating in target...");
-                CreateRequest createRequest = new CreateRequest { Target = record };
+                CreateRequest createRequest = new CreateRequest { Target = sourceRecord };
                 createRequest.Parameters.Add("SuppressDuplicateDetection", false);
-                CreateResponse response = (CreateResponse)_targetService.Execute(createRequest);
-                _logger.LogInfo($"Record is created with id {{{response.id}}}");
+                _targetService.Execute(createRequest);
+                _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecordIdInTarget}}}");
             }
         }
 
@@ -144,13 +200,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     }
                 }
             }
-        }
-
-        private string GetRecordName(Entity record)
-        {
-            string primaryAttr = GetEntityPrimaryField(record.LogicalName);
-
-            return record.GetAttributeValue<string>(primaryAttr);
         }
 
         private string GetEntityPrimaryField(string entitySchemaName)
@@ -188,7 +237,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         {
             FilterExpression filterExpression = new FilterExpression();
 
-            if (attributeType == "Double" || attributeType == "Integer" || attributeType == "String" || attributeType == "BigInt"
+            if (attributeType == "Double" || attributeType == "Memo" || attributeType == "Integer" || attributeType == "String" || attributeType == "BigInt"
                 || attributeType == "Boolean" || attributeType == "EntityName" || attributeType == "Decimal" || attributeType == "Uniqueidentifier")
             {
                 filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, sourceRecord[attributeSchemaName].ToString()));

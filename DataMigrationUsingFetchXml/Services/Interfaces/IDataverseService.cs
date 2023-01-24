@@ -5,7 +5,7 @@ namespace DataMigrationUsingFetchXml.Services.Interfaces
 {
     internal interface IDataverseService
     {
-        void CreateMatchedRecordInTarget(Entity record, Entity matchedTargetRecord, int index);
+        void CreateMatchedRecordInTarget(Entity record, EntityCollection matchedTargetRecords, int index);
         void MapSearchAttributes(Entity record, List<string> searchAttrs);
         (string logicalName, string displayName) GetEntityName(string fetchXml);
         IEnumerable<EntityCollection> GetAllRecords(string fetchQuery);
