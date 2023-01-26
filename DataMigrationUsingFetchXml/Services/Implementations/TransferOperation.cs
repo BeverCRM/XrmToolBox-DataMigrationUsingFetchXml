@@ -40,10 +40,17 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         {
             ResultItems = new List<ResultItem>();
             int index = 0;
+            string newFetchXml;
 
             foreach (string fetchXml in fetchXmls)
             {
-                ConfigReader.CurrentFetchXml = fetchXml;
+                newFetchXml = fetchXml;
+                if (newFetchXml.Contains("statuscode") && !newFetchXml.Contains("statecode"))
+                {
+                    newFetchXml = ConfigReader.CreateElementInFetchXml(newFetchXml, "statecode");
+                }
+
+                ConfigReader.CurrentFetchXml = newFetchXml;
                 ConfigReader.SetPaginationAttributes();
                 _resultItem = new ResultItem();
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(out bool idExists);
@@ -51,7 +58,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 _logger.LogInfo("Getting data of '" + DisplayNames[tableIndexesForTransfer[index]] + "' from source instance");
                 _logger.LogInfo("Transfering data to: " + _organizationServiceUrl);
 
-                foreach (EntityCollection records in _dataverseService.GetAllRecords(fetchXml))
+                foreach (EntityCollection records in _dataverseService.GetAllRecords(newFetchXml))
                 {
                     _resultItem.DisplayName = DisplayNames[tableIndexesForTransfer[index]];
                     _resultItem.SchemaName = records.EntityName;

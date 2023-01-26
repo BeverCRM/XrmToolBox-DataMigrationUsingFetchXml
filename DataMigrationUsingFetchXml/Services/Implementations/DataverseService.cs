@@ -131,24 +131,30 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         public void CreateMatchedRecordInTarget(Entity sourceRecord, EntityCollection matchedTargetRecords, int index)
         {
             SetRecordTransactionCurrency(sourceRecord);
-
+            int statusValue = -1;
             string sourceRecordId = sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id").ToString();
+
             if (ConfigReader.GetFetchXmlPrimaryKey() == null)
             {
                 sourceRecord[sourceRecord.LogicalName + "id"] = Guid.NewGuid();
             }
             string sourceRecordIdInTarget = sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id").ToString();
 
+            bool checkForInactiveRecord = ((matchedTargetRecords == null || MatchedAction.CheckedRadioButtonNumbers[index] != 3) && sourceRecord.GetAttributeValue<OptionSetValue>("statecode").Value == 1);
+
+            if (checkForInactiveRecord && sourceRecord.Attributes.ContainsKey("statuscode"))
+            {
+                statusValue = sourceRecord.GetAttributeValue<OptionSetValue>("statuscode").Value;
+                sourceRecord.Attributes.Remove("statuscode");
+            }
+
             if (matchedTargetRecords == null)
             {
                 CreateRequest createRequest = new CreateRequest { Target = sourceRecord };
                 _targetService.Execute(createRequest);
                 _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecordIdInTarget}}}.");
-
-                return;
             }
-
-            if (MatchedAction.CheckedRadioButtonNumbers[index] == 2)
+            else if (MatchedAction.CheckedRadioButtonNumbers[index] == 2)
             {
                 foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
                 {
@@ -176,6 +182,15 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 createRequest.Parameters.Add("SuppressDuplicateDetection", false);
                 _targetService.Execute(createRequest);
                 _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecordIdInTarget}}}");
+            }
+
+            if (checkForInactiveRecord && sourceRecord.Attributes.ContainsKey("statecode"))
+            {
+                if (statusValue != -1)
+                {
+                    sourceRecord.Attributes.Add("statuscode", new OptionSetValue(statusValue));
+                }
+                _targetService.Update(sourceRecord);
             }
         }
 

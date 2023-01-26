@@ -376,7 +376,7 @@ namespace DataMigrationUsingFetchXml
             // 
             this.displayNameDataGridViewTextBoxColumn.DataPropertyName = "DisplayName";
             this.displayNameDataGridViewTextBoxColumn.Frozen = true;
-            this.displayNameDataGridViewTextBoxColumn.HeaderText = "DisplayName";
+            this.displayNameDataGridViewTextBoxColumn.HeaderText = "Display Name";
             this.displayNameDataGridViewTextBoxColumn.Name = "displayNameDataGridViewTextBoxColumn";
             this.displayNameDataGridViewTextBoxColumn.ReadOnly = true;
             this.displayNameDataGridViewTextBoxColumn.Width = 120;
@@ -385,7 +385,7 @@ namespace DataMigrationUsingFetchXml
             // 
             this.schemaNameDataGridViewTextBoxColumn.DataPropertyName = "SchemaName";
             this.schemaNameDataGridViewTextBoxColumn.Frozen = true;
-            this.schemaNameDataGridViewTextBoxColumn.HeaderText = "SchemaName";
+            this.schemaNameDataGridViewTextBoxColumn.HeaderText = "Schema Name";
             this.schemaNameDataGridViewTextBoxColumn.Name = "schemaNameDataGridViewTextBoxColumn";
             this.schemaNameDataGridViewTextBoxColumn.ReadOnly = true;
             this.schemaNameDataGridViewTextBoxColumn.Width = 120;

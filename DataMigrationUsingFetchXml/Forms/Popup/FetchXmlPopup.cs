@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Xml;
+using System.Text;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
@@ -27,38 +29,57 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             {
                 openFileDialog.Title = "Select FetchXML File ";
                 openFileDialog.Filter = "XML File (*.xml)|*.xml";
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    XmlDocument xmlDoc = new XmlDocument();
-                    xmlDoc.Load(openFileDialog.FileName);
-                    _currentFetchXml = xmlDoc.OuterXml;
-                    textBoxFetch.Text = string.Empty;
-                }
+
                 try
                 {
+                    if (openFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        XmlDocument xmlDoc = new XmlDocument();
+                        xmlDoc.Load(openFileDialog.FileName);
+                        _currentFetchXml = xmlDoc.OuterXml;
+                        textBoxFetch.Text = string.Empty;
+                    }
+
                     if (openFileDialog.FileName != "")
                     {
-                        int index = 0;
-                        int startIndex = 0;
-                        while (index >= 0)
-                        {
-                            index = _currentFetchXml.IndexOf(">", index);
-                            if (index == -1)
-                            {
-                                break;
-                            }
-                            textBoxFetch.Text += _currentFetchXml.Substring(startIndex, ++index - startIndex);
-                            textBoxFetch.Text += Environment.NewLine;
-                            startIndex = index;
-                        }
-                        textBoxFetch.Text = textBoxFetch.Text.Remove(textBoxFetch.Text.Length - 2, 2);
+                        textBoxFetch.Text = FormatFetchXmlString(_currentFetchXml);
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    MessageBox.Show(ex.Message, "Invalid FetchXML", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+        }
+
+        private string FormatFetchXmlString(string fetchXml)
+        {
+            string formattedFetchXml = "";
+
+            MemoryStream mStream = new MemoryStream();
+            XmlTextWriter writer = new XmlTextWriter(mStream, Encoding.Unicode);
+            XmlDocument document = new XmlDocument();
+
+            try
+            {
+                document.LoadXml(fetchXml);
+                writer.Formatting = Formatting.Indented;
+                document.WriteContentTo(writer);
+                writer.Flush();
+                mStream.Flush();
+                mStream.Position = 0;
+
+                StreamReader sReader = new StreamReader(mStream);
+                formattedFetchXml = sReader.ReadToEnd();
+            }
+            catch (XmlException ex)
+            {
+                MessageBox.Show(ex.Message, "Invalid FetchXML", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            mStream.Close();
+            writer.Close();
+
+            return formattedFetchXml;
         }
 
         private void BtnOk_Click(object sender, EventArgs e)
@@ -101,7 +122,10 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 
         private bool CheckXml()
         {
-            if (string.IsNullOrEmpty(textBoxFetch.Text)) return false;
+            if (string.IsNullOrEmpty(textBoxFetch.Text))
+            {
+                return false;
+            }
 
             string word = "</fetch>";
             int index = textBoxFetch.Text.IndexOf(word);
@@ -114,7 +138,10 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             {
                 textBoxFetch.Text = fetch;
             }
-            if (!detail.StartsWith("<") && !detail.EndsWith(">")) return false;
+            if (!detail.StartsWith("<") && !detail.EndsWith(">"))
+            {
+                return false;
+            }
 
             XmlDocument xml = new XmlDocument();
             try
@@ -125,8 +152,11 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             {
                 return false;
             }
-            if (textBoxFetch.Text.Length > validFetchLength) return false;
 
+            if (textBoxFetch.Text.Length > validFetchLength)
+            {
+                return false;
+            }
             _currentFetchXml = textBoxFetch.Text;
 
             return true;

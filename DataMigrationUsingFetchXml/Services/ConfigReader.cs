@@ -57,6 +57,19 @@ namespace DataMigrationUsingFetchXml.Services
             }
         }
 
+        public static string CreateElementInFetchXml(string fetchXml, string elementValue)
+        {
+            XmlDocument xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(fetchXml);
+            XmlNode RootNode = xmlDocument.SelectSingleNode("//entity");
+
+            XmlElement xmlElement = xmlDocument.CreateElement("attribute");
+            xmlElement.SetAttribute("name", elementValue);
+            RootNode.AppendChild(xmlElement);
+
+            return xmlDocument.InnerXml;
+        }
+
         public static string CreatePaginationAttributes(string cookie)
         {
             XmlDocument doc = new XmlDocument();
