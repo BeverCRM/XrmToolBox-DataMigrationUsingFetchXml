@@ -7,12 +7,18 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
     internal partial class MatchedAction : Form
     {
         public static List<byte> CheckedRadioButtonNumbers { get; set; }
+        public static Dictionary<int, string> SelectedActionDescription { get; private set; }
         public int RowIndex { get; set; }
 
         public MatchedAction()
         {
             CheckedRadioButtonNumbers = new List<byte>();
             InitializeComponent();
+            SelectedActionDescription = new Dictionary<int, string>();
+            foreach (RadioButton item in MatchedActionPanel.Controls)
+            {
+                SelectedActionDescription.Add(item.TabIndex, item.Text);
+            }
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)

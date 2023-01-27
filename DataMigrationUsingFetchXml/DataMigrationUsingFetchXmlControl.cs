@@ -218,6 +218,8 @@ namespace DataMigrationUsingFetchXml
                         ProgressChanged = args =>
                         {
                             ResultItem resultItem = (ResultItem)args.UserState;
+                            SetLoadingDetails(true);
+                            LblCreated.Text = string.Empty;
                             ChangeLabelText(resultItem);
                             lastResultItem = resultItem;
                         },
@@ -225,10 +227,10 @@ namespace DataMigrationUsingFetchXml
                         {
                             ChangeToolsState(true);
                             BtnTransferData.Text = "Transfer Data";
-                            PrintResultItem();
+                            LogResultItems();
                             fetchXmls.Clear();
                             SetLoadingDetails(false);
-                            SetLastLabelTextByResultItem(lastResultItem);
+                            SetTotalDetailsOffAllEntities();
 
                             if (!CheckArgsResult(args))
                             {
@@ -265,23 +267,26 @@ namespace DataMigrationUsingFetchXml
             return (fetchXmls, tableIndexesForTransfer);
         }
 
-        private void SetLastLabelTextByResultItem(ResultItem lastResultItem)
+        private void SetTotalDetailsOffAllEntities()
         {
-            if (lastResultItem != null)
+            if (_transferOperation.ResultItems != null)
             {
-                LblInfo.Text = $"{lastResultItem.SuccessfullyGeneratedRecordCount} of {lastResultItem.SourceRecordCountWithSign} {lastResultItem.DisplayName} is imported";
-                if (lastResultItem.ErroredRecordCount > 0)
+                int totalRecordsCount = 0, totalCreatedRecordsCount = 0, totalUpdatedRecordsCount = 0, totalDeletedRecordsCount = 0, totalErroredRecordsCount = 0, totalSkippedRecordsCount = 0;
+                foreach (ResultItem resultItem in _transferOperation.ResultItems)
                 {
-                    LblError.Text = $"{lastResultItem.ErroredRecordCount} of {lastResultItem.SourceRecordCountWithSign} {lastResultItem.DisplayName} is errored";
+                    totalRecordsCount += resultItem.SourceRecordCount;
+                    totalCreatedRecordsCount += resultItem.CreatedRecordCount;
+                    totalUpdatedRecordsCount += resultItem.UpdatedRecordCount;
+                    totalDeletedRecordsCount += resultItem.DeletedRecordCount;
+                    totalErroredRecordsCount += resultItem.ErroredRecordCount;
+                    totalSkippedRecordsCount += resultItem.SkippedRecordCount;
                 }
-                if (lastResultItem.WarningRecordCount > 0)
-                {
-                    LblWarning.Text = $"{lastResultItem.WarningRecordCount} of {lastResultItem.SourceRecordCountWithSign} {lastResultItem.DisplayName} is warning";
-                }
-            }
-            else
-            {
-                LblInfo.Text = string.Empty;
+                LblRecordCount.Text = $"Total number of Records: {totalRecordsCount}";
+                LblCreated.Text = $"Total created Records: {totalCreatedRecordsCount}";
+                LblUpdated.Text = $"Total updated Records: {totalUpdatedRecordsCount}";
+                LblDeleted.Text = $"Total deleted Records: {totalDeletedRecordsCount}";
+                LblErrored.Text = $"Total errored Records: {totalErroredRecordsCount}";
+                LblSkipped.Text = $"Total skipped Records: {totalSkippedRecordsCount}";
             }
         }
 
@@ -301,7 +306,7 @@ namespace DataMigrationUsingFetchXml
                 return true;
         }
 
-        private void PrintResultItem()
+        private void LogResultItems()
         {
             _logger.LogInfo("Result: ");
             if (_transferOperation.ResultItems != null)
@@ -309,7 +314,8 @@ namespace DataMigrationUsingFetchXml
                 foreach (ResultItem resultItem in _transferOperation.ResultItems)
                 {
                     _logger.LogInfo($"{resultItem.SchemaName}, {resultItem.SourceRecordCountWithSign} (Source Records)," +
-                        $" {resultItem.SuccessfullyGeneratedRecordCount} (Migrated Records), {resultItem.ErroredRecordCount} (Errօred Records), {resultItem.WarningRecordCount} (Warning Records)");
+                        $" {resultItem.CreatedRecordCount} (Created Records), {resultItem.ErroredRecordCount} (Errօred Records), {resultItem.SkippedRecordCount} (Warning Records)," +
+                        $" {resultItem.UpdatedRecordCount} (Updated Records), {resultItem.DeletedRecordCount} (Deleted Records)");
                 }
             }
         }
@@ -317,15 +323,27 @@ namespace DataMigrationUsingFetchXml
         private void ChangeLabelText(ResultItem resultItem)
         {
             LblTitle.Text = $"Migrating {resultItem.DisplayName} records";
-            LblInfo.Text = $"{resultItem.SuccessfullyGeneratedRecordCount} of {resultItem.SourceRecordCountWithSign} is imported";
+            LblRecordCount.Text = $"Records Count: {resultItem.SourceRecordCountWithSign}";
 
+            if (resultItem.CreatedRecordCount > 0)
+            {
+                LblCreated.Text = $"Created Records: {resultItem.CreatedRecordCount}";
+            }
             if (resultItem.ErroredRecordCount > 0)
             {
-                LblError.Text = $"{resultItem.ErroredRecordCount} of {resultItem.SourceRecordCountWithSign} is errored";
+                LblErrored.Text = $"Errored Records: {resultItem.ErroredRecordCount}";
             }
-            if (resultItem.WarningRecordCount > 0)
+            if (resultItem.SkippedRecordCount > 0)
             {
-                LblWarning.Text = $"{resultItem.WarningRecordCount} of {resultItem.SourceRecordCountWithSign} Warnings";
+                LblSkipped.Text = $"Skipped Records: {resultItem.SkippedRecordCount}";
+            }
+            if (resultItem.UpdatedRecordCount > 0)
+            {
+                LblUpdated.Text = $"Updated Records: {resultItem.UpdatedRecordCount}";
+            }
+            if (resultItem.DeletedRecordCount > 0)
+            {
+                LblDeleted.Text = $"Deleted Records: {resultItem.DeletedRecordCount}";
             }
         }
 
@@ -340,12 +358,18 @@ namespace DataMigrationUsingFetchXml
         {
             if (visible == true)
             {
-                LblInfo.Text = "Loading...";
-                LblError.Visible = visible;
-                LblInfo.Visible = visible;
-                LblWarning.Visible = visible;
-                LblWarning.Text = string.Empty;
-                LblError.Text = string.Empty;
+                LblCreated.Text = "Loading...";
+                LblErrored.Visible = visible;
+                LblCreated.Visible = visible;
+                LblSkipped.Visible = visible;
+                LblDeleted.Visible = visible;
+                LblUpdated.Visible = visible;
+                LblRecordCount.Visible = visible;
+                LblSkipped.Text = string.Empty;
+                LblErrored.Text = string.Empty;
+                LblDeleted.Text = string.Empty;
+                LblUpdated.Text = string.Empty;
+                LblRecordCount.Text = string.Empty;
             }
             LblLoading.Visible = visible;
             LblTitle.Visible = visible;
@@ -371,9 +395,12 @@ namespace DataMigrationUsingFetchXml
         private void PictureBoxRecBin_Click(object sender, EventArgs e)
         {
             richTextBoxLogs.Text = null;
-            LblInfo.Text = string.Empty;
-            LblError.Text = string.Empty;
-            LblWarning.Text = string.Empty;
+            LblCreated.Text = string.Empty;
+            LblErrored.Text = string.Empty;
+            LblSkipped.Text = string.Empty;
+            LblDeleted.Text = string.Empty;
+            LblRecordCount.Text = string.Empty;
+            LblUpdated.Text = string.Empty;
         }
 
         private void PictureBoxAdd_Click(object sender, EventArgs e)

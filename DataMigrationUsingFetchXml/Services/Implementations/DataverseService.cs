@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
-using System.ServiceModel;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
@@ -106,12 +105,12 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 }
                 else
                 {
-                    sourceRecord["transactioncurrencyid"] = defaultCurrency ?? throw new FaultException("Can not find default transaction currency.");
+                    sourceRecord["transactioncurrencyid"] = defaultCurrency ?? throw new Exception("Can not find default transaction currency.");
                 }
             }
             else if (sourceRecord.Attributes.ContainsKey("transactioncurrencyid"))
             {
-                sourceRecord["transactioncurrencyid"] = defaultCurrency ?? throw new FaultException("Can not find default transaction currency.");
+                sourceRecord["transactioncurrencyid"] = defaultCurrency ?? throw new Exception("Can not find default transaction currency.");
             }
         }
 
@@ -128,7 +127,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
         }
 
-        public void CreateMatchedRecordInTarget(Entity sourceRecord, EntityCollection matchedTargetRecords, int index)
+        public void CreateMatchedRecordInTarget(Entity sourceRecord, EntityCollection matchedTargetRecords, ResultItem resultItem, int index)
         {
             SetRecordTransactionCurrency(sourceRecord);
             int statusValue = -1;
@@ -152,6 +151,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 CreateRequest createRequest = new CreateRequest { Target = sourceRecord };
                 _targetService.Execute(createRequest);
+                resultItem.CreatedRecordCount++;
                 _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecordIdInTarget}}}.");
             }
             else if (MatchedAction.CheckedRadioButtonNumbers[index] == 2)
@@ -159,9 +159,11 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
                 {
                     _targetService.Delete(matchedTargetRecord.LogicalName, matchedTargetRecord.Id);
-                    _logger.LogInfo($"Deleted the record with Id {{{matchedTargetRecord.Id}}} from the target instance.");
+                    resultItem.DeletedRecordCount++;
+                    _logger.LogWarning($"Deleted the record with Id {{{matchedTargetRecord.Id}}} from the target instance.");
                 }
                 _targetService.Create(sourceRecord);
+                resultItem.CreatedRecordCount++;
                 _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecordIdInTarget}}}.");
             }
             else if (MatchedAction.CheckedRadioButtonNumbers[index] == 3)
@@ -173,6 +175,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     newRecord.Attributes.AddRange(sourceRecord.Attributes);
                     newRecord[sourceRecord.LogicalName + "id"] = matchedTargetRecord[sourceRecord.LogicalName + "id"];
                     _targetService.Update(newRecord);
+                    resultItem.UpdatedRecordCount++;
                     _logger.LogInfo($"Updated the record with Id {{{matchedTargetRecord.Id}}} in the target instance.");
                 }
             }
@@ -181,6 +184,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 CreateRequest createRequest = new CreateRequest { Target = sourceRecord };
                 createRequest.Parameters.Add("SuppressDuplicateDetection", false);
                 _targetService.Execute(createRequest);
+                resultItem.CreatedRecordCount++;
                 _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecordIdInTarget}}}");
             }
 

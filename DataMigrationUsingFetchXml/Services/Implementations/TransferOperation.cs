@@ -45,16 +45,19 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             foreach (string fetchXml in fetchXmls)
             {
                 newFetchXml = fetchXml;
-                if (newFetchXml.Contains("statuscode") && !newFetchXml.Contains("statecode"))
+                ConfigReader.CurrentFetchXml = newFetchXml;
+                List<string> attributeNames = ConfigReader.GetAttributesNames();
+
+                if (attributeNames.Contains("statuscode") && !attributeNames.Contains("statecode"))
                 {
                     newFetchXml = ConfigReader.CreateElementInFetchXml(newFetchXml, "statecode");
                 }
-
                 ConfigReader.CurrentFetchXml = newFetchXml;
                 ConfigReader.SetPaginationAttributes();
                 _resultItem = new ResultItem();
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(out bool idExists);
 
+                _logger.LogInfo($"Selected Matching Action: {MatchedAction.SelectedActionDescription[MatchedAction.CheckedRadioButtonNumbers[tableIndexesForTransfer[index]]]}");
                 _logger.LogInfo("Getting data of '" + DisplayNames[tableIndexesForTransfer[index]] + "' from source instance");
                 _logger.LogInfo("Transfering data to: " + _organizationServiceUrl);
 
@@ -215,8 +218,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
             if (checkMatchingRecords && MatchedAction.CheckedRadioButtonNumbers[rowIndex] == 4)
             {
-                ++_resultItem.WarningRecordCount;
-                _logger.LogWarning($"Skipped the record with Id {{{record.GetAttributeValue<Guid>(record.LogicalName + "id")}}} as it already exists in the target instance.");
+                ++_resultItem.SkippedRecordCount;
+                _logger.LogInfo($"Skipped the record with Id {{{record.GetAttributeValue<Guid>(record.LogicalName + "id")}}} as it already exists in the target instance.");
             }
             else
             {
@@ -228,21 +231,16 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     _dataverseService.MapSearchAttributes(newRecord, searchAttrs);
                     if (_matchedTargetRecords != null)
                     {
-                        _dataverseService.CreateMatchedRecordInTarget(newRecord, _matchedTargetRecords, rowIndex);
+                        _dataverseService.CreateMatchedRecordInTarget(newRecord, _matchedTargetRecords, _resultItem, rowIndex);
                     }
                     else
                     {
-                        _dataverseService.CreateMatchedRecordInTarget(newRecord, null, rowIndex);
+                        _dataverseService.CreateMatchedRecordInTarget(newRecord, null, _resultItem, rowIndex);
                     }
-                    ++_resultItem.SuccessfullyGeneratedRecordCount;
-                }
-                catch (FaultException ex)
-                {
-                    ++_resultItem.ErroredRecordCount;
-                    _logger.LogError(ex.Message);
                 }
                 catch (Exception ex)
                 {
+                    ++_resultItem.ErroredRecordCount;
                     _logger.LogError(ex.Message);
                 }
             }
