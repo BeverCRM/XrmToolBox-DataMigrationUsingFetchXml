@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
-using System.ServiceModel;
 using System.ComponentModel;
 using System.Collections.Generic;
 using DataMigrationUsingFetchXml.Model;
@@ -14,6 +13,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
     {
         public List<ResultItem> ResultItems { get; set; }
         public List<string> DisplayNames { get; set; }
+        public int CurrentIndexForTransfer { get; set; }
 
         private string _organizationServiceUrl;
 
@@ -46,6 +46,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 newFetchXml = fetchXml;
                 ConfigReader.CurrentFetchXml = newFetchXml;
+                CurrentIndexForTransfer = tableIndexesForTransfer[index];
                 List<string> attributeNames = ConfigReader.GetAttributesNames();
 
                 if (attributeNames.Contains("statuscode") && !attributeNames.Contains("statecode"))
@@ -57,13 +58,13 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 _resultItem = new ResultItem();
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(out bool idExists);
 
-                _logger.LogInfo($"Selected Matching Action: {MatchedAction.SelectedActionDescription[MatchedAction.CheckedRadioButtonNumbers[tableIndexesForTransfer[index]]]}");
-                _logger.LogInfo("Getting data of '" + DisplayNames[tableIndexesForTransfer[index]] + "' from source instance");
+                _logger.LogInfo($"Selected Matching Action: {MatchedAction.SelectedActionDescription[MatchedAction.CheckedRadioButtonNumbers[CurrentIndexForTransfer]]}");
+                _logger.LogInfo("Getting data of '" + DisplayNames[CurrentIndexForTransfer] + "' from source instance");
                 _logger.LogInfo("Transfering data to: " + _organizationServiceUrl);
 
                 foreach (EntityCollection records in _dataverseService.GetAllRecords(newFetchXml))
                 {
-                    _resultItem.DisplayName = DisplayNames[tableIndexesForTransfer[index]];
+                    _resultItem.DisplayName = DisplayNames[CurrentIndexForTransfer];
                     _resultItem.SchemaName = records.EntityName;
                     _resultItem.SourceRecordCount += records.Entities.Count;
                     _resultItem.SourceRecordCountWithSign = _resultItem.SourceRecordCount.ToString();
@@ -85,7 +86,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
                                 return;
                             }
-                            TransferData(record, searchAttrs, idExists, tableIndexesForTransfer[index]);
+                            TransferData(record, searchAttrs, idExists, CurrentIndexForTransfer);
                             worker.ReportProgress(-1, _resultItem);
                         }
                     }
@@ -229,14 +230,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 try
                 {
                     _dataverseService.MapSearchAttributes(newRecord, searchAttrs);
-                    if (_matchedTargetRecords != null)
-                    {
-                        _dataverseService.CreateMatchedRecordInTarget(newRecord, _matchedTargetRecords, _resultItem, rowIndex);
-                    }
-                    else
-                    {
-                        _dataverseService.CreateMatchedRecordInTarget(newRecord, null, _resultItem, rowIndex);
-                    }
+                    _dataverseService.CreateMatchedRecordInTarget(newRecord, _matchedTargetRecords, _resultItem, rowIndex);
                 }
                 catch (Exception ex)
                 {

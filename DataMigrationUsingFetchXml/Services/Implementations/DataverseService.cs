@@ -139,7 +139,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
             string sourceRecordIdInTarget = sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id").ToString();
 
-            bool checkForInactiveRecord = ((matchedTargetRecords == null || MatchedAction.CheckedRadioButtonNumbers[index] != 3) && sourceRecord.GetAttributeValue<OptionSetValue>("statecode").Value == 1);
+            bool checkForInactiveRecord = ((matchedTargetRecords == null || MatchedAction.CheckedRadioButtonNumbers[index] != 3) &&
+                sourceRecord.Attributes.ContainsKey("statecode") && sourceRecord.GetAttributeValue<OptionSetValue>("statecode").Value == 1);
 
             if (checkForInactiveRecord && sourceRecord.Attributes.ContainsKey("statuscode"))
             {
@@ -188,7 +189,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecordIdInTarget}}}");
             }
 
-            if (checkForInactiveRecord && sourceRecord.Attributes.ContainsKey("statecode"))
+            if (checkForInactiveRecord)
             {
                 if (statusValue != -1)
                 {

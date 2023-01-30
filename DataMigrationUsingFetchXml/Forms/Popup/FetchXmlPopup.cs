@@ -55,7 +55,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         private string FormatFetchXmlString(string fetchXml)
         {
             string formattedFetchXml = "";
-
             MemoryStream mStream = new MemoryStream();
             XmlTextWriter writer = new XmlTextWriter(mStream, Encoding.Unicode);
             XmlDocument document = new XmlDocument();
@@ -126,7 +125,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             {
                 return false;
             }
-
             string word = "</fetch>";
             int index = textBoxFetch.Text.IndexOf(word);
             int validFetchLength = index + word.Length;

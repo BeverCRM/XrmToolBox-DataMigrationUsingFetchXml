@@ -12,9 +12,10 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 
         public MatchedAction()
         {
-            CheckedRadioButtonNumbers = new List<byte>();
             InitializeComponent();
+            CheckedRadioButtonNumbers = new List<byte>();
             SelectedActionDescription = new Dictionary<int, string>();
+
             foreach (RadioButton item in MatchedActionPanel.Controls)
             {
                 SelectedActionDescription.Add(item.TabIndex, item.Text);

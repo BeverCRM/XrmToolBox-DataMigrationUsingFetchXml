@@ -230,7 +230,7 @@ namespace DataMigrationUsingFetchXml
                             LogResultItems();
                             fetchXmls.Clear();
                             SetLoadingDetails(false);
-                            SetTotalDetailsOffAllEntities();
+                            SetTotalDetailsOfAllEntities();
 
                             if (!CheckArgsResult(args))
                             {
@@ -267,7 +267,7 @@ namespace DataMigrationUsingFetchXml
             return (fetchXmls, tableIndexesForTransfer);
         }
 
-        private void SetTotalDetailsOffAllEntities()
+        private void SetTotalDetailsOfAllEntities()
         {
             if (_transferOperation.ResultItems != null)
             {
@@ -283,9 +283,10 @@ namespace DataMigrationUsingFetchXml
                 }
                 LblRecordCount.Text = $"Total number of Records: {totalRecordsCount}";
                 LblCreated.Text = $"Total created Records: {totalCreatedRecordsCount}";
-                LblUpdated.Text = $"Total updated Records: {totalUpdatedRecordsCount}";
-                LblDeleted.Text = $"Total deleted Records: {totalDeletedRecordsCount}";
                 LblErrored.Text = $"Total errored Records: {totalErroredRecordsCount}";
+                LblForActions.ForeColor = Color.Gold;
+                LblForActions.Text = $"Total deleted Records: {totalDeletedRecordsCount}";
+                LblUpdate.Text = $"Total updated Records: {totalUpdatedRecordsCount}";
                 LblSkipped.Text = $"Total skipped Records: {totalSkippedRecordsCount}";
             }
         }
@@ -303,7 +304,9 @@ namespace DataMigrationUsingFetchXml
                 return false;
             }
             else
+            {
                 return true;
+            }
         }
 
         private void LogResultItems()
@@ -325,25 +328,23 @@ namespace DataMigrationUsingFetchXml
             LblTitle.Text = $"Migrating {resultItem.DisplayName} records";
             LblRecordCount.Text = $"Records Count: {resultItem.SourceRecordCountWithSign}";
 
-            if (resultItem.CreatedRecordCount > 0)
+            LblCreated.Text = $"Created Records: {resultItem.CreatedRecordCount}";
+            LblErrored.Text = $"Errored Records: {resultItem.ErroredRecordCount}";
+
+            if (MatchedAction.CheckedRadioButtonNumbers[_transferOperation.CurrentIndexForTransfer] == 2)
             {
-                LblCreated.Text = $"Created Records: {resultItem.CreatedRecordCount}";
+                LblForActions.ForeColor = Color.Gold;
+                LblForActions.Text = $"Deleted Records: {resultItem.DeletedRecordCount}";
             }
-            if (resultItem.ErroredRecordCount > 0)
+            else if (MatchedAction.CheckedRadioButtonNumbers[_transferOperation.CurrentIndexForTransfer] == 3)
             {
-                LblErrored.Text = $"Errored Records: {resultItem.ErroredRecordCount}";
+                LblForActions.ForeColor = Color.Black;
+                LblForActions.Text = $"Updated Records: {resultItem.UpdatedRecordCount}";
             }
-            if (resultItem.SkippedRecordCount > 0)
+            else if (MatchedAction.CheckedRadioButtonNumbers[_transferOperation.CurrentIndexForTransfer] == 4)
             {
-                LblSkipped.Text = $"Skipped Records: {resultItem.SkippedRecordCount}";
-            }
-            if (resultItem.UpdatedRecordCount > 0)
-            {
-                LblUpdated.Text = $"Updated Records: {resultItem.UpdatedRecordCount}";
-            }
-            if (resultItem.DeletedRecordCount > 0)
-            {
-                LblDeleted.Text = $"Deleted Records: {resultItem.DeletedRecordCount}";
+                LblForActions.ForeColor = Color.Black;
+                LblForActions.Text = $"Skipped Records: {resultItem.SkippedRecordCount}";
             }
         }
 
@@ -361,15 +362,15 @@ namespace DataMigrationUsingFetchXml
                 LblCreated.Text = "Loading...";
                 LblErrored.Visible = visible;
                 LblCreated.Visible = visible;
-                LblSkipped.Visible = visible;
-                LblDeleted.Visible = visible;
-                LblUpdated.Visible = visible;
+                LblForActions.Visible = visible;
                 LblRecordCount.Visible = visible;
-                LblSkipped.Text = string.Empty;
+                LblUpdate.Visible = visible;
+                LblSkipped.Visible = visible;
                 LblErrored.Text = string.Empty;
-                LblDeleted.Text = string.Empty;
-                LblUpdated.Text = string.Empty;
+                LblForActions.Text = string.Empty;
                 LblRecordCount.Text = string.Empty;
+                LblSkipped.Text = string.Empty;
+                LblUpdate.Text = string.Empty;
             }
             LblLoading.Visible = visible;
             LblTitle.Visible = visible;
@@ -397,10 +398,10 @@ namespace DataMigrationUsingFetchXml
             richTextBoxLogs.Text = null;
             LblCreated.Text = string.Empty;
             LblErrored.Text = string.Empty;
-            LblSkipped.Text = string.Empty;
-            LblDeleted.Text = string.Empty;
             LblRecordCount.Text = string.Empty;
-            LblUpdated.Text = string.Empty;
+            LblForActions.Text = string.Empty;
+            LblSkipped.Text = string.Empty;
+            LblUpdate.Text = string.Empty;
         }
 
         private void PictureBoxAdd_Click(object sender, EventArgs e)

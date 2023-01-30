@@ -32,7 +32,7 @@ namespace DataMigrationUsingFetchXml
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DataMigrationUsingFetchXmlControl));
             this.TxtLogsPath = new System.Windows.Forms.TextBox();
             this.BtnBrowseLogs = new System.Windows.Forms.Button();
@@ -66,10 +66,10 @@ namespace DataMigrationUsingFetchXml
             this.pictureBoxRecBin = new System.Windows.Forms.PictureBox();
             this.pictureBoxAdd = new System.Windows.Forms.PictureBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.LblSkipped = new System.Windows.Forms.Label();
-            this.LblUpdated = new System.Windows.Forms.Label();
-            this.LblDeleted = new System.Windows.Forms.Label();
+            this.LblForActions = new System.Windows.Forms.Label();
             this.LblRecordCount = new System.Windows.Forms.Label();
+            this.LblUpdate = new System.Windows.Forms.Label();
+            this.LblSkipped = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.FetchDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fetchXmlDataBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxRecBin)).BeginInit();
@@ -277,9 +277,9 @@ namespace DataMigrationUsingFetchXml
             // 
             // MatchingCriteria
             // 
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle2.NullValue = "Edit";
-            this.MatchingCriteria.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle3.NullValue = "Edit";
+            this.MatchingCriteria.DefaultCellStyle = dataGridViewCellStyle3;
             this.MatchingCriteria.HeaderText = "Matching Criteria";
             this.MatchingCriteria.Name = "MatchingCriteria";
             this.MatchingCriteria.Text = "";
@@ -326,7 +326,7 @@ namespace DataMigrationUsingFetchXml
             this.LblCreated.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblCreated.BackColor = System.Drawing.SystemColors.Window;
             this.LblCreated.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblCreated.Location = new System.Drawing.Point(656, 337);
+            this.LblCreated.Location = new System.Drawing.Point(656, 336);
             this.LblCreated.Name = "LblCreated";
             this.LblCreated.Size = new System.Drawing.Size(257, 30);
             this.LblCreated.TabIndex = 34;
@@ -338,9 +338,9 @@ namespace DataMigrationUsingFetchXml
             this.LblTitle.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblTitle.BackColor = System.Drawing.SystemColors.Window;
             this.LblTitle.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblTitle.Location = new System.Drawing.Point(647, 210);
+            this.LblTitle.Location = new System.Drawing.Point(632, 201);
             this.LblTitle.Name = "LblTitle";
-            this.LblTitle.Size = new System.Drawing.Size(275, 53);
+            this.LblTitle.Size = new System.Drawing.Size(305, 53);
             this.LblTitle.TabIndex = 35;
             this.LblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.LblTitle.Visible = false;
@@ -350,7 +350,7 @@ namespace DataMigrationUsingFetchXml
             this.LblErrored.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblErrored.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LblErrored.ForeColor = System.Drawing.Color.Red;
-            this.LblErrored.Location = new System.Drawing.Point(656, 426);
+            this.LblErrored.Location = new System.Drawing.Point(656, 359);
             this.LblErrored.Name = "LblErrored";
             this.LblErrored.Size = new System.Drawing.Size(257, 30);
             this.LblErrored.TabIndex = 37;
@@ -379,7 +379,7 @@ namespace DataMigrationUsingFetchXml
             this.LblLoading.BackColor = System.Drawing.SystemColors.Window;
             this.LblLoading.Image = global::DataMigrationUsingFetchXml.Properties.Resources.loading;
             this.LblLoading.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.LblLoading.Location = new System.Drawing.Point(759, 263);
+            this.LblLoading.Location = new System.Drawing.Point(759, 254);
             this.LblLoading.Name = "LblLoading";
             this.LblLoading.Size = new System.Drawing.Size(50, 50);
             this.LblLoading.TabIndex = 33;
@@ -413,53 +413,53 @@ namespace DataMigrationUsingFetchXml
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
-            // LblSkipped
+            // LblForActions
             // 
-            this.LblSkipped.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.LblSkipped.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblSkipped.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.LblSkipped.Location = new System.Drawing.Point(656, 382);
-            this.LblSkipped.Name = "LblSkipped";
-            this.LblSkipped.Size = new System.Drawing.Size(257, 30);
-            this.LblSkipped.TabIndex = 37;
-            this.LblSkipped.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.LblSkipped.Visible = false;
-            // 
-            // LblUpdated
-            // 
-            this.LblUpdated.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.LblUpdated.BackColor = System.Drawing.SystemColors.Window;
-            this.LblUpdated.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblUpdated.Location = new System.Drawing.Point(656, 359);
-            this.LblUpdated.Name = "LblUpdated";
-            this.LblUpdated.Size = new System.Drawing.Size(257, 30);
-            this.LblUpdated.TabIndex = 34;
-            this.LblUpdated.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.LblUpdated.Visible = false;
-            // 
-            // LblDeleted
-            // 
-            this.LblDeleted.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.LblDeleted.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblDeleted.ForeColor = System.Drawing.Color.Gold;
-            this.LblDeleted.Location = new System.Drawing.Point(656, 405);
-            this.LblDeleted.Name = "LblDeleted";
-            this.LblDeleted.Size = new System.Drawing.Size(257, 30);
-            this.LblDeleted.TabIndex = 37;
-            this.LblDeleted.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.LblDeleted.Visible = false;
+            this.LblForActions.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.LblForActions.BackColor = System.Drawing.SystemColors.Window;
+            this.LblForActions.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.LblForActions.Location = new System.Drawing.Point(656, 382);
+            this.LblForActions.Name = "LblForActions";
+            this.LblForActions.Size = new System.Drawing.Size(257, 30);
+            this.LblForActions.TabIndex = 34;
+            this.LblForActions.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.LblForActions.Visible = false;
             // 
             // LblRecordCount
             // 
             this.LblRecordCount.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.LblRecordCount.BackColor = System.Drawing.SystemColors.Window;
             this.LblRecordCount.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblRecordCount.Location = new System.Drawing.Point(656, 310);
+            this.LblRecordCount.Location = new System.Drawing.Point(656, 306);
             this.LblRecordCount.Name = "LblRecordCount";
             this.LblRecordCount.Size = new System.Drawing.Size(257, 30);
             this.LblRecordCount.TabIndex = 34;
             this.LblRecordCount.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.LblRecordCount.Visible = false;
+            // 
+            // LblUpdate
+            // 
+            this.LblUpdate.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.LblUpdate.BackColor = System.Drawing.SystemColors.Window;
+            this.LblUpdate.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.LblUpdate.Location = new System.Drawing.Point(656, 405);
+            this.LblUpdate.Name = "LblUpdate";
+            this.LblUpdate.Size = new System.Drawing.Size(257, 30);
+            this.LblUpdate.TabIndex = 34;
+            this.LblUpdate.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.LblUpdate.Visible = false;
+            // 
+            // LblSkipped
+            // 
+            this.LblSkipped.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.LblSkipped.BackColor = System.Drawing.SystemColors.Window;
+            this.LblSkipped.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.LblSkipped.Location = new System.Drawing.Point(656, 428);
+            this.LblSkipped.Name = "LblSkipped";
+            this.LblSkipped.Size = new System.Drawing.Size(257, 30);
+            this.LblSkipped.TabIndex = 34;
+            this.LblSkipped.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.LblSkipped.Visible = false;
             // 
             // DataMigrationUsingFetchXmlControl
             // 
@@ -467,11 +467,11 @@ namespace DataMigrationUsingFetchXml
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.Controls.Add(this.LblDeleted);
-            this.Controls.Add(this.LblSkipped);
             this.Controls.Add(this.LblErrored);
             this.Controls.Add(this.LblTitle);
-            this.Controls.Add(this.LblUpdated);
+            this.Controls.Add(this.LblSkipped);
+            this.Controls.Add(this.LblUpdate);
+            this.Controls.Add(this.LblForActions);
             this.Controls.Add(this.LblRecordCount);
             this.Controls.Add(this.LblCreated);
             this.Controls.Add(this.LblLoading);
@@ -530,7 +530,6 @@ namespace DataMigrationUsingFetchXml
         private System.Windows.Forms.Label LblErrored;
         private System.Windows.Forms.PictureBox pictureBoxRecBin;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
-        private System.Windows.Forms.Label LblSkipped;
         private System.Windows.Forms.DataGridViewCheckBoxColumn CheckBox;
         private System.Windows.Forms.DataGridViewTextBoxColumn displayNameDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn schemaNameDataGridViewTextBoxColumn;
@@ -538,8 +537,9 @@ namespace DataMigrationUsingFetchXml
         private System.Windows.Forms.DataGridViewButtonColumn MatchingCriteria;
         private System.Windows.Forms.DataGridViewImageColumn Edit;
         private System.Windows.Forms.DataGridViewImageColumn Remove;
-        private System.Windows.Forms.Label LblUpdated;
-        private System.Windows.Forms.Label LblDeleted;
+        private System.Windows.Forms.Label LblForActions;
         private System.Windows.Forms.Label LblRecordCount;
+        private System.Windows.Forms.Label LblUpdate;
+        private System.Windows.Forms.Label LblSkipped;
     }
 }
