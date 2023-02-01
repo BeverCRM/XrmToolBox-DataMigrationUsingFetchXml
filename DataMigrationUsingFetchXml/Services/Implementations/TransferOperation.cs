@@ -110,6 +110,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             List<string> logicalOperatorNames = MatchingCriteria.SelectedLogicalOperators[rowIndex];
             EntityCollection finalMatchcdRecords = new EntityCollection();
             EntityCollection matchcdRecords = new EntityCollection();
+            List<EntityCollection> allMatchedTargetRecords = new List<EntityCollection>();
 
             if (attributeNames.Count == 0 && !idExists)
             {
@@ -124,69 +125,79 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 return CheckRecordInTargetByAttributeType(record, attributeNames[0]);
             }
-            else if (attributeNames.Count > 0)
+            else
             {
-                bool isThereMatchingRecordInTarget = false;
-                if (logicalOperatorNames[0] == "And")
-                {
-                    isThereMatchingRecordInTarget = true;
-                }
+                bool isThereMatchingRecordInTarget = logicalOperatorNames[0] == "And";
 
                 for (int i = 0, j = 0; i < attributeNames.Count; i++, j = i - 1)
                 {
+                    if (_matchedTargetRecords != null)
+                    {
+                        foreach (var item in _matchedTargetRecords.Entities)
+                        {
+                            matchcdRecords.Entities.Add(item);
+                        }
+                    }
+
                     if (logicalOperatorNames[j] == "And" && isThereMatchingRecordInTarget)
                     {
-                        if (_matchedTargetRecords != null)
-                        {
-                            foreach (var item in _matchedTargetRecords.Entities)
-                            {
-                                matchcdRecords.Entities.Add(item);
-                            }
-                        }
                         isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
-
-                        if (isThereMatchingRecordInTarget && matchcdRecords.Entities.Count > 0)
-                        {
-                            foreach (var item in _matchedTargetRecords.Entities)
-                            {
-                                Entity entity = matchcdRecords.Entities.Where(x => x.Id == item.Id).FirstOrDefault();
-                                if (entity != null)
-                                {
-                                    finalMatchcdRecords.Entities.Add(entity);
-                                }
-                            }
-                            _matchedTargetRecords.Entities.Clear();
-
-                            foreach (var item in finalMatchcdRecords.Entities)
-                            {
-                                _matchedTargetRecords.Entities.Add(item);
-                            }
-                            if (_matchedTargetRecords.Entities.Count == 0)
-                            {
-                                _matchedTargetRecords = null;
-                                isThereMatchingRecordInTarget = false;
-                            }
-                            finalMatchcdRecords.Entities.Clear();
-                            matchcdRecords.Entities.Clear();
-                        }
                     }
                     else if (logicalOperatorNames[j] == "OR")
                     {
-                        if (isThereMatchingRecordInTarget)
+                        if (_matchedTargetRecords != null && _matchedTargetRecords.Entities.Count > 0)
                         {
-                            return true;
+                            allMatchedTargetRecords.Add(_matchedTargetRecords);
                         }
-                        else
+                        isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
+                    }
+
+                    if (isThereMatchingRecordInTarget && matchcdRecords.Entities.Count > 0 && logicalOperatorNames[j] == "And")
+                    {
+                        foreach (var item in _matchedTargetRecords.Entities)
                         {
-                            isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
+                            Entity entity = matchcdRecords.Entities.Where(x => x.Id == item.Id).FirstOrDefault();
+                            if (entity != null)
+                            {
+                                finalMatchcdRecords.Entities.Add(entity);
+                            }
+                        }
+                        _matchedTargetRecords.Entities.Clear();
+
+                        foreach (var item in finalMatchcdRecords.Entities)
+                        {
+                            _matchedTargetRecords.Entities.Add(item);
+                        }
+                        if (_matchedTargetRecords.Entities.Count == 0)
+                        {
+                            _matchedTargetRecords = null;
+                            isThereMatchingRecordInTarget = false;
+                        }
+                        finalMatchcdRecords.Entities.Clear();
+                        matchcdRecords.Entities.Clear();
+                    }
+                }
+
+                if (_matchedTargetRecords == null && allMatchedTargetRecords.Count > 0)
+                {
+                    _matchedTargetRecords = allMatchedTargetRecords[0];
+                }
+
+                if (_matchedTargetRecords != null && allMatchedTargetRecords.Count > 0)
+                {
+                    foreach (var matchedTargetRecords in allMatchedTargetRecords)
+                    {
+                        foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
+                        {
+                            Entity entity = _matchedTargetRecords.Entities.Where(x => x.Id == matchedTargetRecord.Id).FirstOrDefault();
+                            if (entity == null)
+                            {
+                                _matchedTargetRecords.Entities.Add(matchedTargetRecord);
+                            }
                         }
                     }
                 }
                 return isThereMatchingRecordInTarget;
-            }
-            else
-            {
-                return false;
             }
         }
 
@@ -202,10 +213,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     _matchedTargetRecords = null;
                     return false;
                 }
-
                 return true;
             }
-
             return false;
         }
 

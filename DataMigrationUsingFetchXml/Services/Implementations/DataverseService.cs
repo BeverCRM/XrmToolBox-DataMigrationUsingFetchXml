@@ -71,46 +71,45 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private void SetRecordTransactionCurrency(Entity sourceRecord)
         {
-            EntityReference defaultCurrency = GetDefaultTransactionCurrency();
-
-            if (sourceRecord.Attributes.ContainsKey("transactioncurrencyid") && ConfigReader.CurrentFetchXml.Contains("transactioncurrencyid"))
+            if (sourceRecord.Attributes.ContainsKey("transactioncurrencyid"))
             {
-                string sourceRecordCurrencyName = sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Name;
-                EntityReference transactionCurrency = null;
+                EntityReference defaultCurrency = GetDefaultTransactionCurrency();
 
-                if (sourceRecordCurrencyName != null)
+                if (ConfigReader.CurrentFetchXml.Contains("transactioncurrencyid"))
                 {
-                    QueryExpression query = new QueryExpression("transactioncurrency")
+                    string sourceRecordCurrencyName = sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Name;
+                    EntityReference transactionCurrency = null;
+
+                    if (sourceRecordCurrencyName != null)
                     {
-                        ColumnSet = new ColumnSet(true),
-                        Criteria = new FilterExpression
+                        QueryExpression query = new QueryExpression("transactioncurrency")
                         {
-                            Conditions =
+                            ColumnSet = new ColumnSet(true),
+                            Criteria = new FilterExpression
+                            {
+                                Conditions =
                             {
                                 new ConditionExpression("currencyname", ConditionOperator.Equal, sourceRecordCurrencyName)
                             }
+                            }
+                        };
+                        EntityCollection transactionCurrencyCollection = _targetService.RetrieveMultiple(query);
+
+                        if (transactionCurrencyCollection != null && transactionCurrencyCollection.Entities.Count > 0)
+                        {
+                            transactionCurrency = transactionCurrencyCollection.Entities.FirstOrDefault().ToEntityReference();
                         }
-                    };
-                    EntityCollection transactionCurrencyCollection = _targetService.RetrieveMultiple(query);
-
-                    if (transactionCurrencyCollection != null && transactionCurrencyCollection.Entities.Count > 0)
-                    {
-                        transactionCurrency = transactionCurrencyCollection.Entities.FirstOrDefault().ToEntityReference();
                     }
-                }
 
-                if (transactionCurrency != null)
-                {
-                    (sourceRecord["transactioncurrencyid"] as EntityReference).Id = transactionCurrency.Id;
+                    if (transactionCurrency != null)
+                    {
+                        (sourceRecord["transactioncurrencyid"] as EntityReference).Id = transactionCurrency.Id;
+                    }
                 }
                 else
                 {
                     sourceRecord["transactioncurrencyid"] = defaultCurrency ?? throw new Exception("Can not find default transaction currency.");
                 }
-            }
-            else if (sourceRecord.Attributes.ContainsKey("transactioncurrencyid"))
-            {
-                sourceRecord["transactioncurrencyid"] = defaultCurrency ?? throw new Exception("Can not find default transaction currency.");
             }
         }
 

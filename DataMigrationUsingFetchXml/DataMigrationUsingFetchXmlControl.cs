@@ -433,7 +433,12 @@ namespace DataMigrationUsingFetchXml
                                 return;
                             }
                             (string logicalName, string displayName) = dataverseService.GetEntityName(fetch);
-                            _matchingCriteria.CreateLayoutPanels(fetch, rowIndex);
+
+                            if (!_matchingCriteria.CreateLayoutPanels(fetch, rowIndex))
+                            {
+                                fetch = Services.ConfigReader.CurrentFetchXml;
+                                _fetchXmlpopup.SetTextBoxText(fetch);
+                            }
 
                             FetchDataGridView.Invoke(new MethodInvoker(delegate
                             {

@@ -119,25 +119,35 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             }
         }
 
-        public void CreateLayoutPanels(string fetchXml, int rowIndex)
+        public bool CreateLayoutPanels(string fetchXml, int rowIndex)
         {
             int index = rowIndex;
             _rowIndex = rowIndex;
+            string oldFetchXml = ConfigReader.CurrentFetchXml;
             ConfigReader.CurrentFetchXml = fetchXml;
             string primaryKeyName = ConfigReader.GetFetchXmlPrimaryKey();
             List<string> attributeNames = ConfigReader.GetAttributesNames();
 
             if (rowIndex != -1)
             {
-                if (SelectedAttributeNames[rowIndex].Count > 0 && (SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) || (!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName == null)))
+                if (SelectedAttributeNames[rowIndex].Count > 0 && (SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) ||
+                    (!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName == null)))
                 {
                     bool clearSelectedAttributes = false;
                     foreach (var item in SelectedAttributeNames[rowIndex])
                     {
                         if (!attributeNames.Contains(item))
                         {
-                            clearSelectedAttributes = true;
-                            break;
+                            if (MessageBox.Show("Do you want to clear selected matching criteria because of the FetchXml change?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                            {
+                                clearSelectedAttributes = true;
+                                break;
+                            }
+                            else
+                            {
+                                ConfigReader.CurrentFetchXml = oldFetchXml;
+                                return false;
+                            }
                         }
                     }
                     if (!clearSelectedAttributes)
@@ -147,7 +157,15 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                         _fetchXmlAttributesNames[rowIndex] = attributeNames;
                         ChangeAttributeNamesBoxItems(attributeNames);
 
-                        return;
+                        return true;
+                    }
+                }
+                else if (!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName != null)
+                {
+                    if (MessageBox.Show("Do you want to clear selected matching criteria because of the FetchXml change?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                    {
+                        ConfigReader.CurrentFetchXml = oldFetchXml;
+                        return false;
                     }
                 }
                 SelectedAttributeNames[rowIndex].Clear();
@@ -195,6 +213,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             _logicalOperatorsPanels[index].Controls.Add(logicalOperatorBox, 0, 0);
             _attributeNamesPanels[index].Controls.Add(attributeNamesBox, 0, 1);
             _attributeNamesPanels[index].Controls.Add(new Label() { Text = "Exact Match" }, 1, 1);
+
+            return true;
         }
 
         public void RemoveLayoutPanelData(int rowIndex, bool isEdit = false)
@@ -410,7 +430,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             }
             if (checkBeforeApplying)
             {
-                MessageBox.Show("Please select before applying.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Please fill all fields before adding.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             else
             {
