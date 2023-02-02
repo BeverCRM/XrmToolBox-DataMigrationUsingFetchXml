@@ -461,7 +461,7 @@ namespace DataMigrationUsingFetchXml
                                         SchemaName = logicalName
                                     });
                                     FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[0].Value = true;
-                                    FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[3].Value = 1;
+                                    FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[3].Value = "Create";
                                     MatchedAction.CheckedRadioButtonNumbers.Add(1);
                                 }
                             }));
@@ -519,7 +519,7 @@ namespace DataMigrationUsingFetchXml
                         }
                         else
                         {
-                            MessageBox.Show($"Matching Criteria are not available for Action 1 (CREATE).", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            MessageBox.Show($"Matching Criteria are not available for Action (CREATE).", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                     });
                 }
@@ -529,7 +529,7 @@ namespace DataMigrationUsingFetchXml
                     _matchedAction.RowIndex = e.RowIndex;
                     if (_matchedAction.ShowDialog() == DialogResult.OK)
                     {
-                        FetchDataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = MatchedAction.CheckedRadioButtonNumbers[e.RowIndex];
+                        FetchDataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = MatchedAction.SelectedActionShortDescription[MatchedAction.CheckedRadioButtonNumbers[e.RowIndex] - 1];
                     }
                 }
             }

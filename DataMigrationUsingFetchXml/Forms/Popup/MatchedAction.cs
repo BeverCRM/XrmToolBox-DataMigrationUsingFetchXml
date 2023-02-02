@@ -7,6 +7,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
     internal partial class MatchedAction : Form
     {
         public static List<byte> CheckedRadioButtonNumbers { get; set; }
+        public static List<string> SelectedActionShortDescription { get; private set; }
         public static Dictionary<int, string> SelectedActionDescription { get; private set; }
         public int RowIndex { get; set; }
 
@@ -15,6 +16,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             InitializeComponent();
             CheckedRadioButtonNumbers = new List<byte>();
             SelectedActionDescription = new Dictionary<int, string>();
+            SelectedActionShortDescription = new List<string> { "Create", "Delete & Create", "Upsert", "Don't Create" };
 
             foreach (RadioButton item in MatchedActionPanel.Controls)
             {

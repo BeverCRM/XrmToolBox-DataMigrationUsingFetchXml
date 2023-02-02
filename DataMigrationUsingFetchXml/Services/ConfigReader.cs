@@ -117,7 +117,7 @@ namespace DataMigrationUsingFetchXml.Services
             return xmlDoc.DocumentElement.SelectNodes("/fetch/entity/attribute");
         }
 
-        private static string GetEntityName()
+        public static string GetEntityName()
         {
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(CurrentFetchXml);

@@ -45,8 +45,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.radioButton2.Name = "radioButton2";
             this.radioButton2.Size = new System.Drawing.Size(430, 40);
             this.radioButton2.TabIndex = 2;
-            this.radioButton2.Text = "2.Delete matched target record and create source record\r\n(Will create in case of " +
-    "not matching)";
+            this.radioButton2.Text = "Delete matched target record and create source record\r\n(Will create in case of no" +
+    "t matching)";
             this.radioButton2.UseVisualStyleBackColor = true;
             // 
             // radioButton4
@@ -55,7 +55,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.radioButton4.Name = "radioButton4";
             this.radioButton4.Size = new System.Drawing.Size(430, 40);
             this.radioButton4.TabIndex = 4;
-            this.radioButton4.Text = "4.Don\'t create a source record";
+            this.radioButton4.Text = "Don\'t create a source record";
             this.radioButton4.UseVisualStyleBackColor = true;
             // 
             // radioButton3
@@ -64,8 +64,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.radioButton3.Name = "radioButton3";
             this.radioButton3.Size = new System.Drawing.Size(430, 40);
             this.radioButton3.TabIndex = 3;
-            this.radioButton3.Text = "3.Update matched target record with source record data\r\n(Will create in case of n" +
-    "ot matching)";
+            this.radioButton3.Text = "Update matched target record with source record data\r\n(Will create in case of not" +
+    " matching)";
             this.radioButton3.UseVisualStyleBackColor = true;
             // 
             // radioButton1
@@ -76,8 +76,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.radioButton1.Size = new System.Drawing.Size(430, 38);
             this.radioButton1.TabIndex = 1;
             this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "1.Don\'t delete matched target record and create a source record\r\n(Will error in c" +
-    "ase of primary key matching)";
+            this.radioButton1.Text = "Don\'t delete matched target record and create a source record\r\n(Will error in cas" +
+    "e of primary key matching)";
             this.radioButton1.UseVisualStyleBackColor = true;
             // 
             // BtnApply

@@ -124,13 +124,26 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             int index = rowIndex;
             _rowIndex = rowIndex;
             string oldFetchXml = ConfigReader.CurrentFetchXml;
+            string oldEntityName = "";
+            if (rowIndex != -1)
+            {
+                oldEntityName = ConfigReader.GetEntityName();
+            }
             ConfigReader.CurrentFetchXml = fetchXml;
             string primaryKeyName = ConfigReader.GetFetchXmlPrimaryKey();
             List<string> attributeNames = ConfigReader.GetAttributesNames();
 
             if (rowIndex != -1)
             {
-                if (SelectedAttributeNames[rowIndex].Count > 0 && (SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) ||
+                if ((!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName != null) || (oldEntityName != ConfigReader.GetEntityName()))
+                {
+                    if (MessageBox.Show("Matching Criteria will be cleared as there are missing fields in FetchXml.", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK)
+                    {
+                        ConfigReader.CurrentFetchXml = oldFetchXml;
+                        return false;
+                    }
+                }
+                else if (SelectedAttributeNames[rowIndex].Count > 0 && (SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) ||
                     (!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName == null)))
                 {
                     bool clearSelectedAttributes = false;
@@ -138,7 +151,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                     {
                         if (!attributeNames.Contains(item))
                         {
-                            if (MessageBox.Show("Do you want to clear selected matching criteria because of the FetchXml change?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                            if (MessageBox.Show("Matching Criteria will be cleared as there are missing fields in FetchXml.", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
                             {
                                 clearSelectedAttributes = true;
                                 break;
@@ -158,14 +171,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                         ChangeAttributeNamesBoxItems(attributeNames);
 
                         return true;
-                    }
-                }
-                else if (!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName != null)
-                {
-                    if (MessageBox.Show("Do you want to clear selected matching criteria because of the FetchXml change?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
-                    {
-                        ConfigReader.CurrentFetchXml = oldFetchXml;
-                        return false;
                     }
                 }
                 SelectedAttributeNames[rowIndex].Clear();
