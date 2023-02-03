@@ -119,23 +119,19 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             }
         }
 
-        public bool CreateLayoutPanels(string fetchXml, int rowIndex)
+        public bool CheckEditedFetchXmlAttributeNamesWithSelected(string fetchXml, int rowIndex)
         {
-            int index = rowIndex;
             _rowIndex = rowIndex;
             string oldFetchXml = ConfigReader.CurrentFetchXml;
-            string oldEntityName = "";
-            if (rowIndex != -1)
-            {
-                oldEntityName = ConfigReader.GetEntityName();
-            }
+            string oldEntityName = ConfigReader.GetEntityName();
             ConfigReader.CurrentFetchXml = fetchXml;
             string primaryKeyName = ConfigReader.GetFetchXmlPrimaryKey();
             List<string> attributeNames = ConfigReader.GetAttributesNames();
 
-            if (rowIndex != -1)
+            if (SelectedAttributeNames[rowIndex].Count > 0 || (_primaryKeyNames.Count > 0 && _primaryKeyNames[rowIndex] != null && primaryKeyName == null))
             {
-                if ((!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName != null) || (oldEntityName != ConfigReader.GetEntityName()))
+                if ((!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName != null)
+                    || (oldEntityName != ConfigReader.GetEntityName()) || (_primaryKeyNames[rowIndex] != null && primaryKeyName == null))
                 {
                     if (MessageBox.Show("Matching Criteria will be cleared as there are missing fields in FetchXml.", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK)
                     {
@@ -143,18 +139,16 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                         return false;
                     }
                 }
-                else if (SelectedAttributeNames[rowIndex].Count > 0 && (SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) ||
-                    (!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName == null)))
+                else if (SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) ||
+                    (!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName == null))
                 {
-                    bool clearSelectedAttributes = false;
                     foreach (var item in SelectedAttributeNames[rowIndex])
                     {
                         if (!attributeNames.Contains(item))
                         {
                             if (MessageBox.Show("Matching Criteria will be cleared as there are missing fields in FetchXml.", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
                             {
-                                clearSelectedAttributes = true;
-                                break;
+                                return true;
                             }
                             else
                             {
@@ -163,16 +157,25 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                             }
                         }
                     }
-                    if (!clearSelectedAttributes)
-                    {
-                        attributeNames.Remove(primaryKeyName);
-                        _primaryKeyNames[rowIndex] = primaryKeyName;
-                        _fetchXmlAttributesNames[rowIndex] = attributeNames;
-                        ChangeAttributeNamesBoxItems(attributeNames);
+                    attributeNames.Remove(primaryKeyName);
+                    _primaryKeyNames[rowIndex] = primaryKeyName;
+                    _fetchXmlAttributesNames[rowIndex] = attributeNames;
+                    ChangeAttributeNamesBoxItems(attributeNames);
 
-                        return true;
-                    }
+                    return false;
                 }
+            }
+            return true;
+        }
+
+        public void CreateLayoutPanels(int rowIndex)
+        {
+            _rowIndex = rowIndex;
+            string primaryKeyName = ConfigReader.GetFetchXmlPrimaryKey();
+            List<string> attributeNames = ConfigReader.GetAttributesNames();
+
+            if (rowIndex != -1)
+            {
                 SelectedAttributeNames[rowIndex].Clear();
                 SelectedLogicalOperators[rowIndex].Clear();
                 RemoveLayoutPanelData(rowIndex, true);
@@ -185,10 +188,10 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 SelectedAttributeNames.Add(new List<string>());
                 SelectedLogicalOperators.Add(new List<string>());
                 _fetchXmlAttributesNames.Add(attributeNames);
-                index = _fetchXmlAttributesNames.Count - 1;
+                rowIndex = _fetchXmlAttributesNames.Count - 1;
             }
-            CreateAttributeNamesPanel(rowIndex);
-            CreateLogicalOperatorsPanel(rowIndex);
+            CreateAttributeNamesPanel(_rowIndex);
+            CreateLogicalOperatorsPanel(_rowIndex);
 
             ComboBox attributeNamesBox = new ComboBox();
             attributeNamesBox.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -199,27 +202,25 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             logicalOperatorBox.Items.Add("And");
             logicalOperatorBox.Items.Add("OR");
 
-            if (_primaryKeyNames[index] != null)
+            if (_primaryKeyNames[rowIndex] != null)
             {
                 attributeNamesBox.Enabled = false;
-                attributeNamesBox.Items.Add(_primaryKeyNames[index]);
-                attributeNamesBox.SelectedItem = _primaryKeyNames[index];
-                _fetchXmlAttributesNames[index].Remove(_primaryKeyNames[index]);
+                attributeNamesBox.Items.Add(_primaryKeyNames[rowIndex]);
+                attributeNamesBox.SelectedItem = _primaryKeyNames[rowIndex];
+                _fetchXmlAttributesNames[rowIndex].Remove(_primaryKeyNames[rowIndex]);
                 logicalOperatorBox.Enabled = false;
                 logicalOperatorBox.SelectedItem = "OR";
             }
             else
             {
-                foreach (var item in _fetchXmlAttributesNames[index])
+                foreach (var item in _fetchXmlAttributesNames[rowIndex])
                 {
                     attributeNamesBox.Items.Add(item);
                 }
             }
-            _logicalOperatorsPanels[index].Controls.Add(logicalOperatorBox, 0, 0);
-            _attributeNamesPanels[index].Controls.Add(attributeNamesBox, 0, 1);
-            _attributeNamesPanels[index].Controls.Add(new Label() { Text = "Exact Match" }, 1, 1);
-
-            return true;
+            _logicalOperatorsPanels[rowIndex].Controls.Add(logicalOperatorBox, 0, 0);
+            _attributeNamesPanels[rowIndex].Controls.Add(attributeNamesBox, 0, 1);
+            _attributeNamesPanels[rowIndex].Controls.Add(new Label() { Text = "Exact Match" }, 1, 1);
         }
 
         public void RemoveLayoutPanelData(int rowIndex, bool isEdit = false)

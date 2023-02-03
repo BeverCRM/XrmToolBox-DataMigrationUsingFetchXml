@@ -419,6 +419,18 @@ namespace DataMigrationUsingFetchXml
                 IDataverseService dataverseService = new DataverseService(Service);
                 ChangeToolsState(false);
 
+                string fetch = _fetchXmlpopup.GetTextBoxText();
+                bool clearMatchingCriteria = true;
+
+                if (rowIndex != -1 && fetch == _fetchXmlpopup.FetchXmls[rowIndex])
+                {
+                    return;
+                }
+                else if (rowIndex != -1)
+                {
+                    clearMatchingCriteria = _matchingCriteria.CheckEditedFetchXmlAttributeNamesWithSelected(fetch, rowIndex);
+                }
+
                 WorkAsync(new WorkAsyncInfo
                 {
                     Message = "Loading...",
@@ -426,15 +438,14 @@ namespace DataMigrationUsingFetchXml
                     {
                         try
                         {
-                            string fetch = _fetchXmlpopup.GetTextBoxText();
-
-                            if (rowIndex != -1 && fetch == _fetchXmlpopup.FetchXmls[rowIndex])
-                            {
-                                return;
-                            }
                             (string logicalName, string displayName) = dataverseService.GetEntityName(fetch);
 
-                            if (!_matchingCriteria.CreateLayoutPanels(fetch, rowIndex))
+                            if (clearMatchingCriteria)
+                            {
+                                Services.ConfigReader.CurrentFetchXml = fetch;
+                                _matchingCriteria.CreateLayoutPanels(rowIndex);
+                            }
+                            else
                             {
                                 fetch = Services.ConfigReader.CurrentFetchXml;
                                 _fetchXmlpopup.SetTextBoxText(fetch);
