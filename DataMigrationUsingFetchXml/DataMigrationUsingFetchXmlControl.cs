@@ -530,7 +530,7 @@ namespace DataMigrationUsingFetchXml
                         }
                         else
                         {
-                            MessageBox.Show($"Matching Criteria are not available for Action (CREATE).", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            MessageBox.Show($"Matching criteria are not available for the action CREATE.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                     });
                 }
