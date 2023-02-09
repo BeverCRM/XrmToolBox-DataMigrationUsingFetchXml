@@ -5,6 +5,7 @@ using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Messages;
 using System.Collections.Generic;
+using Microsoft.Crm.Sdk.Messages;
 using DataMigrationUsingFetchXml.Model;
 using DataMigrationUsingFetchXml.Forms.Popup;
 using DataMigrationUsingFetchXml.Services.Interfaces;
@@ -49,22 +50,22 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private EntityReference GetDefaultTransactionCurrency()
         {
-            var currentUserSettings = _targetService.RetrieveMultiple(
-                new QueryExpression("usersettings")
+            var userSettingsQuery = new QueryExpression("usersettings")
+            {
+                ColumnSet = new ColumnSet("transactioncurrencyid"),
+                Criteria = new FilterExpression
                 {
-                    ColumnSet = new ColumnSet("transactioncurrencyid"),
-                    Criteria = new FilterExpression
+                    Conditions =
                     {
-                        Conditions =
-                        {
-                            new ConditionExpression("systemuserid", ConditionOperator.EqualUserId)
-                        }
+                        new ConditionExpression("systemuserid", ConditionOperator.EqualUserId)
                     }
-                }).Entities[0].ToEntity<Entity>();
+                }
+            };
+            var currentUserSettings = _targetService.RetrieveMultiple(userSettingsQuery).Entities[0].ToEntity<Entity>();
 
             if (currentUserSettings.Attributes.ContainsKey("transactioncurrencyid"))
             {
-                return (currentUserSettings.Attributes["transactioncurrencyid"] as EntityReference);
+                return currentUserSettings.GetAttributeValue<EntityReference>("transactioncurrencyid");
             }
             return null;
         }
@@ -75,40 +76,39 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 EntityReference defaultCurrency = GetDefaultTransactionCurrency();
 
-                if (ConfigReader.CurrentFetchXml.Contains("transactioncurrencyid"))
+                if (!ConfigReader.CurrentFetchXml.Contains("transactioncurrencyid"))
                 {
-                    string sourceRecordCurrencyName = sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Name;
-                    EntityReference transactionCurrency = null;
+                    sourceRecord["transactioncurrencyid"] = defaultCurrency ?? throw new Exception("Can not find default transaction currency.");
+                    return;
+                }
 
-                    if (sourceRecordCurrencyName != null)
+                string sourceRecordCurrencyName = sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Name;
+                EntityReference transactionCurrency = null;
+
+                if (sourceRecordCurrencyName != null)
+                {
+                    QueryExpression query = new QueryExpression("transactioncurrency")
                     {
-                        QueryExpression query = new QueryExpression("transactioncurrency")
+                        ColumnSet = new ColumnSet(),
+                        Criteria = new FilterExpression
                         {
-                            ColumnSet = new ColumnSet(true),
-                            Criteria = new FilterExpression
-                            {
-                                Conditions =
+                            Conditions =
                             {
                                 new ConditionExpression("currencyname", ConditionOperator.Equal, sourceRecordCurrencyName)
                             }
-                            }
-                        };
-                        EntityCollection transactionCurrencyCollection = _targetService.RetrieveMultiple(query);
-
-                        if (transactionCurrencyCollection != null && transactionCurrencyCollection.Entities.Count > 0)
-                        {
-                            transactionCurrency = transactionCurrencyCollection.Entities.FirstOrDefault().ToEntityReference();
                         }
-                    }
+                    };
+                    EntityCollection transactionCurrencyCollection = _targetService.RetrieveMultiple(query);
 
-                    if (transactionCurrency != null)
+                    if (transactionCurrencyCollection != null && transactionCurrencyCollection.Entities.Count > 0)
                     {
-                        (sourceRecord["transactioncurrencyid"] as EntityReference).Id = transactionCurrency.Id;
+                        transactionCurrency = transactionCurrencyCollection.Entities.FirstOrDefault().ToEntityReference();
                     }
                 }
-                else
+
+                if (transactionCurrency != null)
                 {
-                    sourceRecord["transactioncurrencyid"] = defaultCurrency ?? throw new Exception("Can not find default transaction currency.");
+                    sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Id = transactionCurrency.Id;
                 }
             }
         }
@@ -249,7 +249,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 }
             };
 
-            return _targetService.RetrieveMultiple(query)?.Entities.FirstOrDefault();
+            return _targetService.RetrieveMultiple(query).Entities.FirstOrDefault();
         }
 
         public EntityCollection GetTargetMatchedRecords(Entity sourceRecord, string attributeSchemaName, string attributeType)
@@ -298,7 +298,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
             else
             {
-                return null;
+                throw new Exception($"Cannot find the type of {attributeSchemaName}");
             }
             QueryExpression query = new QueryExpression();
             query.EntityName = sourceRecord.LogicalName;
@@ -328,22 +328,25 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public string GetAttributeType(string logicalName, string entityLogicalName)
         {
-            try
+            var attributeRequest = new RetrieveAttributeRequest
             {
-                var attributeRequest = new RetrieveAttributeRequest
-                {
-                    EntityLogicalName = entityLogicalName,
-                    LogicalName = logicalName,
-                    RetrieveAsIfPublished = true
-                };
-                var attributeResponse = (RetrieveAttributeResponse)_sourceService.Execute(attributeRequest);
+                EntityLogicalName = entityLogicalName,
+                LogicalName = logicalName,
+                RetrieveAsIfPublished = true
+            };
+            var attributeResponse = (RetrieveAttributeResponse)_sourceService.Execute(attributeRequest);
 
-                return attributeResponse.AttributeMetadata.AttributeType.ToString();
-            }
-            catch (Exception)
+            return attributeResponse.AttributeMetadata.AttributeType.ToString();
+        }
+
+        public void DoesValidFetchXmlExpression(string fetchXml)
+        {
+            var validateFetchXmlExpressionRequest = new FetchXmlToQueryExpressionRequest
             {
-                return null;
-            }
+                FetchXml = fetchXml
+            };
+
+            _sourceService.Execute(validateFetchXmlExpressionRequest);
         }
     }
 }

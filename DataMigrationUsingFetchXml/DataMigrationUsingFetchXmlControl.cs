@@ -47,7 +47,6 @@ namespace DataMigrationUsingFetchXml
 
         private void DataMigrationUsingFetchXmlControl_Load(object sender, EventArgs e)
         {
-            // Loads or creates the settings for the plugin
             if (!SettingsManager.Instance.TryLoad(GetType(), out _mySettings))
             {
                 _mySettings = new Settings();
@@ -60,8 +59,6 @@ namespace DataMigrationUsingFetchXml
             TxtLogsPath.Text = _defaultPath;
             _logsPath = _defaultPath;
             richTextBoxLogs.HideSelection = false;
-
-            //CheckForIllegalCrossThreadCalls = false;
         }
 
         /// <summary>
@@ -171,84 +168,82 @@ namespace DataMigrationUsingFetchXml
 
         private void BtnTransferData_Click(object sender, EventArgs e)
         {
-            if (AdditionalConnectionDetails.Count > 0)
-            {
-                if (BtnTransferData.Text == "Cancel")
-                {
-                    CancelWorker();
-                    BtnTransferData.Enabled = false;
-                    BtnTransferData.Text = "Transfer Data";
-                    return;
-                }
-                InitializeLog();
-                (List<string> fetchXmls, List<int> tableIndexesForTransfer) = GetFetchDataGridViewData();
-
-                if (fetchXmls.Count > 0)
-                {
-                    ResultItem lastResultItem = null;
-                    BtnTransferData.Text = "Cancel";
-
-                    SetLoadingDetails(true);
-                    InitializeTransferOperation();
-                    ChangeToolsState(false);
-
-                    richTextBoxLogs.Text = string.Empty;
-                    BtnTransferData.Enabled = true;
-                    _logger.LogInfo("Transfer is started. ");
-                    _logger.LogInfo($"Log folder path: {TxtLogsPath.Text}");
-
-                    WorkAsync(new WorkAsyncInfo
-                    {
-                        Message = "_",
-                        MessageHeight = 0,
-                        MessageWidth = 0,
-                        IsCancelable = true,
-                        Work = (worker, args) =>
-                        {
-                            try
-                            {
-                                _transferOperation.Transfer(fetchXmls, tableIndexesForTransfer, worker, args);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(ex.Message);
-                                _logger.LogError($"[trace log] {ex.StackTrace}");
-                            }
-                        },
-                        ProgressChanged = args =>
-                        {
-                            ResultItem resultItem = (ResultItem)args.UserState;
-                            SetLoadingDetails(true);
-                            LblCreated.Text = string.Empty;
-                            ChangeLabelText(resultItem);
-                            lastResultItem = resultItem;
-                        },
-                        PostWorkCallBack = args =>
-                        {
-                            ChangeToolsState(true);
-                            BtnTransferData.Text = "Transfer Data";
-                            LogResultItems();
-                            fetchXmls.Clear();
-                            SetLoadingDetails(false);
-                            SetTotalDetailsOfAllEntities();
-
-                            if (!CheckArgsResult(args))
-                            {
-                                return;
-                            }
-                            MessageBox.Show("Data Migration Completed.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                    });
-                }
-                else
-                {
-                    MessageBox.Show("Select at least one row from FetchXML table for data transfer. ", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            else
+            if (AdditionalConnectionDetails.Count <= 0)
             {
                 MessageBox.Show("Select Target Instance. ", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
+
+            if (BtnTransferData.Text == "Cancel")
+            {
+                CancelWorker();
+                BtnTransferData.Enabled = false;
+                BtnTransferData.Text = "Transfer Data";
+                return;
+            }
+            InitializeLog();
+            (List<string> fetchXmls, List<int> tableIndexesForTransfer) = GetFetchDataGridViewData();
+
+            if (fetchXmls.Count <= 0)
+            {
+                MessageBox.Show("Select at least one row from FetchXML table for data transfer. ", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            ResultItem lastResultItem = null;
+            BtnTransferData.Text = "Cancel";
+
+            SetLoadingDetails(true);
+            InitializeTransferOperation();
+            ChangeToolsState(false);
+
+            richTextBoxLogs.Text = string.Empty;
+            BtnTransferData.Enabled = true;
+            _logger.LogInfo("Transfer is started. ");
+            _logger.LogInfo($"Log folder path: {TxtLogsPath.Text}");
+
+            WorkAsync(new WorkAsyncInfo
+            {
+                Message = "_",
+                MessageHeight = 0,
+                MessageWidth = 0,
+                IsCancelable = true,
+                Work = (worker, args) =>
+                {
+                    try
+                    {
+                        _transferOperation.Transfer(fetchXmls, tableIndexesForTransfer, worker, args);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex.Message);
+                        _logger.LogError($"[trace log] {ex.StackTrace}");
+                    }
+                },
+                ProgressChanged = args =>
+                {
+                    ResultItem resultItem = (ResultItem)args.UserState;
+                    SetLoadingDetails(true);
+                    LblCreated.Text = string.Empty;
+                    ChangeLabelText(resultItem);
+                    lastResultItem = resultItem;
+                },
+                PostWorkCallBack = args =>
+                {
+                    ChangeToolsState(true);
+                    BtnTransferData.Text = "Transfer Data";
+                    LogResultItems();
+                    fetchXmls.Clear();
+                    SetLoadingDetails(false);
+                    SetTotalDetailsOfAllEntities();
+
+                    if (!CheckArgsResult(args))
+                    {
+                        return;
+                    }
+                    MessageBox.Show("Data Migration Completed.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            });
         }
 
         private (List<string> fetchXmls, List<int> tableIndexesForTransfer) GetFetchDataGridViewData()
@@ -414,9 +409,11 @@ namespace DataMigrationUsingFetchXml
 
         private void FetchXmlPopupDialog(int rowIndex = -1)
         {
+            IDataverseService dataverseService = new DataverseService(Service);
+            _fetchXmlpopup.SetDataverseService(dataverseService);
+
             if (_fetchXmlpopup.ShowDialog() == DialogResult.OK)
             {
-                IDataverseService dataverseService = new DataverseService(Service);
                 ChangeToolsState(false);
 
                 string fetch = _fetchXmlpopup.GetTextBoxText();
@@ -424,6 +421,7 @@ namespace DataMigrationUsingFetchXml
 
                 if (rowIndex != -1 && fetch == _fetchXmlpopup.FetchXmls[rowIndex])
                 {
+                    ChangeToolsState(true);
                     return;
                 }
                 else if (rowIndex != -1)
@@ -498,20 +496,17 @@ namespace DataMigrationUsingFetchXml
         {
             if (e.RowIndex != -1)
             {
-                if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Remove")
+                if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Remove" && MessageBox.Show("Are you sure you want to delete this item?", "Delete Item", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    if (MessageBox.Show("Are you sure you want to delete this item?", "Delete Item", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                    {
-                        fetchXmlDataBindingSource.RemoveAt(e.RowIndex);
-                        _fetchXmlpopup.FetchXmls.RemoveAt(e.RowIndex);
-                        _displayNames.RemoveAt(e.RowIndex);
-                        MatchedAction.CheckedRadioButtonNumbers.RemoveAt(e.RowIndex);
-                        _matchingCriteria.RemoveLayoutPanelData(e.RowIndex);
+                    fetchXmlDataBindingSource.RemoveAt(e.RowIndex);
+                    _fetchXmlpopup.FetchXmls.RemoveAt(e.RowIndex);
+                    _displayNames.RemoveAt(e.RowIndex);
+                    MatchedAction.CheckedRadioButtonNumbers.RemoveAt(e.RowIndex);
+                    _matchingCriteria.RemoveLayoutPanelData(e.RowIndex);
 
-                        CustomiseFetchDataGridViewSizeBasedOnRowHeight(0);
-                    }
+                    CustomiseFetchDataGridViewSizeBasedOnRowHeight(0);
                 }
-                if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Edit")
+                else if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Edit")
                 {
                     _fetchXmlpopup.IsEdit = true;
                     _fetchXmlpopup.EditIndex = e.RowIndex;
@@ -519,7 +514,7 @@ namespace DataMigrationUsingFetchXml
                     FetchXmlPopupDialog(e.RowIndex);
                     _fetchXmlpopup.IsEdit = false;
                 }
-                if (FetchDataGridView.Columns[e.ColumnIndex].Name == "MatchingCriteria")
+                else if (FetchDataGridView.Columns[e.ColumnIndex].Name == "MatchingCriteria")
                 {
                     Invoke((MethodInvoker)delegate
                     {
@@ -534,7 +529,7 @@ namespace DataMigrationUsingFetchXml
                         }
                     });
                 }
-                if (FetchDataGridView.Columns[e.ColumnIndex].Name == "ActionIfMatched")
+                else if (FetchDataGridView.Columns[e.ColumnIndex].Name == "ActionIfMatched")
                 {
                     _matchedAction.CheckRadioButton(e.RowIndex);
                     _matchedAction.RowIndex = e.RowIndex;

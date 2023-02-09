@@ -13,5 +13,6 @@ namespace DataMigrationUsingFetchXml.Services.Interfaces
         Entity GetRecord(string entitySchemaName, string attributeSchemaName, string attributeValue);
         EntityCollection GetTargetMatchedRecords(Entity sourceRecord, string attributeSchemaName, string attributeType);
         string GetAttributeType(string logicalName, string entityLogicalName);
+        void DoesValidFetchXmlExpression(string fetchXml);
     }
 }

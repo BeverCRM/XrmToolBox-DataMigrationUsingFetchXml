@@ -53,6 +53,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 {
                     newFetchXml = ConfigReader.CreateElementInFetchXml(newFetchXml, "statecode");
                 }
+
                 ConfigReader.CurrentFetchXml = newFetchXml;
                 ConfigReader.SetPaginationAttributes();
                 _resultItem = new ResultItem();
@@ -177,45 +178,52 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                         matchcdRecords.Entities.Clear();
                     }
                 }
+                FillMatchedTargetRecords(allMatchedTargetRecords);
 
-                if (_matchedTargetRecords == null && allMatchedTargetRecords.Count > 0)
-                {
-                    _matchedTargetRecords = allMatchedTargetRecords[0];
-                }
+                return isThereMatchingRecordInTarget;
+            }
+        }
 
-                if (_matchedTargetRecords != null && allMatchedTargetRecords.Count > 0)
+        private void FillMatchedTargetRecords(List<EntityCollection> allMatchedTargetRecords)
+        {
+            if (_matchedTargetRecords == null && allMatchedTargetRecords.Count > 0)
+            {
+                _matchedTargetRecords = allMatchedTargetRecords[0];
+            }
+
+            if (_matchedTargetRecords != null && allMatchedTargetRecords.Count > 0)
+            {
+                foreach (var matchedTargetRecords in allMatchedTargetRecords)
                 {
-                    foreach (var matchedTargetRecords in allMatchedTargetRecords)
+                    foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
                     {
-                        foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
+                        Entity entity = _matchedTargetRecords.Entities.Where(x => x.Id == matchedTargetRecord.Id).FirstOrDefault();
+
+                        if (entity == null)
                         {
-                            Entity entity = _matchedTargetRecords.Entities.Where(x => x.Id == matchedTargetRecord.Id).FirstOrDefault();
-                            if (entity == null)
-                            {
-                                _matchedTargetRecords.Entities.Add(matchedTargetRecord);
-                            }
+                            _matchedTargetRecords.Entities.Add(matchedTargetRecord);
                         }
                     }
                 }
-                return isThereMatchingRecordInTarget;
             }
         }
 
         private bool CheckRecordInTargetByAttributeType(Entity record, string attributeName)
         {
-            if (record.Attributes.Contains(attributeName))
+            if (!record.Attributes.Contains(attributeName))
             {
-                string attributeType = _dataverseService.GetAttributeType(attributeName, record.LogicalName);
-                _matchedTargetRecords = _dataverseService.GetTargetMatchedRecords(record, attributeName, attributeType);
-
-                if (_matchedTargetRecords == null || _matchedTargetRecords.Entities.Count == 0)
-                {
-                    _matchedTargetRecords = null;
-                    return false;
-                }
-                return true;
+                return false;
             }
-            return false;
+
+            string attributeType = _dataverseService.GetAttributeType(attributeName, record.LogicalName);
+            _matchedTargetRecords = _dataverseService.GetTargetMatchedRecords(record, attributeName, attributeType);
+
+            if (_matchedTargetRecords == null || _matchedTargetRecords.Entities.Count == 0)
+            {
+                _matchedTargetRecords = null;
+                return false;
+            }
+            return true;
         }
 
         private void TransferData(Entity record, List<string> searchAttrs, bool idExists, int rowIndex)
@@ -223,7 +231,16 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             bool checkMatchingRecords = false;
             if (MatchedAction.CheckedRadioButtonNumbers[rowIndex] != 1)
             {
-                checkMatchingRecords = CheckMatchingRecords(record, rowIndex, idExists);
+                try
+                {
+                    checkMatchingRecords = CheckMatchingRecords(record, rowIndex, idExists);
+                }
+                catch (Exception ex)
+                {
+                    ++_resultItem.ErroredRecordCount;
+                    _logger.LogError(ex.Message);
+                    return;
+                }
             }
 
             if (checkMatchingRecords && MatchedAction.CheckedRadioButtonNumbers[rowIndex] == 4)

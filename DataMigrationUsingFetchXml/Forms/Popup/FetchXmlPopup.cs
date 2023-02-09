@@ -5,6 +5,7 @@ using System.Text;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using DataMigrationUsingFetchXml.Services.Interfaces;
 
 namespace DataMigrationUsingFetchXml.Forms.Popup
 {
@@ -14,6 +15,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         public int EditIndex { get; set; }
         public List<string> FetchXmls { get; private set; }
 
+        private IDataverseService _dataverseService;
+
         private string _currentFetchXml;
 
         public FetchXmlPopup()
@@ -21,6 +24,11 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             InitializeComponent();
             FetchXmls = new List<string>();
             MinimumSize = new Size(350, 250);
+        }
+
+        public void SetDataverseService(IDataverseService dataverseService)
+        {
+            _dataverseService = dataverseService;
         }
 
         private void BtnBrowseFile_Click(object sender, EventArgs e)
@@ -38,11 +46,11 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                         xmlDoc.Load(openFileDialog.FileName);
                         _currentFetchXml = xmlDoc.OuterXml;
                         textBoxFetch.Text = string.Empty;
-                    }
 
-                    if (openFileDialog.FileName != "")
-                    {
-                        textBoxFetch.Text = FormatFetchXmlString(_currentFetchXml);
+                        if (openFileDialog.FileName != "")
+                        {
+                            textBoxFetch.Text = FormatFetchXmlString(_currentFetchXml);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -83,30 +91,33 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 
         private void BtnOk_Click(object sender, EventArgs e)
         {
-            bool isValidXml = CheckXml();
-            if (isValidXml)
+            try
             {
+                _dataverseService.DoesValidFetchXmlExpression(textBoxFetch.Text);
+                _currentFetchXml = textBoxFetch.Text;
+
+                if (IsEdit && FetchXmls[EditIndex] == _currentFetchXml)
+                {
+                    DialogResult = DialogResult.OK;
+                    return;
+                }
+
+                if (IsFetchDuplicate() && (FetchXmls[EditIndex] != _currentFetchXml || !IsEdit))
+                {
+                    return;
+                }
+
                 if (!IsEdit)
                 {
-                    if (IsFetchDuplicate())
-                        return;
-
                     FetchXmls.Add(_currentFetchXml);
                 }
-                else
-                {
-                    if (FetchXmls[EditIndex] != _currentFetchXml)
-                    {
-                        if (IsFetchDuplicate())
-                            return;
-                    }
-                }
-                DialogResult = DialogResult.OK;
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("FetchXML is not valid", "Invalid FetchXML", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Invalid FetchXML", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
+            DialogResult = DialogResult.OK;
         }
 
         private bool IsFetchDuplicate()
@@ -117,47 +128,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 return true;
             }
             return false;
-        }
-
-        private bool CheckXml()
-        {
-            if (string.IsNullOrEmpty(textBoxFetch.Text))
-            {
-                return false;
-            }
-            string word = "</fetch>";
-            int index = textBoxFetch.Text.IndexOf(word);
-            int validFetchLength = index + word.Length;
-            string detail = textBoxFetch.Text.Trim();
-            string fetch = textBoxFetch.Text.Substring(0, validFetchLength);
-            string spaceInFetch = textBoxFetch.Text.Substring(validFetchLength, textBoxFetch.Text.Length - validFetchLength);
-
-            if (string.IsNullOrWhiteSpace(spaceInFetch))
-            {
-                textBoxFetch.Text = fetch;
-            }
-            if (!detail.StartsWith("<") && !detail.EndsWith(">"))
-            {
-                return false;
-            }
-
-            XmlDocument xml = new XmlDocument();
-            try
-            {
-                xml.LoadXml(string.Format("<Root>{0}</Root>", detail));
-            }
-            catch (XmlException)
-            {
-                return false;
-            }
-
-            if (textBoxFetch.Text.Length > validFetchLength)
-            {
-                return false;
-            }
-            _currentFetchXml = textBoxFetch.Text;
-
-            return true;
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)

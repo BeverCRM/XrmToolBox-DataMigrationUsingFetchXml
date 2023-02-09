@@ -106,7 +106,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 if (control is ComboBox attributeNamesBox)
                 {
                     attributeNamesBox.Items.Clear();
-                    if (!attributeNamesBox.Enabled)
+                    if (!attributeNamesBox.Enabled && _primaryKeyNames[_rowIndex] != null)
                     {
                         attributeNamesBox.Items.Add(_primaryKeyNames[_rowIndex]);
                     }
@@ -131,7 +131,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             if (SelectedAttributeNames[rowIndex].Count > 0 || (_primaryKeyNames.Count > 0 && _primaryKeyNames[rowIndex] != null && primaryKeyName == null))
             {
                 if ((!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName != null)
-                    || (oldEntityName != ConfigReader.GetEntityName()) || (_primaryKeyNames[rowIndex] != null && primaryKeyName == null))
+                    || (oldEntityName != ConfigReader.GetEntityName())
+                    || (_primaryKeyNames[rowIndex] != null && primaryKeyName == null))
                 {
                     if (MessageBox.Show("Matching Criteria will be cleared as there are missing fields in FetchXml.", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK)
                     {
@@ -375,7 +376,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 
         private void BtnClearSelection_Click(object sender, System.EventArgs e)
         {
-            //count is needed because each time the RowCount changes.
+            //we cannot use '_attributeNamesPanels[_rowIndex].RowCount' instead of 'count' because every time we remove the row '_attributeNamesPanels[_rowIndex].RowCount' is changing.
             int count = _attributeNamesPanels[_rowIndex].RowCount - 2;
 
             for (int i = 0; i < count; i++)
@@ -398,42 +399,11 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 
         private void BtnApply_Click(object sender, System.EventArgs e)
         {
-            bool checkBeforeApplying = false;
             List<string> attrNames = new List<string>();
             List<string> logicalOperators = new List<string>();
 
-            //Checking when you didn't clear selection before applying.
-            if (!(SelectedAttributeNames[_rowIndex].Count > 0 && _attributeNamesPanels[_rowIndex].Controls.Count == 4 &&
-                string.IsNullOrEmpty((_attributeNamesPanels[_rowIndex].Controls[2] as ComboBox).Text) && string.IsNullOrEmpty((_logicalOperatorsPanels[_rowIndex].Controls[0] as ComboBox).Text)))
-            {
-                foreach (var item in _attributeNamesPanels[_rowIndex].Controls)
-                {
-                    if (item is ComboBox attributeNamesBox)
-                    {
-                        if (string.IsNullOrEmpty(attributeNamesBox.Text))
-                        {
-                            checkBeforeApplying = true;
-                            break;
-                        }
-                        attrNames.Add(attributeNamesBox.Text);
-                    }
-                }
-                if (!checkBeforeApplying && attrNames.Count != 1)
-                {
-                    foreach (var item in _logicalOperatorsPanels[_rowIndex].Controls)
-                    {
-                        if (item is ComboBox logicalOperatorBox)
-                        {
-                            if (string.IsNullOrEmpty(logicalOperatorBox.Text))
-                            {
-                                checkBeforeApplying = true;
-                                break;
-                            }
-                            logicalOperators.Add(logicalOperatorBox.Text);
-                        }
-                    }
-                }
-            }
+            bool checkBeforeApplying = IsThereUnselectedDropDown(attrNames, logicalOperators);
+
             if (checkBeforeApplying)
             {
                 MessageBox.Show("Please fill all fields before adding.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -444,6 +414,40 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 SelectedLogicalOperators[_rowIndex] = logicalOperators;
                 Close();
             }
+        }
+
+        private bool IsThereUnselectedDropDown(List<string> attrNames, List<string> logicalOperators)
+        {
+            if (!(SelectedAttributeNames[_rowIndex].Count > 0 && _attributeNamesPanels[_rowIndex].Controls.Count == 4 &&
+                string.IsNullOrEmpty((_attributeNamesPanels[_rowIndex].Controls[2] as ComboBox).Text) && string.IsNullOrEmpty((_logicalOperatorsPanels[_rowIndex].Controls[0] as ComboBox).Text)))
+            {
+                foreach (var item in _attributeNamesPanels[_rowIndex].Controls)
+                {
+                    if (item is ComboBox attributeNamesBox)
+                    {
+                        if (string.IsNullOrEmpty(attributeNamesBox.Text))
+                        {
+                            return true;
+                        }
+                        attrNames.Add(attributeNamesBox.Text);
+                    }
+                }
+                if (attrNames.Count != 1)
+                {
+                    foreach (var item in _logicalOperatorsPanels[_rowIndex].Controls)
+                    {
+                        if (item is ComboBox logicalOperatorBox)
+                        {
+                            if (string.IsNullOrEmpty(logicalOperatorBox.Text))
+                            {
+                                return true;
+                            }
+                            logicalOperators.Add(logicalOperatorBox.Text);
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         private void BtnCancel_Click(object sender, System.EventArgs e)

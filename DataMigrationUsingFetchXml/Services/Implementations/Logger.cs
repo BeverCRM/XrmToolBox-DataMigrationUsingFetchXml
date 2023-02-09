@@ -24,47 +24,41 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public void LogInfo(string text)
         {
-            if (_logsPath != null)
-            {
-                text = " INFO: " + text;
-                string logText = $"[{DateTime.Now:G}]" + text + "\n";
-                LogToTextBox(logText);
-                LogToFile(logText);
-            }
-            else
+            if (_logsPath == null)
             {
                 throw new Exception("Log Path is Null!");
             }
+
+            text = " INFO: " + text;
+            string logText = $"[{DateTime.Now:G}]" + text + "\n";
+            LogToTextBox(logText);
+            LogToFile(logText);
         }
 
         public void LogError(string text)
         {
-            if (_logsPath != null)
-            {
-                string word = " ERROR: ";
-                ColorTextBoxLogs(text, word, Color.Red);
-                string logText = $"[{DateTime.Now:G}]" + word + text + "\n";
-                LogToFile(logText);
-            }
-            else
+            if (_logsPath == null)
             {
                 throw new Exception("Log Path is Null!");
             }
+
+            string word = " ERROR: ";
+            ColorTextBoxLogs(text, word, Color.Red);
+            string logText = $"[{DateTime.Now:G}]" + word + text + "\n";
+            LogToFile(logText);
         }
 
         public void LogWarning(string text)
         {
-            if (_logsPath != null)
-            {
-                string word = " WARNING: ";
-                ColorTextBoxLogs(text, word, Color.Gold);
-                string logText = $"[{DateTime.Now:G}]" + word + text + "\n";
-                LogToFile(logText);
-            }
-            else
+            if (_logsPath == null)
             {
                 throw new Exception("Log Path is Null!");
             }
+
+            string word = " WARNING: ";
+            ColorTextBoxLogs(text, word, Color.Gold);
+            string logText = $"[{DateTime.Now:G}]" + word + text + "\n";
+            LogToFile(logText);
         }
 
         private void ColorTextBoxLogs(string text, string colorWord, Color color)
