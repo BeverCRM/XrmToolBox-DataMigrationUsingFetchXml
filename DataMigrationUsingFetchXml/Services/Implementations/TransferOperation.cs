@@ -223,12 +223,14 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 _matchedTargetRecords = null;
                 return false;
             }
+
             return true;
         }
 
         private void TransferData(Entity record, List<string> searchAttrs, bool idExists, int rowIndex)
         {
             bool checkMatchingRecords = false;
+
             if (MatchedAction.CheckedRadioButtonNumbers[rowIndex] != 1)
             {
                 try
@@ -238,7 +240,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 catch (Exception ex)
                 {
                     ++_resultItem.ErroredRecordCount;
-                    _logger.LogError(ex.Message);
+                    _logger.LogError($"Cannot transfer record with id {{{record.GetAttributeValue<Guid>(record.LogicalName + "id")}}}.Error Message: {ex.Message}");
                     return;
                 }
             }
@@ -264,6 +266,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     _logger.LogError(ex.Message);
                 }
             }
+
             _matchedTargetRecords = null;
         }
     }

@@ -51,7 +51,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             // BtnRemoveLast
             // 
             this.BtnRemoveLast.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnRemoveLast.Enabled = false;
             this.BtnRemoveLast.Location = new System.Drawing.Point(375, 34);
             this.BtnRemoveLast.Name = "BtnRemoveLast";
             this.BtnRemoveLast.Size = new System.Drawing.Size(97, 23);

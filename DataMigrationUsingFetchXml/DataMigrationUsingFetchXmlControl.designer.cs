@@ -32,7 +32,7 @@ namespace DataMigrationUsingFetchXml
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DataMigrationUsingFetchXmlControl));
             this.TxtLogsPath = new System.Windows.Forms.TextBox();
             this.BtnBrowseLogs = new System.Windows.Forms.Button();
@@ -277,9 +277,9 @@ namespace DataMigrationUsingFetchXml
             // 
             // MatchingCriteria
             // 
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle3.NullValue = "Edit";
-            this.MatchingCriteria.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.NullValue = "Edit";
+            this.MatchingCriteria.DefaultCellStyle = dataGridViewCellStyle1;
             this.MatchingCriteria.HeaderText = "Matching Criteria";
             this.MatchingCriteria.Name = "MatchingCriteria";
             this.MatchingCriteria.Text = "";

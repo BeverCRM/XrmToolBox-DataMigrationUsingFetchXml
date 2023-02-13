@@ -67,6 +67,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 return currentUserSettings.GetAttributeValue<EntityReference>("transactioncurrencyid");
             }
+
             return null;
         }
 
@@ -128,14 +129,15 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public void CreateMatchedRecordInTarget(Entity sourceRecord, EntityCollection matchedTargetRecords, ResultItem resultItem, int index)
         {
-            SetRecordTransactionCurrency(sourceRecord);
             int statusValue = -1;
+            SetRecordTransactionCurrency(sourceRecord);
             string sourceRecordId = sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id").ToString();
 
             if (ConfigReader.GetFetchXmlPrimaryKey() == null)
             {
                 sourceRecord[sourceRecord.LogicalName + "id"] = Guid.NewGuid();
             }
+
             string sourceRecordIdInTarget = sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id").ToString();
 
             bool checkForInactiveRecord = ((matchedTargetRecords == null || MatchedAction.CheckedRadioButtonNumbers[index] != 3) &&
@@ -162,6 +164,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     resultItem.DeletedRecordCount++;
                     _logger.LogWarning($"Deleted the record with Id {{{matchedTargetRecord.Id}}} from the target instance.");
                 }
+
                 _targetService.Create(sourceRecord);
                 resultItem.CreatedRecordCount++;
                 _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecordIdInTarget}}}.");
@@ -194,6 +197,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 {
                     sourceRecord.Attributes.Add("statuscode", new OptionSetValue(statusValue));
                 }
+
                 _targetService.Update(sourceRecord);
             }
         }
@@ -300,6 +304,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 throw new Exception($"Cannot find the type of {attributeSchemaName}");
             }
+
             QueryExpression query = new QueryExpression();
             query.EntityName = sourceRecord.LogicalName;
             query.ColumnSet = new ColumnSet(true);
@@ -311,15 +316,18 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         public (string logicalName, string displayName) GetEntityName(string fetchXml)
         {
             EntityCollection returnCollection = _sourceService.RetrieveMultiple(new FetchExpression(fetchXml));
+
             if (returnCollection.Entities.Count == 0)
             {
                 throw new Exception($"Records not found: '{returnCollection.EntityName}'");
             }
+
             RetrieveEntityRequest retrieveEntityRequest = new RetrieveEntityRequest
             {
                 EntityFilters = EntityFilters.All,
                 LogicalName = returnCollection.Entities[0].LogicalName
             };
+
             RetrieveEntityResponse retrieveAccountEntityResponse = (RetrieveEntityResponse)_sourceService.Execute(retrieveEntityRequest);
             EntityMetadata AccountEntity = retrieveAccountEntityResponse.EntityMetadata;
 
@@ -334,12 +342,13 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 LogicalName = logicalName,
                 RetrieveAsIfPublished = true
             };
+
             var attributeResponse = (RetrieveAttributeResponse)_sourceService.Execute(attributeRequest);
 
             return attributeResponse.AttributeMetadata.AttributeType.ToString();
         }
 
-        public void DoesValidFetchXmlExpression(string fetchXml)
+        public void IsFetchXmlExpressionValid(string fetchXml)
         {
             var validateFetchXmlExpressionRequest = new FetchXmlToQueryExpressionRequest
             {

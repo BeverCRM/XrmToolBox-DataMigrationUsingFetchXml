@@ -82,7 +82,10 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private void LogToFile(string logText)
         {
-            File.AppendAllText(_logsPath, logText);
+            _richTxtBoxLogs.Invoke(new MethodInvoker(delegate
+            {
+                File.AppendAllText(_logsPath, logText);
+            }));
         }
     }
 }

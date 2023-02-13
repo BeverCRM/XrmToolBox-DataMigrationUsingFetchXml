@@ -267,6 +267,7 @@ namespace DataMigrationUsingFetchXml
             if (_transferOperation.ResultItems != null)
             {
                 int totalRecordsCount = 0, totalCreatedRecordsCount = 0, totalUpdatedRecordsCount = 0, totalDeletedRecordsCount = 0, totalErroredRecordsCount = 0, totalSkippedRecordsCount = 0;
+
                 foreach (ResultItem resultItem in _transferOperation.ResultItems)
                 {
                     totalRecordsCount += resultItem.SourceRecordCount;
@@ -307,6 +308,7 @@ namespace DataMigrationUsingFetchXml
         private void LogResultItems()
         {
             _logger.LogInfo("Result: ");
+
             if (_transferOperation.ResultItems != null)
             {
                 foreach (ResultItem resultItem in _transferOperation.ResultItems)
@@ -401,10 +403,17 @@ namespace DataMigrationUsingFetchXml
 
         private void PictureBoxAdd_Click(object sender, EventArgs e)
         {
-            InitializeLog();
-            _fetchXmlpopup.SetTextBoxText(string.Empty);
-            FetchXmlPopupDialog();
-            CustomiseFetchDataGridViewSizeBasedOnRowHeight(22);
+            if (Service == null)
+            {
+                MessageBox.Show($"Connect to the source instance.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else
+            {
+                InitializeLog();
+                _fetchXmlpopup.SetTextBoxText(string.Empty);
+                FetchXmlPopupDialog();
+                CustomiseFetchDataGridViewSizeBasedOnRowHeight(22);
+            }
         }
 
         private void FetchXmlPopupDialog(int rowIndex = -1)
@@ -426,7 +435,7 @@ namespace DataMigrationUsingFetchXml
                 }
                 else if (rowIndex != -1)
                 {
-                    clearMatchingCriteria = _matchingCriteria.CheckEditedFetchXmlAttributeNamesWithSelected(fetch, rowIndex);
+                    clearMatchingCriteria = _matchingCriteria.DoesEditedFetchXmlAttributeNamesMatchingWithSelected(fetch, rowIndex);
                 }
 
                 WorkAsync(new WorkAsyncInfo
@@ -434,58 +443,57 @@ namespace DataMigrationUsingFetchXml
                     Message = "Loading...",
                     Work = (worker, args) =>
                     {
-                        try
-                        {
-                            (string logicalName, string displayName) = dataverseService.GetEntityName(fetch);
+                        (string logicalName, string displayName) = dataverseService.GetEntityName(fetch);
 
-                            if (clearMatchingCriteria)
+                        if (clearMatchingCriteria)
+                        {
+                            Services.ConfigReader.CurrentFetchXml = fetch;
+                            _matchingCriteria.CreateLayoutPanels(rowIndex);
+                        }
+                        else
+                        {
+                            fetch = Services.ConfigReader.CurrentFetchXml;
+                            _fetchXmlpopup.SetTextBoxText(fetch);
+                        }
+
+                        FetchDataGridView.Invoke(new MethodInvoker(delegate
+                        {
+                            if (rowIndex != -1)
                             {
-                                Services.ConfigReader.CurrentFetchXml = fetch;
-                                _matchingCriteria.CreateLayoutPanels(rowIndex);
+                                _fetchXmlpopup.FetchXmls[rowIndex] = fetch;
+
+                                fetchXmlDataBindingSource[rowIndex] = new FetchXmlDataBindingSourceData()
+                                {
+                                    DisplayName = displayName,
+                                    SchemaName = logicalName
+                                };
+                                _displayNames[rowIndex] = displayName;
                             }
                             else
                             {
-                                fetch = Services.ConfigReader.CurrentFetchXml;
-                                _fetchXmlpopup.SetTextBoxText(fetch);
-                            }
+                                _displayNames.Add(displayName);
 
-                            FetchDataGridView.Invoke(new MethodInvoker(delegate
-                            {
-                                if (rowIndex != -1)
+                                fetchXmlDataBindingSource.Add(new FetchXmlDataBindingSourceData()
                                 {
-                                    _fetchXmlpopup.FetchXmls[rowIndex] = fetch;
-                                    fetchXmlDataBindingSource[rowIndex] = new FetchXmlDataBindingSourceData()
-                                    {
-                                        DisplayName = displayName,
-                                        SchemaName = logicalName
-                                    };
-                                    _displayNames[rowIndex] = displayName;
-                                }
-                                else
-                                {
-                                    _displayNames.Add(displayName);
-                                    fetchXmlDataBindingSource.Add(new FetchXmlDataBindingSourceData()
-                                    {
-                                        DisplayName = displayName,
-                                        SchemaName = logicalName
-                                    });
-                                    FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[0].Value = true;
-                                    FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[3].Value = "Create";
-                                    MatchedAction.CheckedRadioButtonNumbers.Add(1);
-                                }
-                            }));
-                        }
-                        catch (Exception ex)
+                                    DisplayName = displayName,
+                                    SchemaName = logicalName
+                                });
+                                FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[0].Value = true;
+                                FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[3].Value = "Create";
+                                MatchedAction.CheckedRadioButtonNumbers.Add(1);
+                            }
+                        }));
+                    },
+                    PostWorkCallBack = args =>
+                    {
+                        if (args.Error != null)
                         {
                             if (rowIndex == -1)
                             {
                                 _fetchXmlpopup.FetchXmls.RemoveAt(_fetchXmlpopup.FetchXmls.Count - 1);
                             }
-                            MessageBox.Show($"{ex.Message}.", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show($"{args.Error.Message}.", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
-                    },
-                    PostWorkCallBack = args =>
-                    {
                         ChangeToolsState(true);
                     }
                 });
@@ -496,11 +504,13 @@ namespace DataMigrationUsingFetchXml
         {
             if (e.RowIndex != -1)
             {
-                if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Remove" && MessageBox.Show("Are you sure you want to delete this item?", "Delete Item", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Remove" &&
+                    MessageBox.Show("Are you sure you want to delete this item?", "Delete Item", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     fetchXmlDataBindingSource.RemoveAt(e.RowIndex);
                     _fetchXmlpopup.FetchXmls.RemoveAt(e.RowIndex);
                     _displayNames.RemoveAt(e.RowIndex);
+
                     MatchedAction.CheckedRadioButtonNumbers.RemoveAt(e.RowIndex);
                     _matchingCriteria.RemoveLayoutPanelData(e.RowIndex);
 
@@ -533,6 +543,7 @@ namespace DataMigrationUsingFetchXml
                 {
                     _matchedAction.CheckRadioButton(e.RowIndex);
                     _matchedAction.RowIndex = e.RowIndex;
+
                     if (_matchedAction.ShowDialog() == DialogResult.OK)
                     {
                         FetchDataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = MatchedAction.SelectedActionShortDescription[MatchedAction.CheckedRadioButtonNumbers[e.RowIndex] - 1];

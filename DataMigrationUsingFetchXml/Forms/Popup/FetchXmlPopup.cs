@@ -83,6 +83,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             {
                 MessageBox.Show(ex.Message, "Invalid FetchXML", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
             mStream.Close();
             writer.Close();
 
@@ -93,7 +94,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         {
             try
             {
-                _dataverseService.DoesValidFetchXmlExpression(textBoxFetch.Text);
+                _dataverseService.IsFetchXmlExpressionValid(textBoxFetch.Text);
                 _currentFetchXml = textBoxFetch.Text;
 
                 if (IsEdit && FetchXmls[EditIndex] == _currentFetchXml)
@@ -117,6 +118,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 MessageBox.Show(ex.Message, "Invalid FetchXML", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+
             DialogResult = DialogResult.OK;
         }
 
@@ -127,6 +129,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 MessageBox.Show("This FetchXML already exists. A duplicate FetchXML cannot be added.", "Duplicate FetchXML", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return true;
             }
+
             return false;
         }
 
@@ -136,6 +139,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             {
                 textBoxFetch.Text = string.Empty;
             }
+
             Close();
         }
 
