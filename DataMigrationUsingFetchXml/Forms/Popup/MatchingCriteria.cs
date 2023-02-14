@@ -283,6 +283,17 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                     Controls.Add(_logicalOperatorsPanels[rowIndex]);
                 }
             }
+
+            if (_attributeNamesPanels[rowIndex].Controls.Count > 4)
+            {
+                BtnRemoveLast.Enabled = true;
+                BtnClearSelection.Enabled = true;
+            }
+            else
+            {
+                BtnRemoveLast.Enabled = false;
+                ChangeBtnClearSelectionState((ComboBox)_attributeNamesPanels[rowIndex].Controls[2]);
+            }
         }
 
         private void AddRowToAttributeNamesPanel(string selectionName = null)
@@ -369,6 +380,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         {
             layoutPanel.Controls.RemoveAt(layoutPanel.Controls.Count - 1);
             layoutPanel.RowStyles.RemoveAt(layoutPanel.RowStyles.Count - 1);
+            layoutPanel.Height -= 30;
             layoutPanel.RowCount--;
         }
 
@@ -423,7 +435,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 logicalOperatorBox.Items.Remove(" ");
             }
 
-            ChangeBtnClearSelectionState(attributeNamesBox);
+            BtnClearSelection.Enabled = false;
         }
 
         private void BtnApply_Click(object sender, System.EventArgs e)

@@ -210,15 +210,7 @@ namespace DataMigrationUsingFetchXml
                 IsCancelable = true,
                 Work = (worker, args) =>
                 {
-                    try
-                    {
-                        _transferOperation.Transfer(fetchXmls, tableIndexesForTransfer, worker, args);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex.Message);
-                        _logger.LogError($"[trace log] {ex.StackTrace}");
-                    }
+                    _transferOperation.Transfer(fetchXmls, tableIndexesForTransfer, worker, args);
                 },
                 ProgressChanged = args =>
                 {
@@ -230,6 +222,12 @@ namespace DataMigrationUsingFetchXml
                 },
                 PostWorkCallBack = args =>
                 {
+                    if (args.Error != null)
+                    {
+                        _logger.LogError(args.Error.Message);
+                        _logger.LogError($"[trace log] {args.Error.StackTrace}");
+                    }
+
                     ChangeToolsState(true);
                     BtnTransferData.Text = "Transfer Data";
                     LogResultItems();
@@ -277,6 +275,7 @@ namespace DataMigrationUsingFetchXml
                     totalErroredRecordsCount += resultItem.ErroredRecordCount;
                     totalSkippedRecordsCount += resultItem.SkippedRecordCount;
                 }
+
                 LblRecordCount.Text = $"Total number of Records: {totalRecordsCount}";
                 LblCreated.Text = $"Total created Records: {totalCreatedRecordsCount}";
                 LblErrored.Text = $"Total errored Records: {totalErroredRecordsCount}";

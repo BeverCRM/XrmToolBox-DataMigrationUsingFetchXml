@@ -45,6 +45,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 PaginationDetails.PagingCookie = returnCollection.PagingCookie;
 
                 yield return returnCollection;
+
             } while (returnCollection.MoreRecords);
         }
 
