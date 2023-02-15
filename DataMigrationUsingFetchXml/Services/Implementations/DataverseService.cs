@@ -273,6 +273,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             else if (attributeType == "Lookup" || attributeType == "Customer" || attributeType == "Owner")
             {
                 EntityReference refValue = sourceRecord.GetAttributeValue<EntityReference>(attributeSchemaName);
+
                 if (refValue == null)
                 {
                     return null;
@@ -293,7 +294,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             else if (attributeType == "Money")
             {
                 Money money = (Money)sourceRecord[attributeSchemaName];
-
                 filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, money.Value.ToString()));
             }
             else if (attributeType == "Picklist" || attributeType == "Status" || attributeType == "State")
@@ -328,7 +328,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 EntityFilters = EntityFilters.All,
                 LogicalName = returnCollection.Entities[0].LogicalName
             };
-
             RetrieveEntityResponse retrieveAccountEntityResponse = (RetrieveEntityResponse)_sourceService.Execute(retrieveEntityRequest);
             EntityMetadata AccountEntity = retrieveAccountEntityResponse.EntityMetadata;
 
@@ -343,7 +342,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 LogicalName = logicalName,
                 RetrieveAsIfPublished = true
             };
-
             var attributeResponse = (RetrieveAttributeResponse)_sourceService.Execute(attributeRequest);
 
             return attributeResponse.AttributeMetadata.AttributeType.ToString();
@@ -355,7 +353,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 FetchXml = fetchXml
             };
-
             _sourceService.Execute(validateFetchXmlExpressionRequest);
         }
     }

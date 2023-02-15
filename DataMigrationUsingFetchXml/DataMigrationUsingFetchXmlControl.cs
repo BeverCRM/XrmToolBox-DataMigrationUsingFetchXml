@@ -56,6 +56,7 @@ namespace DataMigrationUsingFetchXml
             {
                 LogInfo("Settings found and loaded");
             }
+
             TxtLogsPath.Text = _defaultPath;
             _logsPath = _defaultPath;
             richTextBoxLogs.HideSelection = false;
@@ -102,16 +103,12 @@ namespace DataMigrationUsingFetchXml
             {
                 case "Source":
                     LblSourceText.Text = detail.ConnectionName;
-                    LblSourceText.ForeColor = Color.Green;
-                    LblSource.ForeColor = Color.Green;
                     LblSource.Visible = true;
                     LblSourceText.Visible = true;
                     break;
 
                 case "Target":
                     LblTargetText.Text = detail.ConnectionName;
-                    LblTargetText.ForeColor = Color.Green;
-                    LblTarget.ForeColor = Color.Green;
                     LblTarget.Visible = true;
                     LblTargetText.Visible = true;
                     break;
@@ -179,8 +176,10 @@ namespace DataMigrationUsingFetchXml
                 CancelWorker();
                 BtnTransferData.Enabled = false;
                 BtnTransferData.Text = "Transfer Data";
+
                 return;
             }
+
             InitializeLog();
             (List<string> fetchXmls, List<int> tableIndexesForTransfer) = GetFetchDataGridViewData();
 
@@ -222,12 +221,6 @@ namespace DataMigrationUsingFetchXml
                 },
                 PostWorkCallBack = args =>
                 {
-                    if (args.Error != null)
-                    {
-                        _logger.LogError(args.Error.Message);
-                        _logger.LogError($"[trace log] {args.Error.StackTrace}");
-                    }
-
                     ChangeToolsState(true);
                     BtnTransferData.Text = "Transfer Data";
                     LogResultItems();
@@ -239,6 +232,7 @@ namespace DataMigrationUsingFetchXml
                     {
                         return;
                     }
+
                     MessageBox.Show("Data Migration Completed.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             });
@@ -291,11 +285,15 @@ namespace DataMigrationUsingFetchXml
             if (args.Cancelled)
             {
                 MessageBox.Show("Migration is Stopped.", "Migration is Stopped", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                 return false;
             }
             else if (args.Error != null)
             {
+                _logger.LogError(args.Error.Message);
+                _logger.LogError($"[trace log] {args.Error.StackTrace}");
                 MessageBox.Show(args.Error.Message, "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
                 return false;
             }
             else
@@ -576,6 +574,11 @@ namespace DataMigrationUsingFetchXml
             {
                 FetchDataGridView.Width -= 18;
             }
+        }
+
+        private void PictureBoxBever_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://marketplace.bevercrm.com/about");
         }
     }
 }

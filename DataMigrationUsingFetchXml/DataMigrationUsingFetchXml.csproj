@@ -422,6 +422,9 @@
   <ItemGroup>
     <None Include="Resources\clearLogs.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\BeverLogo150X50.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>IF $(ConfigurationName) == Debug (
