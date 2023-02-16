@@ -126,7 +126,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         {
             if (FetchXmls.Contains(textBoxFetch.Text))
             {
-                MessageBox.Show("This FetchXML already exists. A duplicate FetchXML cannot be added.", "Duplicate FetchXML", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization_MessageBoxText.DuplicateFetchXml, "Duplicate FetchXML", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return true;
             }
 

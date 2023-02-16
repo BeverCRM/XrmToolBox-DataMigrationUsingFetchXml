@@ -76,31 +76,26 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     }
                     _logger.LogInfo("Records count is: " + _resultItem.SourceRecordCountWithSign);
 
-                    if (records.Entities.Count > 0)
-                    {
-                        foreach (Entity record in records.Entities)
-                        {
-                            if (worker.CancellationPending)
-                            {
-                                ResultItems.Add(_resultItem);
-                                args.Cancel = true;
-
-                                return;
-                            }
-                            TransferData(record, searchAttrs, idExists, CurrentIndexForTransfer);
-                            worker.ReportProgress(-1, _resultItem);
-                        }
-                    }
-                    else
+                    if (records.Entities.Count == 0)
                     {
                         _logger.LogError("Records count is zero or not found");
+                        break;
                     }
 
-                    if (!records.MoreRecords)
+                    foreach (Entity record in records.Entities)
                     {
-                        ResultItems.Add(_resultItem);
+                        if (worker.CancellationPending)
+                        {
+                            ResultItems.Add(_resultItem);
+                            args.Cancel = true;
+
+                            return;
+                        }
+                        TransferData(record, searchAttrs, idExists, CurrentIndexForTransfer);
+                        worker.ReportProgress(-1, _resultItem);
                     }
                 }
+                ResultItems.Add(_resultItem);
                 index++;
             }
         }

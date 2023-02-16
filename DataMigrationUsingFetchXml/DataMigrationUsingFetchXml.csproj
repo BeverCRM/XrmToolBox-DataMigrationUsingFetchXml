@@ -348,6 +348,12 @@
     <Compile Include="Forms\Popup\MatchingCriteria.Designer.cs">
       <DependentUpon>MatchingCriteria.cs</DependentUpon>
     </Compile>
+    <Compile Include="Localization-MessageBoxText.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Localization-MessageBoxText.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ActionsForRecord.cs" />
     <Compile Include="Model\FetchXmlDataBindingSourceData.cs" />
     <Compile Include="Forms\Popup\FetchXmlPopup.cs">
       <SubType>Form</SubType>
@@ -400,6 +406,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Popup\MatchingCriteria.resx">
       <DependentUpon>MatchingCriteria.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Localization-MessageBoxText.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Localization-MessageBoxText.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

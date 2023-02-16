@@ -31,7 +31,7 @@ namespace DataMigrationUsingFetchXml
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DataMigrationUsingFetchXmlControl));
             this.TxtLogsPath = new System.Windows.Forms.TextBox();
             this.BtnBrowseLogs = new System.Windows.Forms.Button();
@@ -148,7 +148,7 @@ namespace DataMigrationUsingFetchXml
             this.BtnTransferData.BackColor = System.Drawing.SystemColors.ControlLight;
             this.BtnTransferData.Cursor = System.Windows.Forms.Cursors.Hand;
             this.BtnTransferData.Font = new System.Drawing.Font("Microsoft YaHei", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnTransferData.Location = new System.Drawing.Point(725, 20);
+            this.BtnTransferData.Location = new System.Drawing.Point(723, 10);
             this.BtnTransferData.Name = "BtnTransferData";
             this.BtnTransferData.Size = new System.Drawing.Size(120, 50);
             this.BtnTransferData.TabIndex = 18;
@@ -283,9 +283,9 @@ namespace DataMigrationUsingFetchXml
             // 
             // MatchingCriteria
             // 
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle2.NullValue = "Edit";
-            this.MatchingCriteria.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.NullValue = "Edit";
+            this.MatchingCriteria.DefaultCellStyle = dataGridViewCellStyle1;
             this.MatchingCriteria.HeaderText = "Matching Criteria";
             this.MatchingCriteria.Name = "MatchingCriteria";
             this.MatchingCriteria.Text = "";
@@ -312,8 +312,8 @@ namespace DataMigrationUsingFetchXml
             // 
             // richTextBoxLogs
             // 
-            this.richTextBoxLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.richTextBoxLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBoxLogs.BackColor = System.Drawing.SystemColors.InactiveBorder;
             this.richTextBoxLogs.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;

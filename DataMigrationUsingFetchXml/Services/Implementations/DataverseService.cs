@@ -64,12 +64,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             };
             var currentUserSettings = _targetService.RetrieveMultiple(userSettingsQuery).Entities[0].ToEntity<Entity>();
 
-            if (currentUserSettings.Attributes.ContainsKey("transactioncurrencyid"))
-            {
-                return currentUserSettings.GetAttributeValue<EntityReference>("transactioncurrencyid");
-            }
-
-            return null;
+            return currentUserSettings.GetAttributeValue<EntityReference>("transactioncurrencyid");
         }
 
         private void SetRecordTransactionCurrency(Entity sourceRecord)
@@ -84,33 +79,26 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     return;
                 }
 
-                string sourceRecordCurrencyName = sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Name;
-                EntityReference transactionCurrency = null;
-
-                if (sourceRecordCurrencyName != null)
+                QueryExpression query = new QueryExpression("transactioncurrency")
                 {
-                    QueryExpression query = new QueryExpression("transactioncurrency")
+                    ColumnSet = new ColumnSet(),
+                    Criteria = new FilterExpression
                     {
-                        ColumnSet = new ColumnSet(),
-                        Criteria = new FilterExpression
+                        Conditions =
                         {
-                            Conditions =
-                            {
-                                new ConditionExpression("currencyname", ConditionOperator.Equal, sourceRecordCurrencyName)
-                            }
+                            new ConditionExpression("currencyname", ConditionOperator.Equal, sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Name)
                         }
-                    };
-                    EntityCollection transactionCurrencyCollection = _targetService.RetrieveMultiple(query);
-
-                    if (transactionCurrencyCollection != null && transactionCurrencyCollection.Entities.Count > 0)
-                    {
-                        transactionCurrency = transactionCurrencyCollection.Entities.FirstOrDefault().ToEntityReference();
                     }
-                }
+                };
+                EntityCollection transactionCurrencyCollection = _targetService.RetrieveMultiple(query);
 
-                if (transactionCurrency != null)
+                if (transactionCurrencyCollection != null && transactionCurrencyCollection.Entities.Count > 0)
                 {
-                    sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Id = transactionCurrency.Id;
+                    sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Id = transactionCurrencyCollection.Entities.FirstOrDefault().ToEntityReference().Id;
+                }
+                else
+                {
+                    throw new Exception($"transactioncurrency With Id = {sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Id} Does Not Exist");
                 }
             }
         }
@@ -128,6 +116,48 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
         }
 
+        private bool CheckForInactiveRecord(Entity sourceRecord, EntityCollection matchedTargetRecords, int radioButtonNumber)
+        {
+            return (matchedTargetRecords == null || radioButtonNumber != 3) && sourceRecord.Attributes.ContainsKey("statecode") &&
+                sourceRecord.GetAttributeValue<OptionSetValue>("statecode").Value == 1;
+        }
+
+        private void CreateRecord(Entity sourceRecord, ResultItem resultItem, string sourceRecordId)
+        {
+            CreateRequest createRequest = new CreateRequest { Target = sourceRecord };
+            _targetService.Execute(createRequest);
+            resultItem.CreatedRecordCount++;
+            _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id")}}}.");
+        }
+
+        private void DeleteAndCreate(Entity sourceRecord, EntityCollection matchedTargetRecords, ResultItem resultItem, string sourceRecordId)
+        {
+            foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
+            {
+                _targetService.Delete(matchedTargetRecord.LogicalName, matchedTargetRecord.Id);
+                resultItem.DeletedRecordCount++;
+                _logger.LogWarning($"Deleted the record with Id {{{matchedTargetRecord.Id}}} from the target instance.");
+            }
+
+            _targetService.Create(sourceRecord);
+            resultItem.CreatedRecordCount++;
+            _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id")}}}.");
+        }
+
+        private void UpdateRecord(Entity sourceRecord, EntityCollection matchedTargetRecords, ResultItem resultItem)
+        {
+            foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
+            {
+                SetSourceRecordUnfilledFieldsDefaultValue(sourceRecord, matchedTargetRecord);
+                Entity newRecord = new Entity(sourceRecord.LogicalName);
+                newRecord.Attributes.AddRange(sourceRecord.Attributes);
+                newRecord[sourceRecord.LogicalName + "id"] = matchedTargetRecord[sourceRecord.LogicalName + "id"];
+                _targetService.Update(newRecord);
+                resultItem.UpdatedRecordCount++;
+                _logger.LogInfo($"Updated the record with Id {{{matchedTargetRecord.Id}}} in the target instance.");
+            }
+        }
+
         public void CreateMatchedRecordInTarget(Entity sourceRecord, EntityCollection matchedTargetRecords, ResultItem resultItem, int index)
         {
             int statusValue = -1;
@@ -139,10 +169,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 sourceRecord[sourceRecord.LogicalName + "id"] = Guid.NewGuid();
             }
 
-            string sourceRecordIdInTarget = sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id").ToString();
-
-            bool checkForInactiveRecord = ((matchedTargetRecords == null || MatchedAction.CheckedRadioButtonNumbers[index] != 3) &&
-                sourceRecord.Attributes.ContainsKey("statecode") && sourceRecord.GetAttributeValue<OptionSetValue>("statecode").Value == 1);
+            bool checkForInactiveRecord = CheckForInactiveRecord(sourceRecord, matchedTargetRecords, MatchedAction.CheckedRadioButtonNumbers[index]);
 
             if (checkForInactiveRecord && sourceRecord.Attributes.ContainsKey("statuscode"))
             {
@@ -150,46 +177,17 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 sourceRecord.Attributes.Remove("statuscode");
             }
 
-            if (matchedTargetRecords == null)
+            if (matchedTargetRecords == null || MatchedAction.CheckedRadioButtonNumbers[index] == (byte)ActionsForRecord.Create)
             {
-                CreateRequest createRequest = new CreateRequest { Target = sourceRecord };
-                _targetService.Execute(createRequest);
-                resultItem.CreatedRecordCount++;
-                _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecordIdInTarget}}}.");
+                CreateRecord(sourceRecord, resultItem, sourceRecordId);
             }
-            else if (MatchedAction.CheckedRadioButtonNumbers[index] == 2)
+            else if (MatchedAction.CheckedRadioButtonNumbers[index] == (byte)ActionsForRecord.DeleteAndCreate)
             {
-                foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
-                {
-                    _targetService.Delete(matchedTargetRecord.LogicalName, matchedTargetRecord.Id);
-                    resultItem.DeletedRecordCount++;
-                    _logger.LogWarning($"Deleted the record with Id {{{matchedTargetRecord.Id}}} from the target instance.");
-                }
-
-                _targetService.Create(sourceRecord);
-                resultItem.CreatedRecordCount++;
-                _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecordIdInTarget}}}.");
+                DeleteAndCreate(sourceRecord, matchedTargetRecords, resultItem, sourceRecordId);
             }
-            else if (MatchedAction.CheckedRadioButtonNumbers[index] == 3)
+            else if (MatchedAction.CheckedRadioButtonNumbers[index] == (byte)ActionsForRecord.Update)
             {
-                foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
-                {
-                    SetSourceRecordUnfilledFieldsDefaultValue(sourceRecord, matchedTargetRecord);
-                    Entity newRecord = new Entity(sourceRecord.LogicalName);
-                    newRecord.Attributes.AddRange(sourceRecord.Attributes);
-                    newRecord[sourceRecord.LogicalName + "id"] = matchedTargetRecord[sourceRecord.LogicalName + "id"];
-                    _targetService.Update(newRecord);
-                    resultItem.UpdatedRecordCount++;
-                    _logger.LogInfo($"Updated the record with Id {{{matchedTargetRecord.Id}}} in the target instance.");
-                }
-            }
-            else
-            {
-                CreateRequest createRequest = new CreateRequest { Target = sourceRecord };
-                createRequest.Parameters.Add("SuppressDuplicateDetection", false);
-                _targetService.Execute(createRequest);
-                resultItem.CreatedRecordCount++;
-                _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecordIdInTarget}}}");
+                UpdateRecord(sourceRecord, matchedTargetRecords, resultItem);
             }
 
             if (checkForInactiveRecord)
@@ -198,7 +196,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 {
                     sourceRecord.Attributes.Add("statuscode", new OptionSetValue(statusValue));
                 }
-
                 _targetService.Update(sourceRecord);
             }
         }

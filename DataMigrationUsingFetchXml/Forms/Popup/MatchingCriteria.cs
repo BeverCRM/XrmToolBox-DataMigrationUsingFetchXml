@@ -123,7 +123,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             }
         }
 
-        public bool DoesEditedFetchXmlAttributeNamesMatchingWithSelected(string fetchXml, int rowIndex)
+        public bool AcceptToClearMatchingCriteriaInCaseOfMissingFieldsInFetchXml(string fetchXml, int rowIndex)
         {
             _rowIndex = rowIndex;
             string oldFetchXml = ConfigReader.CurrentFetchXml;
@@ -132,26 +132,25 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             string primaryKeyName = ConfigReader.GetFetchXmlPrimaryKey();
             List<string> attributeNames = ConfigReader.GetAttributesNames();
 
-            if (SelectedAttributeNames[rowIndex].Count > 0 || (_primaryKeyNames.Count > 0 && _primaryKeyNames[rowIndex] != null && primaryKeyName == null))
+            if (SelectedAttributeNames[rowIndex].Count > 0 || _primaryKeyNames.Count > 0 && _primaryKeyNames[rowIndex] != null && primaryKeyName == null)
             {
-                if ((!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName != null)
-                    || (oldEntityName != ConfigReader.GetEntityName())
-                    || (_primaryKeyNames[rowIndex] != null && primaryKeyName == null))
+                if (!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName != null ||
+                    oldEntityName != ConfigReader.GetEntityName() || _primaryKeyNames[rowIndex] != null && primaryKeyName == null)
                 {
-                    if (MessageBox.Show("Matching Criteria will be cleared as there are missing fields in FetchXml.", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK)
+                    if (MessageBox.Show(Localization_MessageBoxText.MatchingCriteriaWillBeCleared, "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK)
                     {
                         ConfigReader.CurrentFetchXml = oldFetchXml;
                         return false;
                     }
                 }
                 else if (SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) ||
-                    (!SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName == null))
+                    !SelectedAttributeNames[rowIndex].Contains(_primaryKeyNames[rowIndex]) && primaryKeyName == null)
                 {
                     foreach (var item in SelectedAttributeNames[rowIndex])
                     {
                         if (!attributeNames.Contains(item))
                         {
-                            if (MessageBox.Show("Matching Criteria will be cleared as there are missing fields in FetchXml.", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
+                            if (MessageBox.Show(Localization_MessageBoxText.MatchingCriteriaWillBeCleared, "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
                             {
                                 return true;
                             }
@@ -372,7 +371,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             }
             else
             {
-                MessageBox.Show("Please fill all fields before adding.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization_MessageBoxText.FillAllFieldsBeforeAdding, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -446,7 +445,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 
             if (checkBeforeApplying)
             {
-                MessageBox.Show("Please fill all fields before adding.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization_MessageBoxText.FillAllFieldsBeforeAdding, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             else
             {

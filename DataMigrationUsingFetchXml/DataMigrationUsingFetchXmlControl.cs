@@ -167,7 +167,7 @@ namespace DataMigrationUsingFetchXml
         {
             if (AdditionalConnectionDetails.Count <= 0)
             {
-                MessageBox.Show("Select Target Instance. ", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization_MessageBoxText.SelectTargetInstance, "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -185,7 +185,7 @@ namespace DataMigrationUsingFetchXml
 
             if (fetchXmls.Count <= 0)
             {
-                MessageBox.Show("Select at least one row from FetchXML table for data transfer. ", "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization_MessageBoxText.SelectRowForTransfer, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -233,7 +233,7 @@ namespace DataMigrationUsingFetchXml
                         return;
                     }
 
-                    MessageBox.Show("Data Migration Completed.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(Localization_MessageBoxText.DataMigrationCompleted, "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             });
         }
@@ -284,11 +284,12 @@ namespace DataMigrationUsingFetchXml
         {
             if (args.Cancelled)
             {
-                MessageBox.Show("Migration is Stopped.", "Migration is Stopped", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Localization_MessageBoxText.MigrationIsStopped, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 return false;
             }
-            else if (args.Error != null)
+
+            if (args.Error != null)
             {
                 _logger.LogError(args.Error.Message);
                 _logger.LogError($"[trace log] {args.Error.StackTrace}");
@@ -296,10 +297,8 @@ namespace DataMigrationUsingFetchXml
 
                 return false;
             }
-            else
-            {
-                return true;
-            }
+
+            return true;
         }
 
         private void LogResultItems()
@@ -402,7 +401,7 @@ namespace DataMigrationUsingFetchXml
         {
             if (Service == null)
             {
-                MessageBox.Show($"Connect to the source instance.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Localization_MessageBoxText.ConnectToTheSourceInstance, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             else
             {
@@ -432,7 +431,7 @@ namespace DataMigrationUsingFetchXml
                 }
                 else if (rowIndex != -1)
                 {
-                    clearMatchingCriteria = _matchingCriteria.DoesEditedFetchXmlAttributeNamesMatchingWithSelected(fetch, rowIndex);
+                    clearMatchingCriteria = _matchingCriteria.AcceptToClearMatchingCriteriaInCaseOfMissingFieldsInFetchXml(fetch, rowIndex);
                 }
 
                 WorkAsync(new WorkAsyncInfo
@@ -502,7 +501,7 @@ namespace DataMigrationUsingFetchXml
             if (e.RowIndex != -1)
             {
                 if (FetchDataGridView.Columns[e.ColumnIndex].Name == "Remove" &&
-                    MessageBox.Show("Are you sure you want to delete this item?", "Delete Item", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    MessageBox.Show(Localization_MessageBoxText.DeleteItem, "Delete Item", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     fetchXmlDataBindingSource.RemoveAt(e.RowIndex);
                     _fetchXmlpopup.FetchXmls.RemoveAt(e.RowIndex);
@@ -532,7 +531,7 @@ namespace DataMigrationUsingFetchXml
                         }
                         else
                         {
-                            MessageBox.Show($"Matching criteria are not available for the action CREATE.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            MessageBox.Show(Localization_MessageBoxText.DisableMatchingCriteriaForActionCreate, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                     });
                 }
