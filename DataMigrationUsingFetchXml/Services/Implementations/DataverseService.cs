@@ -62,9 +62,9 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     }
                 }
             };
-            var currentUserSettings = _targetService.RetrieveMultiple(userSettingsQuery).Entities[0].ToEntity<Entity>();
+            Entity currentUserSettings = _targetService.RetrieveMultiple(userSettingsQuery).Entities.FirstOrDefault();
 
-            return currentUserSettings.GetAttributeValue<EntityReference>("transactioncurrencyid");
+            return currentUserSettings?.GetAttributeValue<EntityReference>("transactioncurrencyid");
         }
 
         private void SetRecordTransactionCurrency(Entity sourceRecord)
@@ -92,7 +92,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 };
                 EntityCollection transactionCurrencyCollection = _targetService.RetrieveMultiple(query);
 
-                if (transactionCurrencyCollection != null && transactionCurrencyCollection.Entities.Count > 0)
+                if (transactionCurrencyCollection.Entities.Count > 0)
                 {
                     sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Id = transactionCurrencyCollection.Entities.FirstOrDefault().ToEntityReference().Id;
                 }
@@ -118,8 +118,10 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private bool CheckForInactiveRecord(Entity sourceRecord, EntityCollection matchedTargetRecords, int radioButtonNumber)
         {
-            return (matchedTargetRecords == null || radioButtonNumber != 3) && sourceRecord.Attributes.ContainsKey("statecode") &&
-                sourceRecord.GetAttributeValue<OptionSetValue>("statecode").Value == 1;
+            return (matchedTargetRecords == null
+                || radioButtonNumber != 3)
+                && sourceRecord.Attributes.ContainsKey("statecode")
+                && sourceRecord.GetAttributeValue<OptionSetValue>("statecode").Value == 1;
         }
 
         private void CreateRecord(Entity sourceRecord, ResultItem resultItem, string sourceRecordId)
@@ -177,15 +179,15 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 sourceRecord.Attributes.Remove("statuscode");
             }
 
-            if (matchedTargetRecords == null || MatchedAction.CheckedRadioButtonNumbers[index] == (byte)ActionsForRecord.Create)
+            if (matchedTargetRecords == null || MatchedAction.CheckedRadioButtonNumbers[index] == (byte)MatchedActionForRecord.Create)
             {
                 CreateRecord(sourceRecord, resultItem, sourceRecordId);
             }
-            else if (MatchedAction.CheckedRadioButtonNumbers[index] == (byte)ActionsForRecord.DeleteAndCreate)
+            else if (MatchedAction.CheckedRadioButtonNumbers[index] == (byte)MatchedActionForRecord.DeleteAndCreate)
             {
                 DeleteAndCreate(sourceRecord, matchedTargetRecords, resultItem, sourceRecordId);
             }
-            else if (MatchedAction.CheckedRadioButtonNumbers[index] == (byte)ActionsForRecord.Update)
+            else if (MatchedAction.CheckedRadioButtonNumbers[index] == (byte)MatchedActionForRecord.Upsert)
             {
                 UpdateRecord(sourceRecord, matchedTargetRecords, resultItem);
             }
@@ -254,12 +256,38 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             return _targetService.RetrieveMultiple(query).Entities.FirstOrDefault();
         }
 
+        private bool CheckAttributeForSimpleType(string attributeType)
+        {
+            return attributeType == "Double"
+                || attributeType == "Memo"
+                || attributeType == "Integer"
+                || attributeType == "String"
+                || attributeType == "BigInt"
+                || attributeType == "Boolean"
+                || attributeType == "EntityName"
+                || attributeType == "Decimal"
+                || attributeType == "Uniqueidentifier";
+        }
+
+        private bool CheckAttributeTypeForEntityReference(string attributeType)
+        {
+            return attributeType == "Lookup"
+                || attributeType == "Customer"
+                || attributeType == "Owner";
+        }
+
+        private bool CheckAttributeTypeForOptionSet(string attributeType)
+        {
+            return attributeType == "Picklist"
+                || attributeType == "Status"
+                || attributeType == "State";
+        }
+
         public EntityCollection GetTargetMatchedRecords(Entity sourceRecord, string attributeSchemaName, string attributeType)
         {
             FilterExpression filterExpression = new FilterExpression();
 
-            if (attributeType == "Double" || attributeType == "Memo" || attributeType == "Integer" || attributeType == "String" || attributeType == "BigInt"
-                || attributeType == "Boolean" || attributeType == "EntityName" || attributeType == "Decimal" || attributeType == "Uniqueidentifier")
+            if (CheckAttributeForSimpleType(attributeType))
             {
                 filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, sourceRecord[attributeSchemaName].ToString()));
             }
@@ -267,7 +295,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             {
                 filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, date.ToLocalTime().ToString()));
             }
-            else if (attributeType == "Lookup" || attributeType == "Customer" || attributeType == "Owner")
+            else if (CheckAttributeTypeForEntityReference(attributeType))
             {
                 EntityReference refValue = sourceRecord.GetAttributeValue<EntityReference>(attributeSchemaName);
 
@@ -293,7 +321,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 Money money = (Money)sourceRecord[attributeSchemaName];
                 filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, money.Value.ToString()));
             }
-            else if (attributeType == "Picklist" || attributeType == "Status" || attributeType == "State")
+            else if (CheckAttributeTypeForOptionSet(attributeType))
             {
                 int value = ((OptionSetValue)sourceRecord[attributeSchemaName]).Value;
                 filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, value));

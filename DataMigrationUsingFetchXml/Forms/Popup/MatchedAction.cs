@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using DataMigrationUsingFetchXml.Model;
 
 namespace DataMigrationUsingFetchXml.Forms.Popup
 {
@@ -31,21 +32,21 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 
         private void BtnApply_Click(object sender, EventArgs e)
         {
-            if (radioButton1.Checked)
+            if (radioButtonCreate.Checked)
             {
-                CheckedRadioButtonNumbers[RowIndex] = 1;
+                CheckedRadioButtonNumbers[RowIndex] = (byte)MatchedActionForRecord.Create;
             }
-            else if (radioButton2.Checked)
+            else if (radioButtonDeleteAndCreate.Checked)
             {
-                CheckedRadioButtonNumbers[RowIndex] = 2;
+                CheckedRadioButtonNumbers[RowIndex] = (byte)MatchedActionForRecord.DeleteAndCreate;
             }
-            else if (radioButton3.Checked)
+            else if (radioButtonUpsert.Checked)
             {
-                CheckedRadioButtonNumbers[RowIndex] = 3;
+                CheckedRadioButtonNumbers[RowIndex] = (byte)MatchedActionForRecord.Upsert;
             }
             else
             {
-                CheckedRadioButtonNumbers[RowIndex] = 4;
+                CheckedRadioButtonNumbers[RowIndex] = (byte)MatchedActionForRecord.DoNotCreate;
             }
             DialogResult = DialogResult.OK;
         }

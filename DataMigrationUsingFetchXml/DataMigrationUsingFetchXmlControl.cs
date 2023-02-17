@@ -167,7 +167,7 @@ namespace DataMigrationUsingFetchXml
         {
             if (AdditionalConnectionDetails.Count <= 0)
             {
-                MessageBox.Show(Localization_MessageBoxText.SelectTargetInstance, "Error Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Localization_MessageBoxText.SelectTargetInstance, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -324,17 +324,17 @@ namespace DataMigrationUsingFetchXml
             LblCreated.Text = $"Created Records: {resultItem.CreatedRecordCount}";
             LblErrored.Text = $"Errored Records: {resultItem.ErroredRecordCount}";
 
-            if (MatchedAction.CheckedRadioButtonNumbers[_transferOperation.CurrentIndexForTransfer] == 2)
+            if (MatchedAction.CheckedRadioButtonNumbers[_transferOperation.CurrentIndexForTransfer] == (byte)MatchedActionForRecord.DeleteAndCreate)
             {
                 LblForActions.ForeColor = Color.Gold;
                 LblForActions.Text = $"Deleted Records: {resultItem.DeletedRecordCount}";
             }
-            else if (MatchedAction.CheckedRadioButtonNumbers[_transferOperation.CurrentIndexForTransfer] == 3)
+            else if (MatchedAction.CheckedRadioButtonNumbers[_transferOperation.CurrentIndexForTransfer] == (byte)MatchedActionForRecord.Upsert)
             {
                 LblForActions.ForeColor = Color.Black;
                 LblForActions.Text = $"Updated Records: {resultItem.UpdatedRecordCount}";
             }
-            else if (MatchedAction.CheckedRadioButtonNumbers[_transferOperation.CurrentIndexForTransfer] == 4)
+            else if (MatchedAction.CheckedRadioButtonNumbers[_transferOperation.CurrentIndexForTransfer] == (byte)MatchedActionForRecord.DoNotCreate)
             {
                 LblForActions.ForeColor = Color.Black;
                 LblForActions.Text = $"Skipped Records: {resultItem.SkippedRecordCount}";
@@ -416,22 +416,18 @@ namespace DataMigrationUsingFetchXml
         {
             IDataverseService dataverseService = new DataverseService(Service);
             _fetchXmlpopup.SetDataverseService(dataverseService);
+            _fetchXmlpopup.SetMatchingCriteria(_matchingCriteria);
 
             if (_fetchXmlpopup.ShowDialog() == DialogResult.OK)
             {
                 ChangeToolsState(false);
 
                 string fetch = _fetchXmlpopup.GetTextBoxText();
-                bool clearMatchingCriteria = true;
 
                 if (rowIndex != -1 && fetch == _fetchXmlpopup.FetchXmls[rowIndex])
                 {
                     ChangeToolsState(true);
                     return;
-                }
-                else if (rowIndex != -1)
-                {
-                    clearMatchingCriteria = _matchingCriteria.AcceptToClearMatchingCriteriaInCaseOfMissingFieldsInFetchXml(fetch, rowIndex);
                 }
 
                 WorkAsync(new WorkAsyncInfo
@@ -441,16 +437,7 @@ namespace DataMigrationUsingFetchXml
                     {
                         (string logicalName, string displayName) = dataverseService.GetEntityName(fetch);
 
-                        if (clearMatchingCriteria)
-                        {
-                            Services.ConfigReader.CurrentFetchXml = fetch;
-                            _matchingCriteria.CreateLayoutPanels(rowIndex);
-                        }
-                        else
-                        {
-                            fetch = Services.ConfigReader.CurrentFetchXml;
-                            _fetchXmlpopup.SetTextBoxText(fetch);
-                        }
+                        _matchingCriteria.CreateLayoutPanels(rowIndex);
 
                         FetchDataGridView.Invoke(new MethodInvoker(delegate
                         {
@@ -476,7 +463,7 @@ namespace DataMigrationUsingFetchXml
                                 });
                                 FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[0].Value = true;
                                 FetchDataGridView.Rows[FetchDataGridView.Rows.Count - 1].Cells[3].Value = "Create";
-                                MatchedAction.CheckedRadioButtonNumbers.Add(1);
+                                MatchedAction.CheckedRadioButtonNumbers.Add((byte)MatchedActionForRecord.Create);
                             }
                         }));
                     },
@@ -524,7 +511,7 @@ namespace DataMigrationUsingFetchXml
                 {
                     Invoke((MethodInvoker)delegate
                     {
-                        if (MatchedAction.CheckedRadioButtonNumbers[e.RowIndex] != 1)
+                        if (MatchedAction.CheckedRadioButtonNumbers[e.RowIndex] != (byte)MatchedActionForRecord.Create)
                         {
                             _matchingCriteria.SetLayoutPanelData(e.RowIndex);
                             _matchingCriteria.ShowDialog();

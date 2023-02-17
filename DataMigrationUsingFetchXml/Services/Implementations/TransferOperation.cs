@@ -113,70 +113,71 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 return false;
             }
 
-            if ((attributeNames.Count == 0 || attributeNames.Count == 1) && idExists)
-            {
-                return CheckRecordInTargetByAttributeType(record, record.LogicalName + "id");
-            }
-            else if (attributeNames.Count == 1)
+            if (attributeNames.Count == 1)
             {
                 return CheckRecordInTargetByAttributeType(record, attributeNames[0]);
             }
-            else
+
+            if (attributeNames.Count == 0 && idExists)
             {
-                bool isThereMatchingRecordInTarget = logicalOperatorNames[0] == "And";
+                return CheckRecordInTargetByAttributeType(record, record.LogicalName + "id");
+            }
 
-                for (int i = 0, j = 0; i < attributeNames.Count; i++, j = i - 1)
+            bool isThereMatchingRecordInTarget = logicalOperatorNames[0] == "And";
+
+            for (int i = 0, j = 0; i < attributeNames.Count; i++, j = i - 1)
+            {
+                if (_matchedTargetRecords != null)
                 {
-                    if (_matchedTargetRecords != null)
+                    foreach (var item in _matchedTargetRecords.Entities)
                     {
-                        foreach (var item in _matchedTargetRecords.Entities)
-                        {
-                            matchcdRecords.Entities.Add(item);
-                        }
-                    }
-
-                    if (logicalOperatorNames[j] == "And" && isThereMatchingRecordInTarget)
-                    {
-                        isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
-                    }
-                    else if (logicalOperatorNames[j] == "OR")
-                    {
-                        if (_matchedTargetRecords != null && _matchedTargetRecords.Entities.Count > 0)
-                        {
-                            allMatchedTargetRecords.Add(_matchedTargetRecords);
-                        }
-                        isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
-                    }
-
-                    if (isThereMatchingRecordInTarget && matchcdRecords.Entities.Count > 0 && logicalOperatorNames[j] == "And")
-                    {
-                        foreach (var item in _matchedTargetRecords.Entities)
-                        {
-                            Entity entity = matchcdRecords.Entities.Where(x => x.Id == item.Id).FirstOrDefault();
-                            if (entity != null)
-                            {
-                                finalMatchcdRecords.Entities.Add(entity);
-                            }
-                        }
-                        _matchedTargetRecords.Entities.Clear();
-
-                        foreach (var item in finalMatchcdRecords.Entities)
-                        {
-                            _matchedTargetRecords.Entities.Add(item);
-                        }
-                        if (_matchedTargetRecords.Entities.Count == 0)
-                        {
-                            _matchedTargetRecords = null;
-                            isThereMatchingRecordInTarget = false;
-                        }
-                        finalMatchcdRecords.Entities.Clear();
-                        matchcdRecords.Entities.Clear();
+                        matchcdRecords.Entities.Add(item);
                     }
                 }
-                FillMatchedTargetRecords(allMatchedTargetRecords);
 
-                return isThereMatchingRecordInTarget;
+                if (logicalOperatorNames[j] == "And" && isThereMatchingRecordInTarget)
+                {
+                    isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
+                }
+                else if (logicalOperatorNames[j] == "OR")
+                {
+                    if (_matchedTargetRecords != null && _matchedTargetRecords.Entities.Count > 0)
+                    {
+                        allMatchedTargetRecords.Add(_matchedTargetRecords);
+                    }
+                    isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
+                }
+
+                if (isThereMatchingRecordInTarget && matchcdRecords.Entities.Count > 0 && logicalOperatorNames[j] == "And")
+                {
+                    foreach (var item in _matchedTargetRecords.Entities)
+                    {
+                        Entity entity = matchcdRecords.Entities.Where(x => x.Id == item.Id).FirstOrDefault();
+
+                        if (entity != null)
+                        {
+                            finalMatchcdRecords.Entities.Add(entity);
+                        }
+                    }
+                    _matchedTargetRecords.Entities.Clear();
+
+                    foreach (var item in finalMatchcdRecords.Entities)
+                    {
+                        _matchedTargetRecords.Entities.Add(item);
+                    }
+
+                    if (_matchedTargetRecords.Entities.Count == 0)
+                    {
+                        _matchedTargetRecords = null;
+                        isThereMatchingRecordInTarget = false;
+                    }
+                    finalMatchcdRecords.Entities.Clear();
+                    matchcdRecords.Entities.Clear();
+                }
             }
+            FillMatchedTargetRecords(allMatchedTargetRecords);
+
+            return isThereMatchingRecordInTarget;
         }
 
         private void FillMatchedTargetRecords(List<EntityCollection> allMatchedTargetRecords)
@@ -226,7 +227,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         {
             bool checkMatchingRecords = false;
 
-            if (MatchedAction.CheckedRadioButtonNumbers[rowIndex] != 1)
+            if (MatchedAction.CheckedRadioButtonNumbers[rowIndex] != (byte)MatchedActionForRecord.Create)
             {
                 try
                 {
@@ -240,7 +241,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 }
             }
 
-            if (checkMatchingRecords && MatchedAction.CheckedRadioButtonNumbers[rowIndex] == 4)
+            if (checkMatchingRecords && MatchedAction.CheckedRadioButtonNumbers[rowIndex] == (byte)MatchedActionForRecord.DoNotCreate)
             {
                 ++_resultItem.SkippedRecordCount;
                 _logger.LogInfo($"Skipped the record with Id {{{record.GetAttributeValue<Guid>(record.LogicalName + "id")}}} as it already exists in the target instance.");

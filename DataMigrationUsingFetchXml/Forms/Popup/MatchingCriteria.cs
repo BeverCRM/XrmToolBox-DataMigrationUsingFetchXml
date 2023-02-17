@@ -166,8 +166,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                     _primaryKeyNames[rowIndex] = primaryKeyName;
                     _fetchXmlAttributesNames[rowIndex] = attributeNames;
                     ChangeAttributeNamesBoxItems(attributeNames);
-
-                    return false;
                 }
             }
             return true;
@@ -240,6 +238,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             if (Controls.Count > 5)
             {
                 int deleteIndex = Controls.Count - 2;
+
                 Controls.RemoveAt(deleteIndex);
                 Controls.RemoveAt(deleteIndex);
             }
@@ -265,21 +264,29 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         {
             _rowIndex = rowIndex;
 
-            foreach (var item in _attributeNamesPanels)
+            if (Controls.Count == 5)
             {
-                if (Controls.Contains(item) && item != _attributeNamesPanels[rowIndex])
-                {
-                    Controls.Remove(item);
-                    Controls.Add(_attributeNamesPanels[rowIndex]);
-                }
+                Controls.Add(_attributeNamesPanels[rowIndex]);
+                Controls.Add(_logicalOperatorsPanels[rowIndex]);
             }
-
-            foreach (var item in _logicalOperatorsPanels)
+            else
             {
-                if (Controls.Contains(item) && item != _logicalOperatorsPanels[rowIndex])
+                foreach (var item in _attributeNamesPanels)
                 {
-                    Controls.Remove(item);
-                    Controls.Add(_logicalOperatorsPanels[rowIndex]);
+                    if (Controls.Contains(item) && item != _attributeNamesPanels[rowIndex])
+                    {
+                        Controls.Remove(item);
+                        Controls.Add(_attributeNamesPanels[rowIndex]);
+                    }
+                }
+
+                foreach (var item in _logicalOperatorsPanels)
+                {
+                    if (Controls.Contains(item) && item != _logicalOperatorsPanels[rowIndex])
+                    {
+                        Controls.Remove(item);
+                        Controls.Add(_logicalOperatorsPanels[rowIndex]);
+                    }
                 }
             }
 

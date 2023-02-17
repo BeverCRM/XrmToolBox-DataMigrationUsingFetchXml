@@ -1,9 +1,10 @@
 ﻿namespace DataMigrationUsingFetchXml.Model
 {
-    internal enum ActionsForRecord
+    internal enum MatchedActionForRecord
     {
         Create = 1,
         DeleteAndCreate = 2,
-        Update = 3
+        Upsert = 3,
+        DoNotCreate = 4
     }
 }

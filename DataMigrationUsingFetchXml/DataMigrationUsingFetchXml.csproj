@@ -353,7 +353,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Localization-MessageBoxText.resx</DependentUpon>
     </Compile>
-    <Compile Include="Model\ActionsForRecord.cs" />
+    <Compile Include="Model\MatchedActionForRecord.cs" />
     <Compile Include="Model\FetchXmlDataBindingSourceData.cs" />
     <Compile Include="Forms\Popup\FetchXmlPopup.cs">
       <SubType>Form</SubType>

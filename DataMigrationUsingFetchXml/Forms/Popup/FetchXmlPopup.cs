@@ -16,6 +16,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         public List<string> FetchXmls { get; private set; }
 
         private IDataverseService _dataverseService;
+        private MatchingCriteria _matchingCriteria;
 
         private string _currentFetchXml;
 
@@ -95,6 +96,20 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             try
             {
                 _dataverseService.IsFetchXmlExpressionValid(textBoxFetch.Text);
+
+                if (IsEdit)
+                {
+                    Services.ConfigReader.CurrentFetchXml = FetchXmls[EditIndex];
+
+                    if (!_matchingCriteria.AcceptToClearMatchingCriteriaInCaseOfMissingFieldsInFetchXml(textBoxFetch.Text, EditIndex))
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    Services.ConfigReader.CurrentFetchXml = textBoxFetch.Text;
+                }
                 _currentFetchXml = textBoxFetch.Text;
 
                 if (IsEdit && FetchXmls[EditIndex] == _currentFetchXml)
@@ -146,5 +161,10 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         public void SetTextBoxText(string text) => textBoxFetch.Text = text;
 
         public string GetTextBoxText() => textBoxFetch.Text;
+
+        internal void SetMatchingCriteria(MatchingCriteria matchingCriteria)
+        {
+            _matchingCriteria = matchingCriteria;
+        }
     }
 }
