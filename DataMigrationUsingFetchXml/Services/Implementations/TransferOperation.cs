@@ -27,6 +27,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public TransferOperation(ILogger logger)
         {
+            _matchedTargetRecords = new EntityCollection();
             _logger = logger;
         }
 
@@ -39,8 +40,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         public void Transfer(List<string> fetchXmls, List<int> tableIndexesForTransfer, BackgroundWorker worker, DoWorkEventArgs args)
         {
             ResultItems = new List<ResultItem>();
-            int index = 0;
             string newFetchXml;
+            int index = 0;
 
             foreach (string fetchXml in fetchXmls)
             {
@@ -168,7 +169,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
                     if (_matchedTargetRecords.Entities.Count == 0)
                     {
-                        _matchedTargetRecords = null;
                         isThereMatchingRecordInTarget = false;
                     }
                     finalMatchcdRecords.Entities.Clear();
@@ -182,12 +182,12 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private void FillMatchedTargetRecords(List<EntityCollection> allMatchedTargetRecords)
         {
-            if (_matchedTargetRecords == null && allMatchedTargetRecords.Count > 0)
+            if (_matchedTargetRecords.Entities.Count == 0 && allMatchedTargetRecords.Count > 0)
             {
                 _matchedTargetRecords = allMatchedTargetRecords[0];
             }
 
-            if (_matchedTargetRecords != null && allMatchedTargetRecords.Count > 0)
+            if (_matchedTargetRecords.Entities.Count > 0 && allMatchedTargetRecords.Count > 0)
             {
                 foreach (var matchedTargetRecords in allMatchedTargetRecords)
                 {
@@ -214,9 +214,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             string attributeType = _dataverseService.GetAttributeType(attributeName, record.LogicalName);
             _matchedTargetRecords = _dataverseService.GetTargetMatchedRecords(record, attributeName, attributeType);
 
-            if (_matchedTargetRecords == null || _matchedTargetRecords.Entities.Count == 0)
+            if (_matchedTargetRecords.Entities.Count == 0)
             {
-                _matchedTargetRecords = null;
                 return false;
             }
 
@@ -226,6 +225,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         private void TransferData(Entity record, List<string> searchAttrs, bool idExists, int rowIndex)
         {
             bool checkMatchingRecords = false;
+            _matchedTargetRecords.Entities.Clear();
 
             if (MatchedAction.CheckedRadioButtonNumbers[rowIndex] != (byte)MatchedActionForRecord.Create)
             {
@@ -262,8 +262,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     _logger.LogError(ex.Message);
                 }
             }
-
-            _matchedTargetRecords = null;
         }
     }
 }

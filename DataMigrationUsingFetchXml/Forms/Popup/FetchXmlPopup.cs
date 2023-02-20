@@ -16,6 +16,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         public List<string> FetchXmls { get; private set; }
 
         private IDataverseService _dataverseService;
+
         private MatchingCriteria _matchingCriteria;
 
         private string _currentFetchXml;

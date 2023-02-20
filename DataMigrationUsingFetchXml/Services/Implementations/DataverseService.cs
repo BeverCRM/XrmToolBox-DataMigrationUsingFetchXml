@@ -103,7 +103,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
         }
 
-        private void SetSourceRecordUnfilledFieldsDefaultValue(Entity sourceRecord, Entity matchedTargetRecord)
+        private void SetSourceRecordBlankFieldsToDefaultValue(Entity sourceRecord, Entity matchedTargetRecord)
         {
             List<string> fetchXmlAttributeNames = ConfigReader.GetAttributesNames();
 
@@ -118,7 +118,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private bool CheckForInactiveRecord(Entity sourceRecord, EntityCollection matchedTargetRecords, int radioButtonNumber)
         {
-            return (matchedTargetRecords == null
+            return (matchedTargetRecords.Entities.Count == 0
                 || radioButtonNumber != 3)
                 && sourceRecord.Attributes.ContainsKey("statecode")
                 && sourceRecord.GetAttributeValue<OptionSetValue>("statecode").Value == 1;
@@ -126,13 +126,12 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private void CreateRecord(Entity sourceRecord, ResultItem resultItem, string sourceRecordId)
         {
-            CreateRequest createRequest = new CreateRequest { Target = sourceRecord };
-            _targetService.Execute(createRequest);
+            _targetService.Create(sourceRecord);
             resultItem.CreatedRecordCount++;
             _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id")}}}.");
         }
 
-        private void DeleteAndCreate(Entity sourceRecord, EntityCollection matchedTargetRecords, ResultItem resultItem, string sourceRecordId)
+        private void DeleteAndCreateRecords(Entity sourceRecord, EntityCollection matchedTargetRecords, ResultItem resultItem, string sourceRecordId)
         {
             foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
             {
@@ -146,11 +145,11 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id")}}}.");
         }
 
-        private void UpdateRecord(Entity sourceRecord, EntityCollection matchedTargetRecords, ResultItem resultItem)
+        private void UpdateRecords(Entity sourceRecord, EntityCollection matchedTargetRecords, ResultItem resultItem)
         {
             foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
             {
-                SetSourceRecordUnfilledFieldsDefaultValue(sourceRecord, matchedTargetRecord);
+                SetSourceRecordBlankFieldsToDefaultValue(sourceRecord, matchedTargetRecord);
                 Entity newRecord = new Entity(sourceRecord.LogicalName);
                 newRecord.Attributes.AddRange(sourceRecord.Attributes);
                 newRecord[sourceRecord.LogicalName + "id"] = matchedTargetRecord[sourceRecord.LogicalName + "id"];
@@ -179,17 +178,17 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 sourceRecord.Attributes.Remove("statuscode");
             }
 
-            if (matchedTargetRecords == null || MatchedAction.CheckedRadioButtonNumbers[index] == (byte)MatchedActionForRecord.Create)
+            if (matchedTargetRecords.Entities.Count == 0 || MatchedAction.CheckedRadioButtonNumbers[index] == (byte)MatchedActionForRecord.Create)
             {
                 CreateRecord(sourceRecord, resultItem, sourceRecordId);
             }
             else if (MatchedAction.CheckedRadioButtonNumbers[index] == (byte)MatchedActionForRecord.DeleteAndCreate)
             {
-                DeleteAndCreate(sourceRecord, matchedTargetRecords, resultItem, sourceRecordId);
+                DeleteAndCreateRecords(sourceRecord, matchedTargetRecords, resultItem, sourceRecordId);
             }
             else if (MatchedAction.CheckedRadioButtonNumbers[index] == (byte)MatchedActionForRecord.Upsert)
             {
-                UpdateRecord(sourceRecord, matchedTargetRecords, resultItem);
+                UpdateRecords(sourceRecord, matchedTargetRecords, resultItem);
             }
 
             if (checkForInactiveRecord)
@@ -301,13 +300,13 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
                 if (refValue == null)
                 {
-                    return null;
+                    return new EntityCollection();
                 }
                 filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, refValue.Id.ToString()));
             }
             else if (attributeType == "Virtual")
             {
-                OptionSetValueCollection optionSets = (OptionSetValueCollection)sourceRecord[attributeSchemaName];
+                OptionSetValueCollection optionSets = sourceRecord.GetAttributeValue<OptionSetValueCollection>(attributeSchemaName);
                 int[] osValues = new int[] { };
 
                 foreach (var optionSet in optionSets)
@@ -318,8 +317,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
             else if (attributeType == "Money")
             {
-                Money money = (Money)sourceRecord[attributeSchemaName];
-                filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, money.Value.ToString()));
+                Money money = sourceRecord.GetAttributeValue<Money>(attributeSchemaName);
+                filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, money.Value));
             }
             else if (CheckAttributeTypeForOptionSet(attributeType))
             {
