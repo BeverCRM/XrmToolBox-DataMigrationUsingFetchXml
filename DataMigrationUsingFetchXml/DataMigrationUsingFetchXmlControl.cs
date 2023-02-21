@@ -230,12 +230,23 @@ namespace DataMigrationUsingFetchXml
 
                     if (!CheckArgsResult(args))
                     {
+                        UncheckCompletedFetchXmlRows(_transferOperation.CurrentIndexForTransfer);
+
                         return;
                     }
+                    UncheckCompletedFetchXmlRows(++_transferOperation.CurrentIndexForTransfer);
 
                     MessageBox.Show(Localization_MessageBoxText.DataMigrationCompleted, "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             });
+        }
+
+        private void UncheckCompletedFetchXmlRows(int countOfCompletedRows)
+        {
+            for (int i = 0; i < countOfCompletedRows; i++)
+            {
+                FetchDataGridView.Rows[i].Cells[0].Value = false;
+            }
         }
 
         private (List<string> fetchXmls, List<int> tableIndexesForTransfer) GetFetchDataGridViewData()
