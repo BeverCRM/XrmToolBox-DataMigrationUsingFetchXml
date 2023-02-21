@@ -103,11 +103,11 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private bool CheckMatchingRecords(Entity record, int rowIndex, bool idExists)
         {
-            List<string> attributeNames = MatchingCriteria.SelectedAttributeNames[rowIndex];
             List<string> logicalOperatorNames = MatchingCriteria.SelectedLogicalOperators[rowIndex];
+            List<string> attributeNames = MatchingCriteria.SelectedAttributeNames[rowIndex];
+            List<EntityCollection> allMatchedTargetRecords = new List<EntityCollection>();
             EntityCollection finalMatchcdRecords = new EntityCollection();
             EntityCollection matchcdRecords = new EntityCollection();
-            List<EntityCollection> allMatchedTargetRecords = new List<EntityCollection>();
 
             if (attributeNames.Count == 0 && !idExists)
             {
@@ -128,12 +128,9 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
             for (int i = 0, j = 0; i < attributeNames.Count; i++, j = i - 1)
             {
-                if (_matchedTargetRecords != null)
+                foreach (var item in _matchedTargetRecords.Entities)
                 {
-                    foreach (var item in _matchedTargetRecords.Entities)
-                    {
-                        matchcdRecords.Entities.Add(item);
-                    }
+                    matchcdRecords.Entities.Add(item);
                 }
 
                 if (logicalOperatorNames[j] == "And" && isThereMatchingRecordInTarget)
@@ -142,7 +139,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 }
                 else if (logicalOperatorNames[j] == "OR")
                 {
-                    if (_matchedTargetRecords != null && _matchedTargetRecords.Entities.Count > 0)
+                    if (_matchedTargetRecords.Entities.Count > 0)
                     {
                         allMatchedTargetRecords.Add(_matchedTargetRecords);
                     }
@@ -171,6 +168,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     {
                         isThereMatchingRecordInTarget = false;
                     }
+
                     finalMatchcdRecords.Entities.Clear();
                     matchcdRecords.Entities.Clear();
                 }
@@ -187,18 +185,15 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 _matchedTargetRecords = allMatchedTargetRecords[0];
             }
 
-            if (_matchedTargetRecords.Entities.Count > 0 && allMatchedTargetRecords.Count > 0)
+            foreach (var matchedTargetRecords in allMatchedTargetRecords)
             {
-                foreach (var matchedTargetRecords in allMatchedTargetRecords)
+                foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
                 {
-                    foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
-                    {
-                        Entity entity = _matchedTargetRecords.Entities.Where(x => x.Id == matchedTargetRecord.Id).FirstOrDefault();
+                    Entity entity = _matchedTargetRecords.Entities.Where(x => x.Id == matchedTargetRecord.Id).FirstOrDefault();
 
-                        if (entity == null)
-                        {
-                            _matchedTargetRecords.Entities.Add(matchedTargetRecord);
-                        }
+                    if (entity == null)
+                    {
+                        _matchedTargetRecords.Entities.Add(matchedTargetRecord);
                     }
                 }
             }
