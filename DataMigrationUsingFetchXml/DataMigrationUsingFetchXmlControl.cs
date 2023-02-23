@@ -23,7 +23,9 @@ namespace DataMigrationUsingFetchXml
         private Settings _mySettings;
 
         private readonly FetchXmlPopup _fetchXmlpopup;
+
         private readonly MatchedAction _matchedAction;
+
         private readonly MatchingCriteria _matchingCriteria;
 
         private readonly ILogger _logger;

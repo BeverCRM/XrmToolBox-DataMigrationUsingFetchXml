@@ -43,9 +43,9 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             // 
             this.radioButtonDeleteAndCreate.Location = new System.Drawing.Point(11, 39);
             this.radioButtonDeleteAndCreate.Name = "radioButtonDeleteAndCreate";
-            this.radioButtonDeleteAndCreate.Size = new System.Drawing.Size(430, 40);
+            this.radioButtonDeleteAndCreate.Size = new System.Drawing.Size(290, 40);
             this.radioButtonDeleteAndCreate.TabIndex = 2;
-            this.radioButtonDeleteAndCreate.Text = "Delete matched target record and create source record\r\n(Will create in case of no" +
+            this.radioButtonDeleteAndCreate.Text = "Delete matched target record and create source record. (Will create in case of no" +
     "t matching)";
             this.radioButtonDeleteAndCreate.UseVisualStyleBackColor = true;
             // 
@@ -55,16 +55,16 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.radioButtonDoNotCreate.Name = "radioButtonDoNotCreate";
             this.radioButtonDoNotCreate.Size = new System.Drawing.Size(430, 40);
             this.radioButtonDoNotCreate.TabIndex = 4;
-            this.radioButtonDoNotCreate.Text = "Don\'t create a source record";
+            this.radioButtonDoNotCreate.Text = "Don\'t create a source record.";
             this.radioButtonDoNotCreate.UseVisualStyleBackColor = true;
             // 
             // radioButtonUpsert
             // 
             this.radioButtonUpsert.Location = new System.Drawing.Point(11, 77);
             this.radioButtonUpsert.Name = "radioButtonUpsert";
-            this.radioButtonUpsert.Size = new System.Drawing.Size(430, 40);
+            this.radioButtonUpsert.Size = new System.Drawing.Size(290, 40);
             this.radioButtonUpsert.TabIndex = 3;
-            this.radioButtonUpsert.Text = "Update matched target record with source record data\r\n(Will create in case of not" +
+            this.radioButtonUpsert.Text = "Update matched target record with source record data. (Will create in case of not" +
     " matching)";
             this.radioButtonUpsert.UseVisualStyleBackColor = true;
             // 
@@ -73,10 +73,10 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             this.radioButtonCreate.Checked = true;
             this.radioButtonCreate.Location = new System.Drawing.Point(11, 3);
             this.radioButtonCreate.Name = "radioButtonCreate";
-            this.radioButtonCreate.Size = new System.Drawing.Size(430, 38);
+            this.radioButtonCreate.Size = new System.Drawing.Size(324, 38);
             this.radioButtonCreate.TabIndex = 1;
             this.radioButtonCreate.TabStop = true;
-            this.radioButtonCreate.Text = "Don\'t delete matched target record and create a source record\r\n(Will error in cas" +
+            this.radioButtonCreate.Text = "Don\'t delete matched target record and create a source record. (Will error in cas" +
     "e of primary key matching)";
             this.radioButtonCreate.UseVisualStyleBackColor = true;
             // 

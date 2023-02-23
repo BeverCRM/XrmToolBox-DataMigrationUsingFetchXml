@@ -57,6 +57,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
                 ConfigReader.CurrentFetchXml = newFetchXml;
                 ConfigReader.SetPaginationAttributes();
+                ConfigReader.FindAttributeNamesWithTargetAttributeInFetchXml();
+
                 _resultItem = new ResultItem();
                 List<string> searchAttrs = ConfigReader.GetPrimaryFields(out bool idExists);
 
@@ -101,6 +103,25 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
         }
 
+        private void ChangeSourceRecordAttrNameIfThereIsTargetAttrName(Entity sourceRecord, List<string> attributeNames)
+        {
+            foreach (KeyValuePair<string, string> item in ConfigReader.SourceAndTargetAttributeNames)
+            {
+                if (attributeNames.Contains(item.Key))
+                {
+                    attributeNames.Remove(item.Key);
+                    attributeNames.Add(item.Value);
+                }
+
+                if (sourceRecord.Attributes.ContainsKey(item.Key))
+                {
+                    object recordValue = sourceRecord.GetAttributeValue<object>(item.Key);
+                    sourceRecord.Attributes.Remove(item.Key);
+                    sourceRecord.Attributes.Add(item.Value, recordValue);
+                }
+            }
+        }
+
         private bool CheckMatchingRecords(Entity record, int rowIndex, bool idExists)
         {
             List<string> logicalOperatorNames = MatchingCriteria.SelectedLogicalOperators[rowIndex];
@@ -108,6 +129,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             List<EntityCollection> allMatchedTargetRecords = new List<EntityCollection>();
             EntityCollection finalMatchcdRecords = new EntityCollection();
             EntityCollection matchcdRecords = new EntityCollection();
+
+            ChangeSourceRecordAttrNameIfThereIsTargetAttrName(record, attributeNames);
 
             if (attributeNames.Count == 0 && !idExists)
             {

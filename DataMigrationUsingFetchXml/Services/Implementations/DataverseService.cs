@@ -288,7 +288,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
             if (CheckAttributeForSimpleType(attributeType))
             {
-                filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, sourceRecord[attributeSchemaName].ToString()));
+                filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, sourceRecord[attributeSchemaName]?.ToString()));
             }
             else if (attributeType == "DateTime" && DateTime.TryParse(sourceRecord[attributeSchemaName].ToString(), out DateTime date))
             {
@@ -366,7 +366,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 LogicalName = logicalName,
                 RetrieveAsIfPublished = true
             };
-            var attributeResponse = (RetrieveAttributeResponse)_sourceService.Execute(attributeRequest);
+            var attributeResponse = (RetrieveAttributeResponse)_targetService.Execute(attributeRequest);
 
             return attributeResponse.AttributeMetadata.AttributeType.ToString();
         }
