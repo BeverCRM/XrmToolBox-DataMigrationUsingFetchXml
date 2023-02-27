@@ -94,7 +94,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
                 if (transactionCurrencyCollection.Entities.Count > 0)
                 {
-                    sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Id = transactionCurrencyCollection.Entities.FirstOrDefault().ToEntityReference().Id;
+                    (sourceRecord["transactioncurrencyid"] as EntityReference).Id = transactionCurrencyCollection.Entities.FirstOrDefault().ToEntityReference().Id;
                 }
                 else
                 {
@@ -119,9 +119,8 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         private bool CheckForInactiveRecord(Entity sourceRecord, EntityCollection matchedTargetRecords, int radioButtonNumber)
         {
             return (matchedTargetRecords.Entities.Count == 0
-                || radioButtonNumber != 3)
-                && sourceRecord.Attributes.ContainsKey("statecode")
-                && sourceRecord.GetAttributeValue<OptionSetValue>("statecode").Value == 1;
+                || radioButtonNumber != (byte)MatchedActionForRecord.Upsert)
+                && sourceRecord.GetAttributeValue<OptionSetValue>("statecode")?.Value == 1; //1 is statecode inactive value.
         }
 
         private void CreateRecord(Entity sourceRecord, ResultItem resultItem, string sourceRecordId)
@@ -140,9 +139,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 _logger.LogWarning($"Deleted the record with Id {{{matchedTargetRecord.Id}}} from the target instance.");
             }
 
-            _targetService.Create(sourceRecord);
-            resultItem.CreatedRecordCount++;
-            _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id")}}}.");
+            CreateRecord(sourceRecord, resultItem, sourceRecordId);
         }
 
         private void UpdateRecords(Entity sourceRecord, EntityCollection matchedTargetRecords, ResultItem resultItem)
@@ -159,7 +156,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             }
         }
 
-        public void CreateMatchedRecordInTarget(Entity sourceRecord, EntityCollection matchedTargetRecords, ResultItem resultItem, int index)
+        public void CreateMatchedRecordInTarget(Entity sourceRecord, EntityCollection matchedTargetRecords, ResultItem resultItem, int checkedMatchedActionRadioButtonNumber)
         {
             int statusValue = -1;
             SetRecordTransactionCurrency(sourceRecord);
@@ -170,7 +167,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 sourceRecord[sourceRecord.LogicalName + "id"] = Guid.NewGuid();
             }
 
-            bool checkForInactiveRecord = CheckForInactiveRecord(sourceRecord, matchedTargetRecords, MatchedAction.CheckedRadioButtonNumbers[index]);
+            bool checkForInactiveRecord = CheckForInactiveRecord(sourceRecord, matchedTargetRecords, checkedMatchedActionRadioButtonNumber);
 
             if (checkForInactiveRecord && sourceRecord.Attributes.ContainsKey("statuscode"))
             {
@@ -178,24 +175,24 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 sourceRecord.Attributes.Remove("statuscode");
             }
 
-            if (matchedTargetRecords.Entities.Count == 0 || MatchedAction.CheckedRadioButtonNumbers[index] == (byte)MatchedActionForRecord.Create)
+            if (matchedTargetRecords.Entities.Count == 0 || checkedMatchedActionRadioButtonNumber == (byte)MatchedActionForRecord.Create)
             {
                 CreateRecord(sourceRecord, resultItem, sourceRecordId);
             }
-            else if (MatchedAction.CheckedRadioButtonNumbers[index] == (byte)MatchedActionForRecord.DeleteAndCreate)
+            else if (checkedMatchedActionRadioButtonNumber == (byte)MatchedActionForRecord.DeleteAndCreate)
             {
                 DeleteAndCreateRecords(sourceRecord, matchedTargetRecords, resultItem, sourceRecordId);
             }
-            else if (MatchedAction.CheckedRadioButtonNumbers[index] == (byte)MatchedActionForRecord.Upsert)
+            else if (checkedMatchedActionRadioButtonNumber == (byte)MatchedActionForRecord.Upsert)
             {
                 UpdateRecords(sourceRecord, matchedTargetRecords, resultItem);
             }
 
             if (checkForInactiveRecord)
             {
-                if (statusValue != -1)
+                if (statusValue != -1) //if statusValue is -1 it means that record doesn't contain statuscode.
                 {
-                    sourceRecord.Attributes.Add("statuscode", new OptionSetValue(statusValue));
+                    sourceRecord["statuscode"] = new OptionSetValue(statusValue);
                 }
                 _targetService.Update(sourceRecord);
             }
@@ -236,12 +233,12 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             return retrieveEntityResponse.EntityMetadata.PrimaryNameAttribute;
         }
 
-        public Entity GetRecord(string entitySchemaName, string attributeSchemaName, string attributeValue)
+        private Entity GetRecord(string entitySchemaName, string attributeSchemaName, string attributeValue)
         {
             QueryExpression query = new QueryExpression
             {
                 EntityName = entitySchemaName,
-                ColumnSet = new ColumnSet(attributeSchemaName),
+                ColumnSet = new ColumnSet(null),
                 Criteria =
                 {
                     FilterOperator = LogicalOperator.And,
@@ -257,29 +254,23 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private bool CheckAttributeForSimpleType(string attributeType)
         {
-            return attributeType == "Double"
-                || attributeType == "Memo"
-                || attributeType == "Integer"
-                || attributeType == "String"
-                || attributeType == "BigInt"
-                || attributeType == "Boolean"
-                || attributeType == "EntityName"
-                || attributeType == "Decimal"
-                || attributeType == "Uniqueidentifier";
+            string[] simpleTypes = new string[] { "Double", "Memo", "Integer", "String", "BigInt", "Boolean", "EntityName", "Decimal", "Uniqueidentifier" };
+
+            return simpleTypes.Contains(attributeType);
         }
 
         private bool CheckAttributeTypeForEntityReference(string attributeType)
         {
-            return attributeType == "Lookup"
-                || attributeType == "Customer"
-                || attributeType == "Owner";
+            string[] entityReferenceTypes = new string[] { "Lookup", "Customer", "Owner" };
+
+            return entityReferenceTypes.Contains(attributeType);
         }
 
         private bool CheckAttributeTypeForOptionSet(string attributeType)
         {
-            return attributeType == "Picklist"
-                || attributeType == "Status"
-                || attributeType == "State";
+            string[] optionSetTypes = new string[] { "Picklist", "Status", "State" };
+
+            return optionSetTypes.Contains(attributeType);
         }
 
         public EntityCollection GetTargetMatchedRecords(Entity sourceRecord, string attributeSchemaName, string attributeType)
@@ -371,7 +362,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             return attributeResponse.AttributeMetadata.AttributeType.ToString();
         }
 
-        public void IsFetchXmlExpressionValid(string fetchXml)
+        public void ThrowExceptionIfFetchXmlIsInvalid(string fetchXml)
         {
             var validateFetchXmlExpressionRequest = new FetchXmlToQueryExpressionRequest
             {

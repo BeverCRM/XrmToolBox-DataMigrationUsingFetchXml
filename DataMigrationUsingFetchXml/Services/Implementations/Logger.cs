@@ -61,7 +61,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             LogToFile(logText);
         }
 
-        private void ColorTextBoxLogs(string text, string colorWord, Color color)
+        private void ColorTextBoxLogs(string text, string coloredWord, Color color)
         {
             _richTxtBoxLogs.Invoke(new MethodInvoker(delegate
             {
@@ -69,7 +69,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 _richTxtBoxLogs.SelectionStart = _richTxtBoxLogs.Text.Length;
                 _richTxtBoxLogs.SelectionLength = 0;
                 _richTxtBoxLogs.SelectionColor = color;
-                _richTxtBoxLogs.AppendText($"{colorWord}");
+                _richTxtBoxLogs.AppendText($"{coloredWord}");
                 _richTxtBoxLogs.SelectionColor = _richTxtBoxLogs.ForeColor;
                 _richTxtBoxLogs.AppendText(text + "\n");
             }));
@@ -82,10 +82,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private void LogToFile(string logText)
         {
-            _richTxtBoxLogs.Invoke(new MethodInvoker(delegate
-            {
-                File.AppendAllText(_logsPath, logText);
-            }));
+            File.AppendAllText(_logsPath, logText);
         }
     }
 }

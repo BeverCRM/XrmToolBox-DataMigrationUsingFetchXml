@@ -81,11 +81,11 @@ namespace DataMigrationUsingFetchXml.Services
         {
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(fetchXml);
-            XmlNode RootNode = xmlDocument.SelectSingleNode("//entity");
+            XmlNode entityNode = xmlDocument.SelectSingleNode("//entity");
 
             XmlElement xmlElement = xmlDocument.CreateElement("attribute");
             xmlElement.SetAttribute("name", elementValue);
-            RootNode.AppendChild(xmlElement);
+            entityNode.AppendChild(xmlElement);
 
             return xmlDocument.InnerXml;
         }

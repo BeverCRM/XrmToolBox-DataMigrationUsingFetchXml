@@ -10,9 +10,8 @@ namespace DataMigrationUsingFetchXml.Services.Interfaces
         void MapSearchAttributes(Entity record, List<string> searchAttrs);
         (string logicalName, string displayName) GetEntityName(string fetchXml);
         IEnumerable<EntityCollection> GetAllRecords(string fetchQuery);
-        Entity GetRecord(string entitySchemaName, string attributeSchemaName, string attributeValue);
         EntityCollection GetTargetMatchedRecords(Entity sourceRecord, string attributeSchemaName, string attributeType);
         string GetAttributeType(string logicalName, string entityLogicalName);
-        void IsFetchXmlExpressionValid(string fetchXml);
+        void ThrowExceptionIfFetchXmlIsInvalid(string fetchXml);
     }
 }

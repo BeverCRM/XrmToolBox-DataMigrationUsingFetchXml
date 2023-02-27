@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NuGet;
+using System;
 using System.IO;
 using System.Xml;
 using System.Text;
@@ -18,8 +19,6 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         private IDataverseService _dataverseService;
 
         private MatchingCriteria _matchingCriteria;
-
-        private string _currentFetchXml;
 
         public FetchXmlPopup()
         {
@@ -46,12 +45,10 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                     {
                         XmlDocument xmlDoc = new XmlDocument();
                         xmlDoc.Load(openFileDialog.FileName);
-                        _currentFetchXml = xmlDoc.OuterXml;
-                        textBoxFetch.Text = string.Empty;
 
                         if (openFileDialog.FileName != "")
                         {
-                            textBoxFetch.Text = FormatFetchXmlString(_currentFetchXml);
+                            textBoxFetch.Text = FormatFetchXmlString(xmlDoc.OuterXml);
                         }
                     }
                 }
@@ -65,29 +62,30 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         private string FormatFetchXmlString(string fetchXml)
         {
             string formattedFetchXml = "";
-            MemoryStream mStream = new MemoryStream();
-            XmlTextWriter writer = new XmlTextWriter(mStream, Encoding.Unicode);
-            XmlDocument document = new XmlDocument();
 
             try
             {
-                document.LoadXml(fetchXml);
-                writer.Formatting = Formatting.Indented;
-                document.WriteContentTo(writer);
-                writer.Flush();
-                mStream.Flush();
-                mStream.Position = 0;
+                using (MemoryStream mStream = new MemoryStream())
+                {
+                    using (XmlTextWriter writer = new XmlTextWriter(mStream, Encoding.Unicode))
+                    {
+                        XmlDocument document = new XmlDocument();
 
-                StreamReader sReader = new StreamReader(mStream);
-                formattedFetchXml = sReader.ReadToEnd();
+                        document.LoadXml(fetchXml);
+                        writer.Formatting = Formatting.Indented;
+                        document.WriteContentTo(writer);
+                        writer.Flush();
+                        mStream.Flush();
+                        mStream.Position = 0;
+
+                        formattedFetchXml = mStream.ReadToEnd();
+                    }
+                }
             }
             catch (XmlException ex)
             {
                 MessageBox.Show(ex.Message, "Invalid FetchXML", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            mStream.Close();
-            writer.Close();
 
             return formattedFetchXml;
         }
@@ -96,7 +94,18 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         {
             try
             {
-                _dataverseService.IsFetchXmlExpressionValid(textBoxFetch.Text);
+                _dataverseService.ThrowExceptionIfFetchXmlIsInvalid(textBoxFetch.Text);
+
+                if (IsEdit && FetchXmls[EditIndex] == textBoxFetch.Text)
+                {
+                    Close();
+                    return;
+                }
+
+                if (IsFetchDuplicate() && (FetchXmls[EditIndex] != textBoxFetch.Text || !IsEdit))
+                {
+                    return;
+                }
 
                 if (IsEdit)
                 {
@@ -109,24 +118,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 }
                 else
                 {
+                    FetchXmls.Add(textBoxFetch.Text);
                     Services.ConfigReader.CurrentFetchXml = textBoxFetch.Text;
-                }
-                _currentFetchXml = textBoxFetch.Text;
-
-                if (IsEdit && FetchXmls[EditIndex] == _currentFetchXml)
-                {
-                    DialogResult = DialogResult.OK;
-                    return;
-                }
-
-                if (IsFetchDuplicate() && (FetchXmls[EditIndex] != _currentFetchXml || !IsEdit))
-                {
-                    return;
-                }
-
-                if (!IsEdit)
-                {
-                    FetchXmls.Add(_currentFetchXml);
                 }
             }
             catch (Exception ex)

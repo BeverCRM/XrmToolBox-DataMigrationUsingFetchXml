@@ -15,15 +15,12 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         public List<string> DisplayNames { get; set; }
         public int CurrentIndexForTransfer { get; set; }
 
+        private EntityCollection _matchedTargetRecords;
         private string _organizationServiceUrl;
-
         private ResultItem _resultItem;
 
         private readonly ILogger _logger;
-
         private IDataverseService _dataverseService;
-
-        private EntityCollection _matchedTargetRecords;
 
         public TransferOperation(ILogger logger)
         {
@@ -107,7 +104,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         {
             foreach (KeyValuePair<string, string> item in ConfigReader.SourceAndTargetAttributeNames)
             {
-                if (attributeNames.Contains(item.Key))
+                if (attributeNames != null && attributeNames.Contains(item.Key))
                 {
                     attributeNames.Remove(item.Key);
                     attributeNames.Add(item.Value);
@@ -147,7 +144,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 return CheckRecordInTargetByAttributeType(record, record.LogicalName + "id");
             }
 
-            bool isThereMatchingRecordInTarget = logicalOperatorNames[0] == "And";
+            bool isThereMatchingRecordInTarget = logicalOperatorNames[0] == "And" || logicalOperatorNames[0] == "AND";
 
             for (int i = 0, j = 0; i < attributeNames.Count; i++, j = i - 1)
             {
@@ -156,11 +153,11 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     matchcdRecords.Entities.Add(item);
                 }
 
-                if (logicalOperatorNames[j] == "And" && isThereMatchingRecordInTarget)
+                if ((logicalOperatorNames[j] == "And" || logicalOperatorNames[j] == "AND") && isThereMatchingRecordInTarget)
                 {
                     isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
                 }
-                else if (logicalOperatorNames[j] == "OR")
+                else if (logicalOperatorNames[j] == "OR" || logicalOperatorNames[j] == "Or")
                 {
                     if (_matchedTargetRecords.Entities.Count > 0)
                     {
@@ -169,7 +166,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
                 }
 
-                if (isThereMatchingRecordInTarget && matchcdRecords.Entities.Count > 0 && logicalOperatorNames[j] == "And")
+                if (isThereMatchingRecordInTarget && matchcdRecords.Entities.Count > 0 && (logicalOperatorNames[j] == "And" || logicalOperatorNames[j] == "AND"))
                 {
                     foreach (var item in _matchedTargetRecords.Entities)
                     {
@@ -258,6 +255,10 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     return;
                 }
             }
+            else
+            {
+                ChangeSourceRecordAttrNameIfThereIsTargetAttrName(record, null);
+            }
 
             if (checkMatchingRecords && MatchedAction.CheckedRadioButtonNumbers[rowIndex] == (byte)MatchedActionForRecord.DoNotCreate)
             {
@@ -272,7 +273,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 try
                 {
                     _dataverseService.MapSearchAttributes(newRecord, searchAttrs);
-                    _dataverseService.CreateMatchedRecordInTarget(newRecord, _matchedTargetRecords, _resultItem, rowIndex);
+                    _dataverseService.CreateMatchedRecordInTarget(newRecord, _matchedTargetRecords, _resultItem, MatchedAction.CheckedRadioButtonNumbers[rowIndex]);
                 }
                 catch (Exception ex)
                 {

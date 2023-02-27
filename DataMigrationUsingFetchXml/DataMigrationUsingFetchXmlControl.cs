@@ -19,22 +19,16 @@ namespace DataMigrationUsingFetchXml
     internal partial class DataMigrationUsingFetchXmlControl : MultipleConnectionsPluginControlBase
     {
         private string _logsPath;
-
         private Settings _mySettings;
+        private readonly List<string> _displayNames;
+        private readonly string _defaultPath = Environment.CurrentDirectory;
 
         private readonly FetchXmlPopup _fetchXmlpopup;
-
         private readonly MatchedAction _matchedAction;
-
         private readonly MatchingCriteria _matchingCriteria;
 
         private readonly ILogger _logger;
-
-        private readonly List<string> _displayNames;
-
         private readonly ITransferOperation _transferOperation;
-
-        private readonly string _defaultPath = Environment.CurrentDirectory;
 
         public DataMigrationUsingFetchXmlControl(ILogger logger, ITransferOperation transferOperation)
         {
@@ -62,6 +56,8 @@ namespace DataMigrationUsingFetchXml
             TxtLogsPath.Text = _defaultPath;
             _logsPath = _defaultPath;
             richTextBoxLogs.HideSelection = false;
+
+            //CheckForIllegalCrossThreadCalls = false;
         }
 
         /// <summary>
@@ -216,8 +212,6 @@ namespace DataMigrationUsingFetchXml
                 ProgressChanged = args =>
                 {
                     ResultItem resultItem = (ResultItem)args.UserState;
-                    SetLoadingDetails(true);
-                    LblCreated.Text = string.Empty;
                     ChangeLabelText(resultItem);
                     lastResultItem = resultItem;
                 },
@@ -230,7 +224,7 @@ namespace DataMigrationUsingFetchXml
                     SetLoadingDetails(false);
                     SetTotalDetailsOfAllEntities();
 
-                    if (!CheckArgsResult(args))
+                    if (!CheckWorkerResult(args))
                     {
                         UncheckCompletedFetchXmlRows(_transferOperation.CurrentIndexForTransfer);
 
@@ -271,7 +265,12 @@ namespace DataMigrationUsingFetchXml
         {
             if (_transferOperation.ResultItems != null)
             {
-                int totalRecordsCount = 0, totalCreatedRecordsCount = 0, totalUpdatedRecordsCount = 0, totalDeletedRecordsCount = 0, totalErroredRecordsCount = 0, totalSkippedRecordsCount = 0;
+                int totalRecordsCount = 0,
+                    totalCreatedRecordsCount = 0,
+                    totalUpdatedRecordsCount = 0,
+                    totalDeletedRecordsCount = 0,
+                    totalErroredRecordsCount = 0,
+                    totalSkippedRecordsCount = 0;
 
                 foreach (ResultItem resultItem in _transferOperation.ResultItems)
                 {
@@ -293,7 +292,7 @@ namespace DataMigrationUsingFetchXml
             }
         }
 
-        private bool CheckArgsResult(RunWorkerCompletedEventArgs args)
+        private bool CheckWorkerResult(RunWorkerCompletedEventArgs args)
         {
             if (args.Cancelled)
             {
@@ -560,18 +559,22 @@ namespace DataMigrationUsingFetchXml
 
         private void CustomiseFetchDataGridViewSizeBasedOnRowHeight(int height)
         {
+            int dataGridViewInitialWidth = 518;
+            int dataGridViewScrollWidth = 18;
+            int dataGridViewRowHeight = 23;
+
             foreach (DataGridViewRow row in FetchDataGridView.Rows)
             {
                 height += row.Height;
             }
 
-            if (height > FetchDataGridView.Height - 23 && FetchDataGridView.Width < 520)
+            if (height > FetchDataGridView.Height - dataGridViewRowHeight && FetchDataGridView.Width <= dataGridViewInitialWidth)
             {
-                FetchDataGridView.Width += 18;
+                FetchDataGridView.Width += dataGridViewScrollWidth;
             }
-            else if (height < FetchDataGridView.Height - 23 && FetchDataGridView.Width > 518)
+            else if (height < FetchDataGridView.Height - dataGridViewRowHeight && FetchDataGridView.Width > dataGridViewInitialWidth)
             {
-                FetchDataGridView.Width -= 18;
+                FetchDataGridView.Width -= dataGridViewScrollWidth;
             }
         }
 
