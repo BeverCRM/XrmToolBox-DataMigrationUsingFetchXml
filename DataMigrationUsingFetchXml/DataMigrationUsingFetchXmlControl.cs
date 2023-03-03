@@ -56,8 +56,6 @@ namespace DataMigrationUsingFetchXml
             TxtLogsPath.Text = _defaultPath;
             _logsPath = _defaultPath;
             richTextBoxLogs.HideSelection = false;
-
-            //CheckForIllegalCrossThreadCalls = false;
         }
 
         /// <summary>

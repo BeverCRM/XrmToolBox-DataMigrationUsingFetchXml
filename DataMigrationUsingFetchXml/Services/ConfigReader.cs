@@ -7,7 +7,6 @@ namespace DataMigrationUsingFetchXml.Services
     internal sealed class ConfigReader
     {
         public static string CurrentFetchXml { get; set; }
-        public static Dictionary<string, string> SourceAndTargetAttributeNames { get; set; }
 
         public static List<string> GetPrimaryFields(out bool idExists)
         {
@@ -31,25 +30,6 @@ namespace DataMigrationUsingFetchXml.Services
             }
 
             return searchAttrs;
-        }
-
-        public static void FindAttributeNamesWithTargetAttributeInFetchXml()
-        {
-            SourceAndTargetAttributeNames = new Dictionary<string, string>();
-
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(CurrentFetchXml);
-            XmlNodeList nodes = xmlDoc.DocumentElement.SelectNodes("/fetch/entity/attribute");
-
-            foreach (XmlNode node in nodes)
-            {
-                if (node.Attributes["TargetAttribute"] != null
-                    && !SourceAndTargetAttributeNames.ContainsKey(node.Attributes["name"].Value)
-                    && !string.IsNullOrWhiteSpace(node.Attributes["TargetAttribute"].Value))
-                {
-                    SourceAndTargetAttributeNames.Add(node.Attributes["name"].Value, node.Attributes["TargetAttribute"].Value);
-                }
-            }
         }
 
         public static void SetPaginationAttributes()

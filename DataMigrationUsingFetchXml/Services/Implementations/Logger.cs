@@ -24,11 +24,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public void LogInfo(string text)
         {
-            if (_logsPath == null)
-            {
-                throw new Exception("Log Path is Null!");
-            }
-
             text = " INFO: " + text;
             string logText = $"[{DateTime.Now:G}]" + text + "\n";
             LogToTextBox(logText);
@@ -37,11 +32,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public void LogError(string text)
         {
-            if (_logsPath == null)
-            {
-                throw new Exception("Log Path is Null!");
-            }
-
             string word = " ERROR: ";
             ColorTextBoxLogs(text, word, Color.Red);
             string logText = $"[{DateTime.Now:G}]" + word + text + "\n";
@@ -50,11 +40,6 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         public void LogWarning(string text)
         {
-            if (_logsPath == null)
-            {
-                throw new Exception("Log Path is Null!");
-            }
-
             string word = " WARNING: ";
             ColorTextBoxLogs(text, word, Color.Gold);
             string logText = $"[{DateTime.Now:G}]" + word + text + "\n";
@@ -82,6 +67,11 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private void LogToFile(string logText)
         {
+            if (_logsPath == null)
+            {
+                throw new Exception("Log Path is Null!");
+            }
+
             File.AppendAllText(_logsPath, logText);
         }
     }
