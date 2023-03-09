@@ -78,6 +78,12 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     return;
                 }
 
+                string currencyName = "USD";
+                if (sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Name != null)
+                {
+                    currencyName = sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Name;
+                }
+
                 QueryExpression query = new QueryExpression("transactioncurrency")
                 {
                     ColumnSet = new ColumnSet(),
@@ -85,7 +91,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     {
                         Conditions =
                         {
-                            new ConditionExpression("currencyname", ConditionOperator.Equal, sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Name)
+                            new ConditionExpression("currencyname", ConditionOperator.Equal, currencyName)
                         }
                     }
                 };
@@ -93,7 +99,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
                 if (transactionCurrencyCollection.Entities.Count > 0)
                 {
-                    (sourceRecord["transactioncurrencyid"] as EntityReference).Id = transactionCurrencyCollection.Entities.FirstOrDefault().ToEntityReference().Id;
+                    sourceRecord["transactioncurrencyid"] = transactionCurrencyCollection.Entities.FirstOrDefault().ToEntityReference();
                 }
                 else
                 {
@@ -189,7 +195,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
             if (checkForInactiveRecord)
             {
-                if (statusValue != -1) //if statusValue is -1 it means that record doesn't contain statuscode.
+                if (statusValue != -1) // -1 means that record doesn't contain statuscode.
                 {
                     sourceRecord["statuscode"] = new OptionSetValue(statusValue);
                 }

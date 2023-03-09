@@ -6,8 +6,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 {
     public partial class MatchingCriteria : Form
     {
-        public static List<List<string>> SelectedAttributeNames { get; }
-        public static List<List<string>> SelectedLogicalOperators { get; }
+        public static List<List<string>> SelectedAttributeNames { get; } = new List<List<string>>();
+        public static List<List<string>> SelectedLogicalOperators { get; } = new List<List<string>>();
 
         private readonly List<List<string>> _fetchXmlAttributesNames = new List<List<string>>();
         private readonly List<TableLayoutPanel> _logicalOperatorsPanels = new List<TableLayoutPanel>();
@@ -20,21 +20,9 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             InitializeComponent();
         }
 
-        static MatchingCriteria()
-        {
-            SelectedAttributeNames = new List<List<string>>();
-            SelectedLogicalOperators = new List<List<string>>();
-        }
-
         private void CreateAttributeNamesPanel(int index)
         {
-            foreach (var item in _attributeNamesPanels)
-            {
-                if (Controls.Contains(item))
-                {
-                    Controls.Remove(item);
-                }
-            }
+            RemoveAttributeNamesPanelFromControl();
 
             TableLayoutPanel attributeNamesPanel = new TableLayoutPanel
             {
@@ -61,6 +49,17 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             else
             {
                 _attributeNamesPanels.Add(attributeNamesPanel);
+            }
+        }
+
+        private void RemoveAttributeNamesPanelFromControl()
+        {
+            foreach (var item in _attributeNamesPanels)
+            {
+                if (Controls.Contains(item))
+                {
+                    Controls.Remove(item);
+                }
             }
         }
 
@@ -260,37 +259,34 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             }
         }
 
+        private void ReplaceLayoutPanelsInControl(List<TableLayoutPanel> layoutPanels)
+        {
+            foreach (var item in layoutPanels)
+            {
+                if (Controls.Contains(item) && item != layoutPanels[_rowIndex])
+                {
+                    Controls.Remove(item);
+                    Controls.Add(layoutPanels[_rowIndex]);
+                }
+            }
+        }
+
         public void SetLayoutPanelData(int rowIndex)
         {
             _rowIndex = rowIndex;
 
             if (Controls.Count == 5)
             {
-                Controls.Add(_attributeNamesPanels[rowIndex]);
-                Controls.Add(_logicalOperatorsPanels[rowIndex]);
+                Controls.Add(_attributeNamesPanels[_rowIndex]);
+                Controls.Add(_logicalOperatorsPanels[_rowIndex]);
             }
             else
             {
-                foreach (var item in _attributeNamesPanels)
-                {
-                    if (Controls.Contains(item) && item != _attributeNamesPanels[rowIndex])
-                    {
-                        Controls.Remove(item);
-                        Controls.Add(_attributeNamesPanels[rowIndex]);
-                    }
-                }
-
-                foreach (var item in _logicalOperatorsPanels)
-                {
-                    if (Controls.Contains(item) && item != _logicalOperatorsPanels[rowIndex])
-                    {
-                        Controls.Remove(item);
-                        Controls.Add(_logicalOperatorsPanels[rowIndex]);
-                    }
-                }
+                ReplaceLayoutPanelsInControl(_attributeNamesPanels);
+                ReplaceLayoutPanelsInControl(_logicalOperatorsPanels);
             }
 
-            if (_attributeNamesPanels[rowIndex].Controls.Count > 4)
+            if (_attributeNamesPanels[_rowIndex].Controls.Count > 4)
             {
                 BtnRemoveLast.Enabled = true;
                 BtnClearSelection.Enabled = true;
@@ -298,7 +294,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             else
             {
                 BtnRemoveLast.Enabled = false;
-                ChangeBtnClearSelectionState((ComboBox)_attributeNamesPanels[rowIndex].Controls[2]);
+                ChangeBtnClearSelectionState((ComboBox)_attributeNamesPanels[_rowIndex].Controls[2]);
             }
         }
 
@@ -343,7 +339,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                     Size = new System.Drawing.Size(50, 50),
                     DropDownStyle = ComboBoxStyle.DropDownList
                 };
-                logicalOperatorBox.Items.Add("And");
+                logicalOperatorBox.Items.Add("AND");
                 logicalOperatorBox.Items.Add("OR");
 
                 if (selectionName != null)

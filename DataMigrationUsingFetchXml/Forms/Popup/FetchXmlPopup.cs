@@ -1,5 +1,4 @@
-﻿using NuGet;
-using System;
+﻿using System;
 using System.IO;
 using System.Xml;
 using System.Text;
@@ -78,7 +77,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                         mStream.Flush();
                         mStream.Position = 0;
 
-                        formattedFetchXml = mStream.ReadToEnd();
+                        StreamReader sReader = new StreamReader(mStream);
+                        formattedFetchXml = sReader.ReadToEnd();
                     }
                 }
             }
