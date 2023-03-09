@@ -64,21 +64,15 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
 
             try
             {
-                using (MemoryStream mStream = new MemoryStream())
+                using (StringWriter stringWriter = new StringWriter(new StringBuilder()))
                 {
-                    using (XmlTextWriter writer = new XmlTextWriter(mStream, Encoding.Unicode))
+                    using (XmlTextWriter sReader = new XmlTextWriter(stringWriter) { Formatting = Formatting.Indented })
                     {
                         XmlDocument document = new XmlDocument();
-
                         document.LoadXml(fetchXml);
-                        writer.Formatting = Formatting.Indented;
-                        document.WriteContentTo(writer);
-                        writer.Flush();
-                        mStream.Flush();
-                        mStream.Position = 0;
+                        document.WriteContentTo(sReader);
 
-                        StreamReader sReader = new StreamReader(mStream);
-                        formattedFetchXml = sReader.ReadToEnd();
+                        formattedFetchXml = stringWriter.ToString();
                     }
                 }
             }
