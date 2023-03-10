@@ -6,12 +6,14 @@ namespace DataMigrationUsingFetchXml.Services
 {
     internal sealed class ConfigReader
     {
-        public static List<string> GetPrimaryFields(string fetchXml, out bool idExists)
+        public static string CurrentFetchXml { get; set; }
+
+        public static List<string> GetPrimaryFields(out bool idExists)
         {
             idExists = false;
             List<string> searchAttrs = new List<string>();
             XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(fetchXml);
+            xmlDoc.LoadXml(CurrentFetchXml);
             XmlNodeList nodes = xmlDoc.DocumentElement.SelectNodes("/fetch/entity/attribute");
             string entityName = xmlDoc.DocumentElement.SelectNodes("/fetch/entity")[0].Attributes["name"].Value;
 
@@ -30,7 +32,7 @@ namespace DataMigrationUsingFetchXml.Services
             return searchAttrs;
         }
 
-        public static void SetPaginationAttributes(string fetchXml)
+        public static void SetPaginationAttributes()
         {
             PaginationDetails.PageNumber = 1;
             PaginationDetails.PageCount = 5000;
@@ -38,7 +40,7 @@ namespace DataMigrationUsingFetchXml.Services
             PaginationDetails.ContainsTopAttribute = false;
 
             XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(fetchXml);
+            xmlDoc.LoadXml(CurrentFetchXml);
             XmlNodeList fetchNodes = xmlDoc.DocumentElement.SelectNodes("/fetch");
 
             if (fetchNodes[0].Attributes["top"] != null)
@@ -55,30 +57,90 @@ namespace DataMigrationUsingFetchXml.Services
             }
         }
 
-        public static string CreateXml(string xml, string cookie)
+        public static string CreateElementInFetchXml(string fetchXml, string elementValue)
         {
-            // Load document
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(xml);
+            XmlDocument xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(fetchXml);
+            XmlNode entityNode = xmlDocument.SelectSingleNode("//entity");
 
-            XmlAttributeCollection attrs = doc.DocumentElement.Attributes;
+            XmlElement xmlElement = xmlDocument.CreateElement("attribute");
+            xmlElement.SetAttribute("name", elementValue);
+            entityNode.AppendChild(xmlElement);
+
+            return xmlDocument.InnerXml;
+        }
+
+        public static string CreatePaginationAttributes(string cookie)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(CurrentFetchXml);
+            XmlAttributeCollection attributeCollection = doc.DocumentElement.Attributes;
 
             if (cookie != null)
             {
                 XmlAttribute pagingAttr = doc.CreateAttribute("paging-cookie");
                 pagingAttr.Value = cookie;
-                attrs.Append(pagingAttr);
+                attributeCollection.Append(pagingAttr);
             }
 
             XmlAttribute pageAttr = doc.CreateAttribute("page");
             pageAttr.Value = System.Convert.ToString(PaginationDetails.PageNumber);
-            attrs.Append(pageAttr);
+            attributeCollection.Append(pageAttr);
 
             XmlAttribute countAttr = doc.CreateAttribute("count");
             countAttr.Value = System.Convert.ToString(PaginationDetails.PageCount);
-            attrs.Append(countAttr);
+            attributeCollection.Append(countAttr);
 
             return doc.OuterXml;
+        }
+
+        public static List<string> GetAttributesNames()
+        {
+            List<string> attributeNames = new List<string>();
+            XmlNodeList attributeNodes = GetMainEntityAttributeNodesFromFetchXml();
+
+            foreach (XmlNode node in attributeNodes)
+            {
+                if (node.Attributes["name"] != null)
+                {
+                    attributeNames.Add(node.Attributes["name"].Value);
+                }
+            }
+
+            return attributeNames;
+        }
+
+        private static XmlNodeList GetMainEntityAttributeNodesFromFetchXml()
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(CurrentFetchXml);
+
+            return xmlDoc.DocumentElement.SelectNodes("/fetch/entity/attribute");
+        }
+
+        public static string GetEntityName()
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(CurrentFetchXml);
+            XmlNode entityTag = xmlDoc.DocumentElement.SelectSingleNode("/fetch/entity");
+
+            return entityTag.Attributes["name"].Value;
+        }
+
+        public static string GetFetchXmlPrimaryKey()
+        {
+            XmlNodeList attributeNodes = GetMainEntityAttributeNodesFromFetchXml();
+            string entityName = GetEntityName();
+
+            foreach (XmlNode node in attributeNodes)
+            {
+                if (node.Attributes["name"] != null && node.Attributes["name"].Value == entityName + "id")
+                {
+                    return node.Attributes["name"].Value;
+                }
+            }
+
+            return null;
         }
     }
 }

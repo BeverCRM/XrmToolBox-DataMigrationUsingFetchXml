@@ -1,7 +1,7 @@
 ﻿
 namespace DataMigrationUsingFetchXml.Forms.Popup
 {
-    partial class Popup
+    partial class FetchXmlPopup
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Popup));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FetchXmlPopup));
             this.BtnBrowseFile = new System.Windows.Forms.Button();
             this.BtnOk = new System.Windows.Forms.Button();
             this.BtnCancel = new System.Windows.Forms.Button();

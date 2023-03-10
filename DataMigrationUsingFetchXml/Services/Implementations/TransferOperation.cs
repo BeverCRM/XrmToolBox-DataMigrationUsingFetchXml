@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Xrm.Sdk;
-using System.ServiceModel;
 using System.ComponentModel;
 using System.Collections.Generic;
 using DataMigrationUsingFetchXml.Model;
+using DataMigrationUsingFetchXml.Forms.Popup;
 using DataMigrationUsingFetchXml.Services.Interfaces;
 
 namespace DataMigrationUsingFetchXml.Services.Implementations
@@ -12,19 +13,18 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
     {
         public List<ResultItem> ResultItems { get; set; }
         public List<string> DisplayNames { get; set; }
+        public int CurrentIndexForTransfer { get; set; }
 
+        private EntityCollection _matchedTargetRecords;
         private string _organizationServiceUrl;
-
         private ResultItem _resultItem;
 
         private readonly ILogger _logger;
-
         private IDataverseService _dataverseService;
-
-        private const int DUPPLICATE_RECORDS_FOUND_ERROR_CODE = -2_147_220_685;
 
         public TransferOperation(ILogger logger)
         {
+            _matchedTargetRecords = new EntityCollection();
             _logger = logger;
         }
 
@@ -37,20 +37,34 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
         public void Transfer(List<string> fetchXmls, List<int> tableIndexesForTransfer, BackgroundWorker worker, DoWorkEventArgs args)
         {
             ResultItems = new List<ResultItem>();
+            string newFetchXml;
             int index = 0;
 
             foreach (string fetchXml in fetchXmls)
             {
-                ConfigReader.SetPaginationAttributes(fetchXml);
-                _resultItem = new ResultItem();
-                List<string> searchAttrs = ConfigReader.GetPrimaryFields(fetchXml, out bool idExists);
+                newFetchXml = fetchXml;
+                ConfigReader.CurrentFetchXml = newFetchXml;
+                CurrentIndexForTransfer = tableIndexesForTransfer[index];
+                List<string> attributeNames = ConfigReader.GetAttributesNames();
 
-                _logger.LogInfo("Getting data of '" + DisplayNames[tableIndexesForTransfer[index]] + "' from source instance");
+                if (attributeNames.Contains("statuscode") && !attributeNames.Contains("statecode"))
+                {
+                    newFetchXml = ConfigReader.CreateElementInFetchXml(newFetchXml, "statecode");
+                }
+
+                ConfigReader.CurrentFetchXml = newFetchXml;
+                ConfigReader.SetPaginationAttributes();
+
+                _resultItem = new ResultItem();
+                List<string> searchAttrs = ConfigReader.GetPrimaryFields(out bool idExists);
+
+                _logger.LogInfo($"Selected Matching Action: {MatchedAction.SelectedActionDescription[MatchedAction.CheckedRadioButtonNumbers[CurrentIndexForTransfer]]}");
+                _logger.LogInfo("Getting data of '" + DisplayNames[CurrentIndexForTransfer] + "' from source instance");
                 _logger.LogInfo("Transfering data to: " + _organizationServiceUrl);
 
-                foreach (EntityCollection records in _dataverseService.GetAllRecords(fetchXml))
+                foreach (EntityCollection records in _dataverseService.GetAllRecords(newFetchXml))
                 {
-                    _resultItem.DisplayName = DisplayNames[tableIndexesForTransfer[index]];
+                    _resultItem.DisplayName = DisplayNames[CurrentIndexForTransfer];
                     _resultItem.SchemaName = records.EntityName;
                     _resultItem.SourceRecordCount += records.Entities.Count;
                     _resultItem.SourceRecordCountWithSign = _resultItem.SourceRecordCount.ToString();
@@ -61,72 +75,185 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     }
                     _logger.LogInfo("Records count is: " + _resultItem.SourceRecordCountWithSign);
 
-                    if (records.Entities.Count > 0)
-                    {
-                        foreach (Entity record in records.Entities)
-                        {
-                            if (worker.CancellationPending)
-                            {
-                                ResultItems.Add(_resultItem);
-
-                                args.Cancel = true;
-                                return;
-                            }
-
-                            TransferData(record, searchAttrs, idExists);
-                            worker.ReportProgress(-1, _resultItem);
-                        }
-                    }
-                    else
+                    if (records.Entities.Count == 0)
                     {
                         _logger.LogError("Records count is zero or not found");
+                        break;
                     }
 
-                    if (!records.MoreRecords)
+                    foreach (Entity record in records.Entities)
                     {
-                        ResultItems.Add(_resultItem);
+                        if (worker.CancellationPending)
+                        {
+                            ResultItems.Add(_resultItem);
+                            args.Cancel = true;
+
+                            return;
+                        }
+                        TransferData(record, searchAttrs, idExists, CurrentIndexForTransfer);
+                        worker.ReportProgress(-1, _resultItem);
                     }
                 }
+                ResultItems.Add(_resultItem);
                 index++;
             }
         }
 
-        private void TransferData(Entity record, List<string> searchAttrs, bool idExists)
+        private bool CheckMatchingRecords(Entity record, int rowIndex, bool idExists)
         {
-            string primaryAttr = _dataverseService.GetEntityPrimaryField(record.LogicalName);
-            string recordName = record.GetAttributeValue<string>(primaryAttr);
-            string recordId = record.Id.ToString();
+            List<string> logicalOperatorNames = MatchingCriteria.SelectedLogicalOperators[rowIndex];
+            List<string> attributeNames = MatchingCriteria.SelectedAttributeNames[rowIndex];
+            List<EntityCollection> allMatchedTargetRecords = new List<EntityCollection>();
+            EntityCollection finalMatchcdRecords = new EntityCollection();
+            EntityCollection matchcdRecords = new EntityCollection();
 
-            _logger.LogInfo("Record with id '" + recordId + "' and with name '" + recordName + "' is creating in target...");
-            Entity newRecord = new Entity(record.LogicalName);
-            newRecord.Attributes.AddRange(record.Attributes);
+            if (attributeNames.Count == 0 && !idExists)
+            {
+                return false;
+            }
 
-            if (!idExists)
+            if (attributeNames.Count == 1)
             {
-                newRecord.Attributes.Remove(newRecord.LogicalName + "id");
+                return CheckRecordInTargetByAttributeType(record, attributeNames[0]);
             }
-            try
+
+            if (attributeNames.Count == 0 && idExists)
             {
-                _dataverseService.MapSearchAttributes(newRecord, searchAttrs);
-                Guid createdRecordId = _dataverseService.CreateRecord(newRecord, false);
-                ++_resultItem.SuccessfullyGeneratedRecordCount;
-                _logger.LogInfo($"Record is created with id {{{createdRecordId}}}");
+                return CheckRecordInTargetByAttributeType(record, record.LogicalName + "id");
             }
-            catch (FaultException<OrganizationServiceFault> ex)
+
+            bool isThereMatchingRecordInTarget = logicalOperatorNames[0] == "AND";
+
+            for (int i = 0, j = 0; i < attributeNames.Count; i++, j = i - 1)
             {
-                ++_resultItem.ErroredRecordCount;
-                if (ex.Detail.ErrorCode == DUPPLICATE_RECORDS_FOUND_ERROR_CODE)
+                foreach (var item in _matchedTargetRecords.Entities)
                 {
-                    _logger.LogError("The record was not created because a duplicate of the current record already exists.");
+                    matchcdRecords.Entities.Add(item);
                 }
-                else
+
+                if (logicalOperatorNames[j] == "AND" && isThereMatchingRecordInTarget)
                 {
+                    isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
+                }
+                else if (logicalOperatorNames[j] == "OR")
+                {
+                    if (_matchedTargetRecords.Entities.Count > 0)
+                    {
+                        allMatchedTargetRecords.Add(_matchedTargetRecords);
+                    }
+                    isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
+                }
+
+                if (isThereMatchingRecordInTarget && matchcdRecords.Entities.Count > 0 && logicalOperatorNames[j] == "AND")
+                {
+                    foreach (var item in _matchedTargetRecords.Entities)
+                    {
+                        Entity entity = matchcdRecords.Entities.Where(x => x.Id == item.Id).FirstOrDefault();
+
+                        if (entity != null)
+                        {
+                            finalMatchcdRecords.Entities.Add(entity);
+                        }
+                    }
+                    _matchedTargetRecords.Entities.Clear();
+
+                    foreach (var item in finalMatchcdRecords.Entities)
+                    {
+                        _matchedTargetRecords.Entities.Add(item);
+                    }
+
+                    if (_matchedTargetRecords.Entities.Count == 0)
+                    {
+                        isThereMatchingRecordInTarget = false;
+                    }
+
+                    finalMatchcdRecords.Entities.Clear();
+                    matchcdRecords.Entities.Clear();
+                }
+            }
+            FillMatchedTargetRecords(allMatchedTargetRecords);
+
+            return isThereMatchingRecordInTarget;
+        }
+
+        private void FillMatchedTargetRecords(List<EntityCollection> allMatchedTargetRecords)
+        {
+            if (_matchedTargetRecords.Entities.Count == 0 && allMatchedTargetRecords.Count > 0)
+            {
+                _matchedTargetRecords = allMatchedTargetRecords[0];
+            }
+
+            foreach (var matchedTargetRecords in allMatchedTargetRecords)
+            {
+                foreach (var matchedTargetRecord in matchedTargetRecords.Entities)
+                {
+                    Entity entity = _matchedTargetRecords.Entities.Where(x => x.Id == matchedTargetRecord.Id).FirstOrDefault();
+
+                    if (entity == null)
+                    {
+                        _matchedTargetRecords.Entities.Add(matchedTargetRecord);
+                    }
+                }
+            }
+        }
+
+        private bool CheckRecordInTargetByAttributeType(Entity record, string attributeName)
+        {
+            if (!record.Attributes.Contains(attributeName))
+            {
+                return false;
+            }
+
+            string attributeType = _dataverseService.GetAttributeType(attributeName, record.LogicalName);
+            _matchedTargetRecords = _dataverseService.GetTargetMatchedRecords(record, attributeName, attributeType);
+
+            if (_matchedTargetRecords.Entities.Count == 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private void TransferData(Entity record, List<string> searchAttrs, bool idExists, int rowIndex)
+        {
+            bool checkMatchingRecords = false;
+            _matchedTargetRecords.Entities.Clear();
+
+            if (MatchedAction.CheckedRadioButtonNumbers[rowIndex] != (byte)MatchedActionForRecord.Create)
+            {
+                try
+                {
+                    checkMatchingRecords = CheckMatchingRecords(record, rowIndex, idExists);
+                }
+                catch (Exception ex)
+                {
+                    ++_resultItem.ErroredRecordCount;
+                    _logger.LogError($"Cannot transfer record with id {{{record.GetAttributeValue<Guid>(record.LogicalName + "id")}}}.Error Message: {ex.Message}");
+                    return;
+                }
+            }
+
+            if (checkMatchingRecords && MatchedAction.CheckedRadioButtonNumbers[rowIndex] == (byte)MatchedActionForRecord.DoNotCreate)
+            {
+                ++_resultItem.SkippedRecordCount;
+                _logger.LogInfo($"Skipped the record with Id {{{record.GetAttributeValue<Guid>(record.LogicalName + "id")}}} as it already exists in the target instance.");
+            }
+            else
+            {
+                Entity newRecord = new Entity(record.LogicalName);
+                newRecord.Attributes.AddRange(record.Attributes);
+
+                try
+                {
+                    _dataverseService.MapSearchAttributes(newRecord, searchAttrs);
+                    _dataverseService.CreateMatchedRecordInTarget(newRecord, _matchedTargetRecords, _resultItem, MatchedAction.CheckedRadioButtonNumbers[rowIndex]);
+                }
+                catch (Exception ex)
+                {
+                    ++_resultItem.ErroredRecordCount;
                     _logger.LogError(ex.Message);
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
             }
         }
     }
