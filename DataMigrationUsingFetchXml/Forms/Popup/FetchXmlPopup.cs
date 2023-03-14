@@ -66,11 +66,11 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             {
                 using (StringWriter stringWriter = new StringWriter(new StringBuilder()))
                 {
-                    using (XmlTextWriter sReader = new XmlTextWriter(stringWriter) { Formatting = Formatting.Indented })
+                    using (XmlTextWriter textWriter = new XmlTextWriter(stringWriter) { Formatting = Formatting.Indented })
                     {
                         XmlDocument document = new XmlDocument();
                         document.LoadXml(fetchXml);
-                        document.WriteContentTo(sReader);
+                        document.WriteContentTo(textWriter);
 
                         formattedFetchXml = stringWriter.ToString();
                     }
