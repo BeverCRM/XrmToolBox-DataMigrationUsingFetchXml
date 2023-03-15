@@ -130,9 +130,16 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private void CreateRecord(Entity sourceRecord, ResultItem resultItem, string sourceRecordId)
         {
-            _targetService.Create(sourceRecord);
-            resultItem.CreatedRecordCount++;
-            _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id")}}}.");
+            try
+            {
+                _targetService.Create(sourceRecord);
+                resultItem.CreatedRecordCount++;
+                _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id")}}}.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Cannot create record with Id {{{sourceRecordId}}}. {ex.Message}");
+            }
         }
 
         private void DeleteAndCreateRecords(Entity sourceRecord, EntityCollection matchedTargetRecords, ResultItem resultItem, string sourceRecordId)
