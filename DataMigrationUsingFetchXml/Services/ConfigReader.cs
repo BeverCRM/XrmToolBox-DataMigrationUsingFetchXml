@@ -19,7 +19,7 @@ namespace DataMigrationUsingFetchXml.Services
 
             foreach (XmlNode node in nodes)
             {
-                if (node.Attributes["SearchByPrimaryField"] != null && node.Attributes["SearchByPrimaryField"].Value == "true")
+                if (node.Attributes["SearchByPrimaryField"] != null && node.Attributes["SearchByPrimaryField"].Value == "true" && node.Attributes["name"].Value != "transactioncurrencyid")
                 {
                     searchAttrs.Add(node.Attributes["name"].Value);
                 }

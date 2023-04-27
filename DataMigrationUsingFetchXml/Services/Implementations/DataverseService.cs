@@ -66,35 +66,66 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             return currentUserSettings?.GetAttributeValue<EntityReference>("transactioncurrencyid");
         }
 
+        private Entity GetBaseCurrency()
+        {
+            string fetchXml = $@"
+                <fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>
+                  <entity name='transactioncurrency'>
+                    <attribute name='transactioncurrencyid' />
+                    <attribute name='currencyname' />
+                    <attribute name='isocurrencycode' />
+                    <attribute name='currencysymbol' />
+                    <attribute name='exchangerate' />
+                    <filter type='and'>
+                      <condition attribute='exchangerate' operator='eq' value='1' />
+                    </filter>
+                  </entity>
+                </fetch>";
+
+            return _targetService.RetrieveMultiple(new FetchExpression(fetchXml))?.Entities?.FirstOrDefault();
+        }
+
+        private string GetCurrencyCode(Guid currencyId)
+        {
+            Entity currencyCode = _sourceService.Retrieve("transactioncurrency", currencyId, new ColumnSet("isocurrencycode"));
+
+            return currencyCode.GetAttributeValue<string>("isocurrencycode");
+        }
+
         private void SetRecordTransactionCurrency(Entity sourceRecord)
         {
             if (sourceRecord.Attributes.ContainsKey("transactioncurrencyid"))
             {
-                EntityReference defaultCurrency = GetDefaultTransactionCurrency();
-
                 if (!ConfigReader.CurrentFetchXml.Contains("transactioncurrencyid"))
                 {
-                    sourceRecord["transactioncurrencyid"] = defaultCurrency ?? throw new Exception("Can not find default transaction currency.");
+                    EntityReference defaultCurrency = GetDefaultTransactionCurrency();
+
+                    if (defaultCurrency != null)
+                    {
+                        sourceRecord["transactioncurrencyid"] = defaultCurrency;
+                    }
+                    else
+                    {
+                        sourceRecord["transactioncurrencyid"] = GetBaseCurrency()?.ToEntityReference();
+                    }
+
                     return;
                 }
 
-                string currencyName = "USD";
-                if (sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Name != null)
-                {
-                    currencyName = sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Name;
-                }
+                string currencyCode = GetCurrencyCode(sourceRecord.GetAttributeValue<EntityReference>("transactioncurrencyid").Id);
 
                 QueryExpression query = new QueryExpression("transactioncurrency")
                 {
-                    ColumnSet = new ColumnSet(),
+                    ColumnSet = new ColumnSet("isocurrencycode"),
                     Criteria = new FilterExpression
                     {
                         Conditions =
                         {
-                            new ConditionExpression("currencyname", ConditionOperator.Equal, currencyName)
+                            new ConditionExpression("isocurrencycode", ConditionOperator.Equal, currencyCode)
                         }
                     }
                 };
+
                 EntityCollection transactionCurrencyCollection = _targetService.RetrieveMultiple(query);
 
                 if (transactionCurrencyCollection.Entities.Count > 0)
@@ -130,9 +161,16 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private void CreateRecord(Entity sourceRecord, ResultItem resultItem, string sourceRecordId)
         {
-            _targetService.Create(sourceRecord);
-            resultItem.CreatedRecordCount++;
-            _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id")}}}.");
+            try
+            {
+                _targetService.Create(sourceRecord);
+                resultItem.CreatedRecordCount++;
+                _logger.LogInfo($"Created the record with Id {{{sourceRecordId}}} in the target instance with Id {{{sourceRecord.GetAttributeValue<Guid>(sourceRecord.LogicalName + "id")}}}.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Cannot create record with Id {{{sourceRecordId}}}. {ex.Message}");
+            }
         }
 
         private void DeleteAndCreateRecords(Entity sourceRecord, EntityCollection matchedTargetRecords, ResultItem resultItem, string sourceRecordId)
