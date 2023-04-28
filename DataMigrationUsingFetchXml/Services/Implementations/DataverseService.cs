@@ -72,17 +72,13 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 <fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>
                   <entity name='transactioncurrency'>
                     <attribute name='transactioncurrencyid' />
-                    <attribute name='currencyname' />
-                    <attribute name='isocurrencycode' />
-                    <attribute name='currencysymbol' />
-                    <attribute name='exchangerate' />
                     <filter type='and'>
                       <condition attribute='exchangerate' operator='eq' value='1' />
                     </filter>
                   </entity>
                 </fetch>";
 
-            return _targetService.RetrieveMultiple(new FetchExpression(fetchXml))?.Entities?.FirstOrDefault();
+            return _targetService.RetrieveMultiple(new FetchExpression(fetchXml)).Entities.FirstOrDefault();
         }
 
         private string GetCurrencyCode(Guid currencyId)
@@ -106,7 +102,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     }
                     else
                     {
-                        sourceRecord["transactioncurrencyid"] = GetBaseCurrency()?.ToEntityReference();
+                        sourceRecord["transactioncurrencyid"] = GetBaseCurrency().ToEntityReference();
                     }
 
                     return;
