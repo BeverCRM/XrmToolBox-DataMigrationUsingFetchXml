@@ -102,7 +102,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     }
                     else
                     {
-                        sourceRecord["transactioncurrencyid"] = GetBaseCurrency().ToEntityReference();
+                        sourceRecord["transactioncurrencyid"] = GetBaseCurrency()?.ToEntityReference();
                     }
 
                     return;
