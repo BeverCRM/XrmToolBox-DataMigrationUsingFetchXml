@@ -122,7 +122,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 return CheckRecordInTargetByAttributeType(record, record.LogicalName + "id");
             }
 
-            bool isThereMatchingRecordInTarget = logicalOperatorNames[0] == "AND";
+            bool isThereMatchingRecordInTarget = logicalOperatorNames[0] == "And";
 
             for (int i = 0, j = 0; i < attributeNames.Count; i++, j = i - 1)
             {
@@ -131,11 +131,11 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     matchcdRecords.Entities.Add(item);
                 }
 
-                if (logicalOperatorNames[j] == "AND" && isThereMatchingRecordInTarget)
+                if (logicalOperatorNames[j] == "And" && isThereMatchingRecordInTarget)
                 {
                     isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
                 }
-                else if (logicalOperatorNames[j] == "OR")
+                else if (logicalOperatorNames[j] == "Or")
                 {
                     if (_matchedTargetRecords.Entities.Count > 0)
                     {
@@ -144,7 +144,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                     isThereMatchingRecordInTarget = CheckRecordInTargetByAttributeType(record, attributeNames[i]);
                 }
 
-                if (isThereMatchingRecordInTarget && matchcdRecords.Entities.Count > 0 && logicalOperatorNames[j] == "AND")
+                if (isThereMatchingRecordInTarget && matchcdRecords.Entities.Count > 0 && logicalOperatorNames[j] == "And")
                 {
                     foreach (var item in _matchedTargetRecords.Entities)
                     {

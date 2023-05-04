@@ -206,7 +206,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
             logicalOperatorBox.Size = new System.Drawing.Size(50, 50);
             logicalOperatorBox.DropDownStyle = ComboBoxStyle.DropDownList;
             logicalOperatorBox.Items.Add("And");
-            logicalOperatorBox.Items.Add("OR");
+            logicalOperatorBox.Items.Add("Or");
 
             if (_primaryKeyNames[rowIndex] != null)
             {
@@ -215,7 +215,7 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                 attributeNamesBox.SelectedItem = _primaryKeyNames[rowIndex];
                 _fetchXmlAttributesNames[rowIndex].Remove(_primaryKeyNames[rowIndex]);
                 logicalOperatorBox.Enabled = false;
-                logicalOperatorBox.SelectedItem = "OR";
+                logicalOperatorBox.SelectedItem = "Or";
             }
             else
             {
@@ -339,8 +339,8 @@ namespace DataMigrationUsingFetchXml.Forms.Popup
                     Size = new System.Drawing.Size(50, 50),
                     DropDownStyle = ComboBoxStyle.DropDownList
                 };
-                logicalOperatorBox.Items.Add("AND");
-                logicalOperatorBox.Items.Add("OR");
+                logicalOperatorBox.Items.Add("And");
+                logicalOperatorBox.Items.Add("Or");
 
                 if (selectionName != null)
                 {
