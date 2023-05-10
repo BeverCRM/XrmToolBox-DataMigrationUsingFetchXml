@@ -72,7 +72,7 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 <fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>
                   <entity name='transactioncurrency'>
                     <attribute name='transactioncurrencyid' />
-                    <link-entity name='systemuser' from='systemuserid' to='createdby' link-type='inner' alias='ad'>
+                    <link-entity name='systemuser' from='systemuserid' to='createdonbehalfby' link-type='inner' alias='ad'>
                       <filter type='and'>
                         <condition attribute='fullname' operator='eq' value='SYSTEM' />
                       </filter>
