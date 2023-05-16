@@ -68,17 +68,19 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
 
         private Entity GetBaseCurrency()
         {
-            string fetchXml = $@"
+            string baseCurrencyFetchXml = $@"
                 <fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>
                   <entity name='transactioncurrency'>
                     <attribute name='transactioncurrencyid' />
-                    <filter type='and'>
-                      <condition attribute='exchangerate' operator='eq' value='1' />
-                    </filter>
+                    <link-entity name='systemuser' from='systemuserid' to='createdonbehalfby' link-type='inner' alias='ad'>
+                      <filter type='and'>
+                        <condition attribute='fullname' operator='eq' value='SYSTEM' />
+                      </filter>
+                    </link-entity>
                   </entity>
                 </fetch>";
 
-            return _targetService.RetrieveMultiple(new FetchExpression(fetchXml)).Entities.FirstOrDefault();
+            return _targetService.RetrieveMultiple(new FetchExpression(baseCurrencyFetchXml)).Entities.FirstOrDefault();
         }
 
         private string GetCurrencyCode(Guid currencyId)
@@ -332,7 +334,18 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
                 {
                     return new EntityCollection();
                 }
-                filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, refValue.Id.ToString()));
+
+                if (attributeSchemaName == "transactioncurrencyid")
+                {
+                    string currencyCode = GetCurrencyCode(refValue.Id);
+                    Entity targetCurrency = GetTargetCurrency(currencyCode);
+
+                    filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, targetCurrency.Id.ToString()));
+                }
+                else
+                {
+                    filterExpression.Conditions.Add(new ConditionExpression(attributeSchemaName, ConditionOperator.Equal, refValue.Id.ToString()));
+                }
             }
             else if (attributeType == "Virtual")
             {
@@ -366,6 +379,21 @@ namespace DataMigrationUsingFetchXml.Services.Implementations
             query.Criteria.AddFilter(filterExpression);
 
             return _targetService.RetrieveMultiple(query);
+        }
+
+        private Entity GetTargetCurrency(string currencyCode)
+        {
+            string fetchXml = $@"<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>
+                  <entity name='transactioncurrency'>
+                    <attribute name='transactioncurrencyid' />
+                    <attribute name='isocurrencycode' />
+                    <filter type='and'>
+                      <condition attribute='isocurrencycode' operator='eq' value='{currencyCode}' />
+                    </filter>
+                  </entity>
+                </fetch>";
+
+            return _targetService.RetrieveMultiple(new FetchExpression(fetchXml)).Entities.FirstOrDefault();
         }
 
         public (string logicalName, string displayName) GetEntityName(string fetchXml)
