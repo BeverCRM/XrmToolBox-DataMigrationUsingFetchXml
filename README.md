@@ -3,7 +3,7 @@
 This utility allows the user to migrate data of the entity from source to target. \
 The user needs to define FetchXml queries for each entity to which data should be migrated.   
 
-![01](https://user-images.githubusercontent.com/60586462/201646610-1670de23-7695-411a-87f5-74db0c99185a.png)
+![DataMigration_MainPage](https://github.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/assets/81231604/8376109d-d0e2-4da8-923d-9995fc2721a2)
 
 The utility has the following input parameters: 
 
@@ -18,7 +18,22 @@ For example
 ```xml
 <attribute name="transactioncurrencyid" SearchByPrimaryField="true" />
 ```
-
-![02](https://user-images.githubusercontent.com/60586462/204491541-aea4f437-f9e4-4af5-8319-ea407130c866.png)
+![image](https://github.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/assets/81231604/d544a030-8423-4420-93c6-4e85e31bff49)
 
 > ***Note*** **Link entities can be used only for filtering or sorting purposes. For field values migration each FetchXml grid line should represent only one entity.** 
+
+Starting with v1.0.4, the Data Migration Tool allows you to update a target instance using the appropriate criteria
+
+- **Create** – Does not delete the corresponding target record and creates a source record. (Will error in case of primary key matching)
+- **Delete & Create** – Deletes matched record and creates source record. (Will create in case of not matching)
+- **Upsert** – Updates matched target record with source record data. (Will create in case of not matching)
+- **Don't Create** – Does not create a source record.
+
+![MatchingCriteria](https://github.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/assets/81231604/ae276a7a-eade-4062-97ff-c1b6fd2191c1)
+![image](https://github.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/assets/81231604/d0039c39-0b51-4339-8a14-8c01c656f341)
+
+After choosing one of these actions you can set matching criteria to migrate your data more accurately.
+
+![Match](https://github.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/assets/81231604/ef6ff7c5-bd9e-44a1-92c4-d26f40438d0f)
+
+
