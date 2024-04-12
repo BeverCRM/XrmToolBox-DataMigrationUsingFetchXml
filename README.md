@@ -20,7 +20,7 @@ For example
 ```
 ![image](https://github.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/assets/81231604/d544a030-8423-4420-93c6-4e85e31bff49)
 
-> ***Note*** **Link entities can be used only for filtering or sorting purposes. For field values migration each FetchXml grid line should represent only one entity.** 
+> ***Note`*** **Link entities can be used only for filtering or sorting purposes. For field values migration each FetchXml grid line should represent only one entity.** 
 
 Starting with v1.0.4, the Data Migration Tool allows you to update a target instance using the appropriate criteria
 
@@ -36,4 +36,4 @@ After choosing one of these actions you can set matching criteria to migrate you
 
 ![Match](https://github.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/assets/81231604/ef6ff7c5-bd9e-44a1-92c4-d26f40438d0f)
 
-
+> ***Note`*** **Matching criteria are not available for the Create action.** 
