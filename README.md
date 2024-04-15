@@ -3,7 +3,7 @@
 This utility allows the user to migrate data of the entity from source to target. \
 The user needs to define FetchXml queries for each entity to which data should be migrated.   
 
-![DataMigration_MainPage](https://github.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/blob/Add/Images/readmeAssets/1.png)
+![DataMigration_MainPage](https://raw.githubusercontent.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/master/readmeAssets/1.png)
 
 The utility has the following input parameters: 
 
@@ -18,7 +18,7 @@ For example
 ```xml
 <attribute name="transactioncurrencyid" SearchByPrimaryField="true" />
 ```
-![image](https://github.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/blob/Add/Images/readmeAssets/2.png)
+![image](https://raw.githubusercontent.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/master/readmeAssets/2.png)
 
 > ***Note`*** **Link entities can be used only for filtering or sorting purposes. For field values migration each FetchXml grid line should represent only one entity.** 
 <br/>
@@ -30,13 +30,13 @@ You can update a target instance using the appropriate criteria.
 - **Don't Create** – Does not create a source record.
 
 
-![MatchingCriteria](https://github.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/blob/Add/Images/readmeAssets/3.png)
-![image](https://github.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/blob/Add/Images/readmeAssets/4.png)
+![MatchingCriteria](https://raw.githubusercontent.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/master/readmeAssets/3.png)
+![image](https://raw.githubusercontent.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/master/readmeAssets/4.png)
 <br/>
 
 After choosing one of these actions you can set matching criteria to migrate your data more accurately.
 
-![Match](https://github.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/blob/Add/Images/readmeAssets/5.png)
+![Match](https://raw.githubusercontent.com/BeverCRM/XrmToolBox-DataMigrationUsingFetchXml/master/readmeAssets/5.png)
 
 > ***Note`*** **Matching criteria are not available for the Create action.**
 <br/>
